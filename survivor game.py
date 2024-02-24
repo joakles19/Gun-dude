@@ -17,6 +17,7 @@ press_timer = -1
 kills = 0
 currency = 0
 game_timer = 0
+
 #player
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -314,7 +315,6 @@ class Player(pygame.sprite.Sprite):
             current_level += 1
             state_stack.pop()
         
-
     def update(self):
         self.aim()
         self.player_level()
@@ -747,8 +747,6 @@ def level_up_screen():
         else:
             state_stack.pop()
 
-
-
 #game reset
 def game_reset():
     global kills, game_timer, power_up_list
@@ -890,7 +888,6 @@ def main_game():
     game_timer += 0.016
 
 state_stack = [menu]
-
 
 #game loop
 while True:
