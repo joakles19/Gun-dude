@@ -312,8 +312,7 @@ class Player(pygame.sprite.Sprite):
             state_stack.append(level_up_screen)
         if self.playerlevel == wave_num:
             press_timer = -1
-            level_num += 1
-            current_level += 1
+            database.complete_level(current_level)
             state_stack.pop()
         
     def update(self):
@@ -825,7 +824,6 @@ def pre_game_screen():
 
 #levels
 current_level = 1
-level_num = 3
 def level_setup():
     global level_background, enemy_health, enemy_speed, enemy_animation, enemy_size, enemy_frequency, level_colour, wave_num, enemy_damage, level_background_rect, enemy_animation_speed, enemy_list
     #level 1
@@ -834,7 +832,7 @@ def level_setup():
         enemy_frequency = random.randint(25,200)
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "Brown"
-        wave_num = 10
+        wave_num = 1
     #level 2
     if current_level == 2:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
