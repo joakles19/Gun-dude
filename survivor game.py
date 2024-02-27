@@ -1,5 +1,6 @@
 from typing import Any
 import pygame,math,random
+import database
 
 #initialising pygame
 pygame.init()
@@ -812,13 +813,14 @@ def pre_game_screen():
         press_timer += 1
     if press_timer >= 10:
         press_timer = -1
-    if current_level <= level_num:
+    level_list = database.is_complete()
+    if level_list[current_level-1][0] == 1:
         screen.blit(play_button1,play_button_rect)
         if play_button_rect.collidepoint(mouse) and press_timer == -1:
             screen.blit(play_button2,play_button_rect)
             if pressed[0] == True:
                 game_reset()
-    elif current_level > level_num:
+    else:
         screen.blit(locked_icon,play_button_rect)
 
 #levels
