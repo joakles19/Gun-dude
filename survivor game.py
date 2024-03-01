@@ -129,6 +129,7 @@ class Player(pygame.sprite.Sprite):
             
     def movement(self):
         self.key = pygame.key.get_pressed()
+        #Moves the character using WASD
         if self.key[pygame.K_d]:
             self.rect.x += self.speed
         if self.key[pygame.K_a]:
@@ -137,6 +138,7 @@ class Player(pygame.sprite.Sprite):
             self.rect.y -= self.speed
         if self.key[pygame.K_s]:
             self.rect.y += self.speed
+        #Moves the enemies/collectables/background when character walks away
         if self.rect.centerx < 580:
             self.rect.centerx = 580
             level_background_rect.x += self.speed
@@ -169,7 +171,7 @@ class Player(pygame.sprite.Sprite):
                     enemy.rect.y -= self.speed
                 for collectable in collectables_group:
                     collectable.rect.y -= self.speed
-
+        #Moves background to appear infinite
         if level_background_rect.top > 0:
             level_background_rect.bottom = screen_height
         if level_background_rect.bottom < screen_height:
@@ -363,7 +365,17 @@ class Bullets(pygame.sprite.Sprite):
 bullets_group = pygame.sprite.Group()
 
 #enemies
-class Enemies(pygame.sprite.Sprite):
+class enemy_attributes():
+    def __init__(self,health,speed,animation,animation_speed,size,damage,attack_frame):
+        self.health = health
+        self.speed = speed
+        self.animation = animation
+        self.animation_speed = animation_speed
+        self.size = size
+        self.damage = damage
+        self.attack_frame = attack_frame
+
+class Enemies(pygame.sprite.Sprite,enemy_attributes):
     def __init__(self,posx,posy):
         super().__init__()
         self.image = enemy_list[enemy_type].animation[0]
@@ -441,7 +453,6 @@ class Enemies(pygame.sprite.Sprite):
 enemy_index = -1
 def spawn(frequency):
     global enemy_index, enemy_type
-    button_press = 0
     if enemy_index >= -1:
         enemy_index += 1
     if enemy_index >= frequency:
@@ -449,6 +460,7 @@ def spawn(frequency):
     if enemy_index == 0:
         spawn_side = random.randint(0,3)    
         enemy_type = random.randint(0,len(enemy_list)-1)
+        #Chooses which side of the screen the enemies spawn on
         if spawn_side == 0:
             enemy_group.add(Enemies(random.randint(-200,-100),random.randint(0,screen_height)))
         if spawn_side == 1:
@@ -458,15 +470,7 @@ def spawn(frequency):
         if spawn_side == 3:
             enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(screen_height + 100,screen_height + 200)))
 enemy_group = pygame.sprite.Group()
-class enemy_attributes():
-    def __init__(self,health,speed,animation,animation_speed,size,damage,attack_frame):
-        self.health = health
-        self.speed = speed
-        self.animation = animation
-        self.animation_speed = animation_speed
-        self.size = size
-        self.damage = damage
-        self.attack_frame = attack_frame
+
 enemy_list = []
 
 fly_enemy = enemy_attributes(2,
@@ -762,7 +766,7 @@ def game_reset():
 
 #pre game screen
 def pre_game_screen():
-    global current_level, level_message, press_timer, kills, enemy_list
+    global current_level, level_message, press_timer, kills
     level_setup()
     screen.blit(level_background,(0,0))
     arrow_button1 = pygame.image.load("pictures for survivor game/buttons and icons/arrow button 1.png").convert_alpha()

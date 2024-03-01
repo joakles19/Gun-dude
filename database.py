@@ -13,5 +13,7 @@ def complete_level(level):
               SET completed = 1
               WHERE level = {level}""")
 
+
+
 def close():
     conn.close()
