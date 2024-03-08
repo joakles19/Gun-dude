@@ -265,7 +265,8 @@ class Player(pygame.sprite.Sprite):
     def health(self):
         general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",40)
         if pygame.sprite.spritecollide(self,enemy_group,False) and self.invincible == False:
-            self.health_num -= enemy_list[enemy_type].damage
+            for enemy in enemy_group:
+                self.health_num -= enemy.damage
             self.invincible = True
         if self.health_num <= 0:
             state_stack.append(game_over_screen)
@@ -365,31 +366,24 @@ class Bullets(pygame.sprite.Sprite):
 bullets_group = pygame.sprite.Group()
 
 #enemies
-class enemy_attributes():
-    def __init__(self,health,speed,animation,animation_speed,size,damage,attack_frame):
-        self.health = health
-        self.speed = speed
-        self.animation = animation
-        self.animation_speed = animation_speed
-        self.size = size
-        self.damage = damage
-        self.attack_frame = attack_frame
 
-class Enemies(pygame.sprite.Sprite,enemy_attributes):
+class Enemies(pygame.sprite.Sprite):
     def __init__(self,posx,posy):
         super().__init__()
-        self.image = enemy_list[enemy_type].animation[0]
-        self.image = pygame.transform.scale(self.image,enemy_list[enemy_type].size)
+        self.enemy_type = random.randint(0,len(enemies)-1)
+        self.run = enemy_graphics_dict[f"{enemies[self.enemy_type][0]}"]
+        self.image = self.run[0][0]
         self.rect = pygame.rect.Rect(posx + self.image.get_width()*0.1,posy + self.image.get_height()*0.05,self.image.get_width()*0.8,self.image.get_height() - self.image.get_height()*0.1)
-        self.health = enemy_list[enemy_type].health
-        self.max_health = enemy_list[enemy_type].health
+        self.max_health = enemies[self.enemy_type][1]
+        self.health = self.max_health
         self.bar = pygame.surface.Surface(((self.health/5)*self.image.get_width(),10)).convert_alpha()
-        self.bar.fill("Red")
         self.bar_rect = self.bar.get_rect(top = self.rect.bottom)
-        self.speed = enemy_list[enemy_type].speed
+        self.speed = enemies[self.enemy_type][3]
         self.run_index = 0
-        self.run = enemy_list[enemy_type].animation
-        self.size = enemy_list[enemy_type].size
+        self.size = (enemies[self.enemy_type][4],enemies[self.enemy_type][5])
+        self.image = pygame.transform.scale(self.image,self.size)
+        self.damage = 1
+
 
     def item_drop(self):
         global kills
@@ -435,10 +429,10 @@ class Enemies(pygame.sprite.Sprite,enemy_attributes):
             self.kill()
     
     def animation(self):
-        self.run_index += enemy_list[enemy_type].animation_speed
+        self.run_index += self.run[1]
         if self.run_index >= len(self.run):
             self.run_index = 0
-        self.image = self.run[int(self.run_index)]
+        self.image = self.run[0][int(self.run_index)]
         self.image = pygame.transform.scale(self.image,self.size)
 
     def healthbar(self):
@@ -452,14 +446,13 @@ class Enemies(pygame.sprite.Sprite,enemy_attributes):
         self.animation()
 enemy_index = -1
 def spawn(frequency):
-    global enemy_index, enemy_type
+    global enemy_index
     if enemy_index >= -1:
         enemy_index += 1
     if enemy_index >= frequency:
         enemy_index = -1
     if enemy_index == 0:
         spawn_side = random.randint(0,3)    
-        enemy_type = random.randint(0,len(enemy_list)-1)
         #Chooses which side of the screen the enemies spawn on
         if spawn_side == 0:
             enemy_group.add(Enemies(random.randint(-200,-100),random.randint(0,screen_height)))
@@ -471,29 +464,13 @@ def spawn(frequency):
             enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(screen_height + 100,screen_height + 200)))
 enemy_group = pygame.sprite.Group()
 
-enemy_list = []
-
-fly_enemy = enemy_attributes(2,
-                             1,
-                             [pygame.image.load("pictures for survivor game/enemy graphics/fly 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 3.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha()],
-                             0.1,
-                             (50,35),
-                             1,
-                             False)
-trash_enemy = enemy_attributes(5,
-                               0.6,
-                               [pygame.image.load("pictures for survivor game/enemy graphics/trash monster 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/trash monster 2.png").convert_alpha()],
-                               0.01,
-                               (100,100),
-                               2,
-                               False)
-alien_enemy = enemy_attributes(10,
-                               0.8,
-                               [pygame.image.load("pictures for survivor game/enemy graphics/alien 1.png"),pygame.image.load("pictures for survivor game/enemy graphics/alien 2.png")],
-                               0.06,
-                               (65,120),
-                               3,
-                               False)
+#Dictionary of all of the enemy animations/ animation speeds
+enemy_graphics_dict = {"Fly":[[pygame.image.load("pictures for survivor game/enemy graphics/fly 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 3.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha()],
+                              0.1],
+                       "Trash":[[pygame.image.load("pictures for survivor game/enemy graphics/trash monster 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/trash monster 2.png").convert_alpha()],
+                                0.01],
+                        "Alien":[[pygame.image.load("pictures for survivor game/enemy graphics/alien 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/alien 2.png").convert_alpha()],
+                                 0.06]}
 
 #collectables
 class Collectables(pygame.sprite.Sprite):
@@ -766,7 +743,7 @@ def game_reset():
 
 #pre game screen
 def pre_game_screen():
-    global current_level, level_message, press_timer, kills
+    global current_level, level_message, press_timer, kills, enemies
     level_setup()
     screen.blit(level_background,(0,0))
     arrow_button1 = pygame.image.load("pictures for survivor game/buttons and icons/arrow button 1.png").convert_alpha()
@@ -826,13 +803,15 @@ def pre_game_screen():
     else:
         screen.blit(locked_icon,play_button_rect)
 
+    #Pre loads enemy information
+    enemies = database.get_enemies(current_level)
+
 #levels
 current_level = 1
 def level_setup():
-    global level_background, enemy_health, enemy_speed, enemy_animation, enemy_size, enemy_frequency, level_colour, wave_num, enemy_damage, level_background_rect, enemy_animation_speed, enemy_list
+    global level_background, enemy_health, enemy_speed, enemy_animation, enemy_size, enemy_frequency, level_colour, wave_num, enemy_damage, level_background_rect, enemy_animation_speed
     #level 1
     if current_level == 1:
-        enemy_list = [fly_enemy,trash_enemy]
         enemy_frequency = random.randint(25,200)
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "Brown"
@@ -855,7 +834,6 @@ def level_setup():
         level_background.fill("Blue")
         level_colour = "Pink"
         wave_num = 30
-        enemy_list = [alien_enemy]
         enemy_frequency = 100
     
     level_background = pygame.transform.scale(level_background,(screen_width*3,screen_height*3))
@@ -863,7 +841,7 @@ def level_setup():
 
 #main game
 def main_game():
-    global level_num, current_level, press_timer, game_timer, kills
+    global current_level, press_timer, game_timer, kills
     crosshair = pygame.image.load("pictures for survivor game/Crosshair.png").convert_alpha()
     crosshair = pygame.transform.scale(crosshair,(30,30))
     screen.blit(level_background,level_background_rect)
@@ -882,7 +860,7 @@ def main_game():
     player_group.update()
     spawn(enemy_frequency)
     screen.blit(crosshair,(mouse[0]-15,mouse[1]-15))
-           
+
     if press_timer >= 0:
         press_timer += 1
     if press_timer >= 20:
