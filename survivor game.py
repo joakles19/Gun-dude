@@ -24,19 +24,21 @@ class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         #graphics
-        self.right90 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 90.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 90.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 90.png").convert_alpha()]
-        self.left90 = [pygame.transform.flip(self.right90[0],True,False),pygame.transform.flip(self.right90[1],True,False),pygame.transform.flip(self.right90[2],True,False)]
-        self.right45 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 45.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 45.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 45.png").convert_alpha()]
-        self.left45 = [pygame.transform.flip(self.right45[0],True,False),pygame.transform.flip(self.right45[1],True,False),pygame.transform.flip(self.right45[2],True,False)]
-        self.right135 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 135.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 135.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 135.png").convert_alpha()]
-        self.left135 = [pygame.transform.flip(self.right135[0],True,False),pygame.transform.flip(self.right135[1],True,False),pygame.transform.flip(self.right135[2],True,False)]
-        self.right0 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 0.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 0.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 0.png").convert_alpha()]
-        self.left0 = [pygame.transform.flip(self.right0[0],True,False),pygame.transform.flip(self.right0[1],True,False),pygame.transform.flip(self.right0[2],True,False)]
-        self.right180 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 180.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 180.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 180.png").convert_alpha()]
-        self.left180 = [pygame.transform.flip(self.right180[0],True,False),pygame.transform.flip(self.right180[1],True,False),pygame.transform.flip(self.right180[2],True,False)]
-        self.stand = self.right90[0]
-        self.image = self.right90[0]
-        self.running_animation = [self.right90[1],self.right90[2]]
+        right90 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 90.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 90.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 90.png").convert_alpha()]
+        left90 = [pygame.transform.flip(right90[0],True,False),pygame.transform.flip(right90[1],True,False),pygame.transform.flip(right90[2],True,False)]
+        right45 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 45.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 45.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 45.png").convert_alpha()]
+        left45 = [pygame.transform.flip(right45[0],True,False),pygame.transform.flip(right45[1],True,False),pygame.transform.flip(right45[2],True,False)]
+        right135 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 135.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 135.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 135.png").convert_alpha()]
+        left135 = [pygame.transform.flip(right135[0],True,False),pygame.transform.flip(right135[1],True,False),pygame.transform.flip(right135[2],True,False)]
+        right0 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 0.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 0.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 0.png").convert_alpha()]
+        left0 = [pygame.transform.flip(right0[0],True,False),pygame.transform.flip(right0[1],True,False),pygame.transform.flip(right0[2],True,False)]
+        right180 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 180.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 180.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 180.png").convert_alpha()]
+        left180 = [pygame.transform.flip(right180[0],True,False),pygame.transform.flip(right180[1],True,False),pygame.transform.flip(right180[2],True,False)]
+        self.right = [right0,right45,right90,right135,right180]
+        self.left = [left0,left45,left90,left135,left180]
+        self.isleft = False
+        self.stand = right90[0]
+        self.image = self.stand
         self.image = pygame.transform.scale(self.image,(70,91))
         self.rect = self.image.get_rect(center = (screen_width/2,screen_height/2))
         self.rect = pygame.rect.Rect(self.rect.left+7,self.rect.top+7,56,77)
@@ -83,7 +85,7 @@ class Player(pygame.sprite.Sprite):
         self.health_num = 5
         self.max_health = 5
         self.invincible = False
-        self.invincible_counter = 10
+        self.invincible_counter = 6
         self.can_shoot = False
         self.max_ammo = 5
         self.ammo = 5
@@ -115,8 +117,6 @@ class Player(pygame.sprite.Sprite):
             press_timer = -1
 
     def reset(self):
-        self.image = self.right90[0]
-        self.image = pygame.transform.scale(self.image,(70,91))
         self.rect = self.image.get_rect(center = (screen_width/2,screen_height/2))
         self.health_num = self.max_health
         self.invincible = False
@@ -126,7 +126,6 @@ class Player(pygame.sprite.Sprite):
         self.xp = 0
         self.level_up_num = 1
         self.playerlevel = 0
-            
     def movement(self):
         self.key = pygame.key.get_pressed()
         #Moves the character using WASD
@@ -181,42 +180,17 @@ class Player(pygame.sprite.Sprite):
         if level_background_rect.right < screen_width:
             level_background_rect.left = 0
 
-    def aim(self):
-        x_dist = mouse[0] - self.rect.centerx
-        y_dist = -(mouse[1] - self.rect.centery)
-        self.angle = math.degrees(math.atan2(y_dist,x_dist))
-        if (self.angle >= 0 and self.angle <= 22.5) or (self.angle <= 0 and self.angle >= -22.5):
-            self.stand = self.right90[0]
-            self.running_animation = [self.right90[1],self.right90[2]]
-        if self.angle > 22.5 and self.angle <= 57.5:
-            self.stand = self.right45[0]
-            self.running_animation = [self.right45[1],self.right45[2]]
-        if self.angle < -22.5 and self.angle >= -57.5:
-            self.stand = self.right135[0]
-            self.running_animation = [self.right135[1],self.right135[2]]
-        if (self.angle >= 157.5 and self.angle <= 180) or (self.angle <= -157.5 and self.angle >= -180):
-            self.stand = self.left90[0]
-            self.running_animation = [self.left90[1],self.left90[2]]
-        if self.angle < 157.5 and self.angle >= 112.5:
-            self.stand = self.left45[0]
-            self.running_animation = [self.left45[1],self.left45[2]]
-        if self.angle < -112.5 and self.angle >= -157.5:
-            self.stand = self.left135[0]
-            self.running_animation = [self.left135[1],self.left135[2]]
-        if self.angle > 57.5 and self.angle <= 90:
-            self.stand = self.right0[0]
-            self.running_animation = [self.right0[1],self.right0[2]]
-        if self.angle > 90 and self.angle <= 112.5:
-            self.stand = self.left0[0]
-            self.running_animation = [self.left0[1],self.left0[2]]
-        if self.angle < -57.5 and self.angle >= -90:
-            self.stand = self.right180[0]
-            self.running_animation = [self.right180[1],self.right180[2]]
-        if self.angle < -90 and self.angle >= -112.5:
-            self.stand = self.left180[0]
-            self.running_animation = [self.left180[1],self.left180[2]]
-        if game_timer >= 0.5:
-            self.can_shoot = True
+    def aim_graphics(self):
+        self.x_dist = mouse[0] - self.rect.centerx
+        self.y_dist = -(mouse[1] - self.rect.centery)
+        image_angle = math.degrees(math.atan2(self.x_dist,self.y_dist))
+        image_index = abs(math.ceil(image_angle/36))
+        if image_angle > 0:
+            self.running_animation = [self.right[image_index-1][1],self.right[image_index-1][2]]
+            self.stand = self.right[image_index-1][0]
+        else:
+            self.running_animation = [self.left[image_index][1],self.left[image_index][2]]
+            self.stand = self.left[image_index][0]
 
     def animations(self):
         image = self.stand
@@ -237,15 +211,18 @@ class Player(pygame.sprite.Sprite):
 
     def create_bullet(self):
         global pressed
+        if game_timer >= 0.5:
+            self.can_shoot = True
         self.cooldown()
+        bullet_angle = math.degrees(math.atan2(self.y_dist,self.x_dist))
         if self.cooldown_counter == 0 and self.can_shoot and self.ammo > 0:
             if (self.key[pygame.K_SPACE] or pressed[0]):
-                bullets_group.add(Bullets(self.rect.x + 62,self.rect.centery,"Bullets",self.angle))
+                bullets_group.add(Bullets(self.rect.x + 62,self.rect.centery,"Bullets",bullet_angle))
                 self.ammo -=1
             self.cooldown_counter = 1
         if self.can_shoot  and self.lazer_time > 0:
             if self.key[pygame.K_n]:
-                bullets_group.add(Bullets(self.rect.x + 62,self.rect.centery,"Lazer",self.angle))
+                bullets_group.add(Bullets(self.rect.x + 62,self.rect.centery,"Lazer",bullet_angle))
                 self.lazer_time -= 1
             
         screen.blit(self.ammo_icon,self.ammo_icon_rect)
@@ -264,10 +241,10 @@ class Player(pygame.sprite.Sprite):
 
     def health(self):
         general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",40)
-        if pygame.sprite.spritecollide(self,enemy_group,False) and self.invincible == False:
-            for enemy in enemy_group:
+        for enemy in enemy_group:    
+            if pygame.Rect.colliderect(self.rect,enemy.rect) and self.invincible == False:
                 self.health_num -= enemy.damage
-            self.invincible = True
+                self.invincible = True
         if self.health_num <= 0:
             state_stack.append(game_over_screen)
         if game_timer <= 0.1:
@@ -275,7 +252,7 @@ class Player(pygame.sprite.Sprite):
         if self.invincible:
             self.invincible_counter -= 0.05
         if self.invincible_counter < 0 and self.invincible:
-            self.invincible_counter = 10
+            self.invincible_counter = 6
             self.invincible = False
         if self.health_num >= 10:
             general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",20)
@@ -319,7 +296,7 @@ class Player(pygame.sprite.Sprite):
             state_stack.pop()
         
     def update(self):
-        self.aim()
+        self.aim_graphics()
         self.player_level()
         self.movement()
         self.animations()
@@ -373,16 +350,16 @@ class Enemies(pygame.sprite.Sprite):
         self.enemy_type = random.randint(0,len(enemies)-1)
         self.run = enemy_graphics_dict[f"{enemies[self.enemy_type][0]}"]
         self.image = self.run[0][0]
-        self.rect = pygame.rect.Rect(posx + self.image.get_width()*0.1,posy + self.image.get_height()*0.05,self.image.get_width()*0.8,self.image.get_height() - self.image.get_height()*0.1)
+        self.size = (enemies[self.enemy_type][4],enemies[self.enemy_type][5])
+        self.image = pygame.transform.scale(self.image,self.size)
+        self.rect = self.image.get_rect(center = (posx,posy))
         self.max_health = enemies[self.enemy_type][1]
         self.health = self.max_health
         self.bar = pygame.surface.Surface(((self.health/5)*self.image.get_width(),10)).convert_alpha()
         self.bar_rect = self.bar.get_rect(top = self.rect.bottom)
         self.speed = enemies[self.enemy_type][3]
         self.run_index = 0
-        self.size = (enemies[self.enemy_type][4],enemies[self.enemy_type][5])
-        self.image = pygame.transform.scale(self.image,self.size)
-        self.damage = 1
+        self.damage = enemies[self.enemy_type][2]
 
 
     def item_drop(self):
@@ -532,14 +509,17 @@ start_button_1 = pygame.image.load("pictures for survivor game/buttons and icons
 start_button_2 = pygame.image.load("pictures for survivor game/buttons and icons/start button 2.png").convert_alpha()
 start_button_1 = pygame.transform.scale(start_button_1,(620,200))
 start_button_2 = pygame.transform.scale(start_button_2,(620,200))
-start_button_rect1 = start_button_1.get_rect(topleft = (575,400))
-start_button_rect2 = start_button_2.get_rect(topleft = (575,400))
+start_button_rect = start_button_1.get_rect(topleft = (575,300))
 exit_button_1 = pygame.image.load("pictures for survivor game/buttons and icons/exit button 1.png")
 exit_button_1 = pygame.transform.scale(exit_button_1,(50,50))
 exit_button_2 = pygame.image.load("pictures for survivor game/buttons and icons/exit button 2.png")
 exit_button_2 = pygame.transform.scale(exit_button_2,(50,50))
 exit_button_rect = exit_button_1.get_rect(topright = (screen_width,0))
-
+shop_button_1 = pygame.image.load("pictures for survivor game/buttons and icons/shop button 2.png")
+shop_button_2 = pygame.image.load("pictures for survivor game/buttons and icons/shop button 1.png")
+shop_button_1 = pygame.transform.scale(shop_button_1,(500,180))
+shop_button_2 = pygame.transform.scale(shop_button_2,(500,180))
+shop_button_rect = shop_button_1.get_rect(centerx = start_button_rect.centerx, centery = start_button_rect.centery + 200)
 def menu():
     global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect
     mouse = pygame.mouse.get_pos()
@@ -559,19 +539,29 @@ def menu():
         player_menu_index = 0
     screen.blit(player_menu[int(player_menu_index)],(20,50))
     screen.blit(title,(650,50))
-    screen.blit(start_button_1,start_button_rect1)
+    
     #menu button collisions
-    if start_button_rect1.collidepoint(mouse):
-        screen.blit(start_button_2,start_button_rect2)
+    #start button
+    screen.blit(start_button_1,start_button_rect)
+    if start_button_rect.collidepoint(mouse):
+        screen.blit(start_button_2,start_button_rect)
         if mouse_pressed[0] == True:
             state_stack.append(pre_game_screen)
             press_timer = 0
+    #shop button
+    screen.blit(shop_button_1,shop_button_rect)
+    if shop_button_rect.collidepoint(mouse):
+        screen.blit(shop_button_2,shop_button_rect)
+        if mouse_pressed[0] == True:
+            state_stack.append(shop)
+            press_timer = 0
+    #exit button
     screen.blit(exit_button_2,exit_button_rect)
     if exit_button_rect.collidepoint(mouse):
         screen.blit(exit_button_1,exit_button_rect)
         if mouse_pressed[0] == True:
             pygame.quit()
-            exit()
+            exit() #exit the game
 
 #game over screen
 def game_over_screen():
@@ -728,19 +718,6 @@ def level_up_screen():
         else:
             state_stack.pop()
 
-#game reset
-def game_reset():
-    global kills, game_timer, power_up_list
-    state_stack.append(main_game)
-    for player in player_group:
-        player.reset()
-    bullets_group.empty()
-    enemy_group.empty()
-    collectables_group.empty()
-    kills = 0
-    game_timer = 0
-    power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
-
 #pre game screen
 def pre_game_screen():
     global current_level, level_message, press_timer, kills, enemies
@@ -809,25 +786,19 @@ def pre_game_screen():
 #levels
 current_level = 1
 def level_setup():
-    global level_background, enemy_health, enemy_speed, enemy_animation, enemy_size, enemy_frequency, level_colour, wave_num, enemy_damage, level_background_rect, enemy_animation_speed
+    global level_background, enemy_frequency, level_colour, wave_num, level_background_rect
     #level 1
     if current_level == 1:
         enemy_frequency = random.randint(25,200)
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "Brown"
-        wave_num = 1
+        wave_num = 3
     #level 2
     if current_level == 2:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "#44230D"
-        wave_num = 10
-        enemy_health = 2
-        enemy_speed = 1
-        enemy_animation = [pygame.image.load("pictures for survivor game/enemy graphics/fly 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 3.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha()]
-        enemy_animation_speed = 0.2
-        enemy_size = (50,35)
+        wave_num = 1
         enemy_frequency = random.randint(1,100)
-        enemy_damage = 1
     #level 3
     if current_level == 3:
         level_background = pygame.surface.Surface((1280,720))
@@ -838,6 +809,9 @@ def level_setup():
     
     level_background = pygame.transform.scale(level_background,(screen_width*3,screen_height*3))
     level_background_rect = level_background.get_rect(center = (screen_width/2,screen_height/2))
+
+def shop():
+    pass
 
 #main game
 def main_game():
@@ -853,7 +827,7 @@ def main_game():
     enemy_group.update()
     for player in player_group:
         if player.invincible:
-            if (player.invincible_counter >= 2 and player.invincible_counter <= 5) or (player.invincible_counter >= 6 and player.invincible_counter <= 9):
+            if math.ceil(player.invincible_counter) % 2 == 0:
                 player_group.draw(screen)
         if player.invincible == False:
             player_group.draw(screen)
@@ -868,6 +842,19 @@ def main_game():
     if press_timer == -1:
         pause_button("Pause")
     game_timer += 0.016
+
+#game reset
+def game_reset():
+    global kills, game_timer, power_up_list
+    state_stack.append(main_game)
+    for player in player_group:
+        player.reset()
+    bullets_group.empty()
+    enemy_group.empty()
+    collectables_group.empty()
+    kills = 0
+    game_timer = 0
+    power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
 
 state_stack = [menu]
 
