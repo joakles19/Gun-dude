@@ -1,6 +1,6 @@
 from typing import Any
 import pygame,math,random
-import database
+import database, game_shop
 
 #initialising pygame
 pygame.init()
@@ -126,6 +126,7 @@ class Player(pygame.sprite.Sprite):
         self.xp = 0
         self.level_up_num = 1
         self.playerlevel = 0
+        self.speed = 3
     def movement(self):
         self.key = pygame.key.get_pressed()
         #Moves the character using WASD
@@ -553,7 +554,7 @@ def menu():
     if shop_button_rect.collidepoint(mouse):
         screen.blit(shop_button_2,shop_button_rect)
         if mouse_pressed[0] == True:
-            state_stack.append(shop)
+            game_shop.shop()
             press_timer = 0
     #exit button
     screen.blit(exit_button_2,exit_button_rect)
@@ -809,9 +810,6 @@ def level_setup():
     
     level_background = pygame.transform.scale(level_background,(screen_width*3,screen_height*3))
     level_background_rect = level_background.get_rect(center = (screen_width/2,screen_height/2))
-
-def shop():
-    pass
 
 #main game
 def main_game():
