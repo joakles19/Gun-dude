@@ -1,6 +1,6 @@
 from typing import Any
 import pygame,math,random
-import database, game_shop
+import database
 
 #initialising pygame
 pygame.init()
@@ -9,7 +9,7 @@ clock = pygame.time.Clock()
 screen_height = screen.get_height()
 screen_width = screen.get_width()
 print(screen_height,screen_width)
- 
+
 #general variable setup
 general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",40)
 level_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",100)
@@ -18,6 +18,12 @@ press_timer = -1
 kills = 0
 currency = 0
 game_timer = 0
+
+#function to make importing images more efficient
+def image_import(image,size):
+    new_image = pygame.image.load(image).convert_alpha()
+    new_image = pygame.transform.scale(new_image,size)
+    return new_image
 
 #player
 class Player(pygame.sprite.Sprite):
@@ -554,7 +560,8 @@ def menu():
     if shop_button_rect.collidepoint(mouse):
         screen.blit(shop_button_2,shop_button_rect)
         if mouse_pressed[0] == True:
-            game_shop.shop()
+            with open('game_shop.py', 'r') as file:
+                exec(file)
             press_timer = 0
     #exit button
     screen.blit(exit_button_2,exit_button_rect)
@@ -718,33 +725,25 @@ def level_up_screen():
             level_up_background_rect.top += 40
         else:
             state_stack.pop()
-
 #pre game screen
 def pre_game_screen():
     global current_level, level_message, press_timer, kills, enemies
     level_setup()
     screen.blit(level_background,(0,0))
-    arrow_button1 = pygame.image.load("pictures for survivor game/buttons and icons/arrow button 1.png").convert_alpha()
-    arrow_button1 = pygame.transform.scale(arrow_button1,(80,80))
-    arrow_button2 = pygame.image.load("pictures for survivor game/buttons and icons/arrow button 2.png").convert_alpha()    
-    arrow_button2 = pygame.transform.scale(arrow_button2,(80,80))  
+    arrow_button1 = image_import("pictures for survivor game/buttons and icons/arrow button 1.png",(80,80))
+    arrow_button2 = image_import("pictures for survivor game/buttons and icons/arrow button 2.png",(80,80))
     arrow_button_rect = arrow_button1.get_rect(bottomright = (screen_width,screen_height)) 
     left_arrow_button1 = pygame.transform.flip(arrow_button1,True,False)
     left_arrow_button2 = pygame.transform.flip(arrow_button2,True,False)
     left_arrow_button_rect = left_arrow_button1.get_rect(bottomleft = (0,screen_height))
     level_message = pygame.font.Font.render(level_font,f"Level {current_level}",False,level_colour)
     level_message_rect = pygame.rect.Rect(420,80,480,100)
-    play_button1 = pygame.image.load("pictures for survivor game/buttons and icons/Play button 1.png").convert_alpha()
-    play_button2 = pygame.image.load("pictures for survivor game/buttons and icons/Play button 2.png").convert_alpha()
-    play_button1 = pygame.transform.scale(play_button1,(400,400))
-    play_button2 = pygame.transform.scale(play_button2,(400,400))
+    play_button1 = image_import("pictures for survivor game/buttons and icons/Play button 1.png",(400,400))
+    play_button2 = image_import("pictures for survivor game/buttons and icons/Play button 2.png",(400,400))
     play_button_rect = pygame.rect.Rect(440,250,400,400)
-    locked_icon = pygame.image.load("pictures for survivor game/buttons and icons/locked icon.png").convert_alpha()
-    locked_icon = pygame.transform.scale(locked_icon,(400,400))
-    menu_button_1 = pygame.image.load("pictures for survivor game/buttons and icons/menu button 2.png").convert_alpha()
-    menu_button_2 = pygame.image.load("pictures for survivor game/buttons and icons/menu button 1.png").convert_alpha()
-    menu_button_1 = pygame.transform.scale(menu_button_1,(220,100))
-    menu_button_2 = pygame.transform.scale(menu_button_2,(220,100))
+    locked_icon = image_import("pictures for survivor game/buttons and icons/locked icon.png",(400,400))
+    menu_button_1 = image_import("pictures for survivor game/buttons and icons/menu button 2.png",(220,100))
+    menu_button_2 = image_import("pictures for survivor game/buttons and icons/menu button 1.png",(220,100))
     menu_button_rect = menu_button_1.get_rect(topleft = (0,0))
     screen.blit(level_message,level_message_rect)
     screen.blit(menu_button_1,menu_button_rect)
