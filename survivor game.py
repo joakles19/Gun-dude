@@ -444,6 +444,8 @@ enemy_graphics_dict = {"Fly":[[image_import("pictures for survivor game/enemy gr
                         "Alien":[[pygame.image.load("pictures for survivor game/enemy graphics/alien 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/alien 2.png").convert_alpha()],
                                  0.06]}
 
+object_graphics_dict = {}
+
 #collectables
 class Collectables(pygame.sprite.Sprite):
     def __init__(self,posx,posy,type):
@@ -471,13 +473,16 @@ class Collectables(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center = (self.x,self.y))
 collectables_group = pygame.sprite.Group()
 
-collectables_graphics_dicts = {"Health":image_import("pictures for survivor game/collectables/heart collectable.png",(30,30)),
-                                "Nuke":image_import("pictures for survivor game/collectables/nuke collectable.png",(40,16)),
-                                "Coin":image_import("pictures for survivor game/collectables/coin collectable.png",(20,20))
-                                "Scrap":[pygame.image.load("pictures for survivor game/collectables/scrap 1.png").convert_alpha(),
-                                            pygame.image.load("pictures for survivor game/collectables/scrap 2.png").convert_alpha(),
-                                            pygame.image.load("pictures for survivor game/collectables/scrap 3.png").convert_alpha(),
-                                            pygame.image.load("pictures for survivor game/collectables/scrap 4.png").convert_alpha()]}
+#collectables_graphics_dicts = {"Health":image_import("pictures for survivor game/collectables/heart collectable.png",(30,30)),
+#                                "Nuke":image_import("pictures for survivor game/collectables/nuke collectable.png",(40,16)),
+#                                "Coin":image_import("pictures for survivor game/collectables/coin collectable.png",(20,20)),
+#                                "Scrap1":pygame.image.load("pictures for survivor game/collectables/scrap 1.png").convert_alpha(),
+#                                "Scrap2":
+#                                "Scrap3":
+#                                "Scrap4"
+#                                pygame.image.load("pictures for survivor game/collectables/scrap 2.png").convert_alpha(),
+#                                            pygame.image.load("pictures for survivor game/collectables/scrap 3.png").convert_alpha(),
+#                                            pygame.image.load("pictures for survivor game/collectables/scrap 4.png").convert_alpha()]}
 
         
 #menu screen
