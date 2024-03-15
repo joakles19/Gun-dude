@@ -437,7 +437,7 @@ def spawn(frequency):
 enemy_group = pygame.sprite.Group()
 
 #Dictionary of all of the enemy animations/ animation speeds
-enemy_graphics_dict = {"Fly":[[pygame.image.load("pictures for survivor game/enemy graphics/fly 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 3.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha()],
+enemy_graphics_dict = {"Fly":[[image_import("pictures for survivor game/enemy graphics/fly 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 3.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha()],
                               0.1],
                        "Trash":[[pygame.image.load("pictures for survivor game/enemy graphics/trash monster 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/trash monster 2.png").convert_alpha()],
                                 0.01],
@@ -450,13 +450,6 @@ class Collectables(pygame.sprite.Sprite):
         super().__init__()
         self.x = posx
         self.y = posy
-        self.heart_collectable = image_import("pictures for survivor game/collectables/heart collectable.png",(30,30))
-        self.nuke_collectable = image_import("pictures for survivor game/collectables/nuke collectable.png",(40,16))
-        self.coin_collectable = image_import("pictures for survivor game/collectables/coin collectable.png",(20,20))
-        self.scrap1 = pygame.image.load("pictures for survivor game/collectables/scrap 1.png").convert_alpha()
-        self.scrap2 = pygame.image.load("pictures for survivor game/collectables/scrap 2.png").convert_alpha()
-        self.scrap3 = pygame.image.load("pictures for survivor game/collectables/scrap 3.png").convert_alpha()
-        self.scrap4 = pygame.image.load("pictures for survivor game/collectables/scrap 4.png").convert_alpha()
         self.type = type
         if type == "Health":
             self.image = self.heart_collectable
@@ -477,6 +470,15 @@ class Collectables(pygame.sprite.Sprite):
 
         self.rect = self.image.get_rect(center = (self.x,self.y))
 collectables_group = pygame.sprite.Group()
+
+collectables_graphics_dicts = {"Health":image_import("pictures for survivor game/collectables/heart collectable.png",(30,30)),
+                                "Nuke":image_import("pictures for survivor game/collectables/nuke collectable.png",(40,16)),
+                                "Coin":image_import("pictures for survivor game/collectables/coin collectable.png",(20,20))
+                                "Scrap":[pygame.image.load("pictures for survivor game/collectables/scrap 1.png").convert_alpha(),
+                                            pygame.image.load("pictures for survivor game/collectables/scrap 2.png").convert_alpha(),
+                                            pygame.image.load("pictures for survivor game/collectables/scrap 3.png").convert_alpha(),
+                                            pygame.image.load("pictures for survivor game/collectables/scrap 4.png").convert_alpha()]}
+
         
 #menu screen
 player_menu_1 = image_import("pictures for survivor game/dude graphics/dude run 1 90.png",(500,650))
