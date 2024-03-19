@@ -34,9 +34,10 @@ def get_currency():
     
 
 #Adds to the player's currency
-def add_currency():
-    c.execute("""UPDATE player_information 
-              SET currency = currency + 1""")
+def add_currency(amount):
+    c.execute(f"""UPDATE player_information 
+              SET currency = currency + {amount}
+              WHERE player_id = 1""")
     conn.commit()
 
 def close():
