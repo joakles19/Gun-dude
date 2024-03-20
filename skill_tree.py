@@ -25,5 +25,3 @@ pwrup_tree.root.right.left.left = Node("Coin multiplier 2")
 pwrup_tree.root.right.left.right = Node("Invincibilty")
 pwrup_tree.root.right.right.left = Node("[Passive healing")
 pwrup_tree.root.right.right.right = Node("Health up 3")
-
-print(pwrup_tree.root.right.node_value)

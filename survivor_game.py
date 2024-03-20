@@ -1,3 +1,9 @@
+#Main file to be executed
+
+#Hash table in Hash_table.py
+#Database and SQL functions in database.py
+#Binary tree in skill_tree.py
+
 from typing import Any
 import pygame,math,random,subprocess #importing python libraries
 import database,Hash_table,image_import #important my own modules
@@ -333,7 +339,6 @@ class Bullets(pygame.sprite.Sprite):
 bullets_group = pygame.sprite.Group()
 
 #enemies
-
 class Enemies(pygame.sprite.Sprite):
     def __init__(self,posx,posy):
         super().__init__()
