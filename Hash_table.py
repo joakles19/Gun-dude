@@ -17,7 +17,6 @@ class HashTable():
         if hashcode >= self.size:
             self.size *= 2
         self.table[hashcode].append(item)
-        print(hashcode)
    
     def get(self,key):
         hashcode = self.get_hash(key)

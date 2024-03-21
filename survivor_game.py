@@ -1,3 +1,9 @@
+#Main file to be executed
+
+#Hash table in Hash_table.py
+#Database and SQL functions in database.py
+#Binary tree in skill_tree.py
+
 from typing import Any
 import pygame,math,random,subprocess #importing python libraries
 import database,Hash_table,image_import #important my own modules
@@ -60,21 +66,16 @@ class Player(pygame.sprite.Sprite):
         self.nuke_num = 0
         self.explosion_animation_index = -1
         #other attributes
-        self.xp = 0
         self.level_up_num = 1
         self.playerlevel = 0
         self.bullet_cooldown = 30
         self.damage_timer = 10
         self.running_index = 0
-        self.speed = 3
         self.cooldown_counter = 0
-        self.health_num = 5
         self.max_health = 5
-        self.invincible = False
         self.invincible_counter = 6
         self.can_shoot = False
         self.max_ammo = 5
-        self.ammo = 5
         self.reload_timer = 100
         self.reload = 0
         self.reload_index = 0
@@ -113,6 +114,7 @@ class Player(pygame.sprite.Sprite):
         self.level_up_num = 1
         self.playerlevel = 0
         self.speed = 3
+        self.coins = 0
     def movement(self):
         self.key = pygame.key.get_pressed()
         #Moves the character using WASD
@@ -263,7 +265,7 @@ class Player(pygame.sprite.Sprite):
                 if collectable.type == "Nuke":
                     self.nuke_num += 1
                 if collectable.type == "Coin":
-                    database.add_currency()
+                    self.coins += 1
                 if collectable.type == "Scrap":
                     self.xp += 1
                 collectable.kill()
@@ -285,6 +287,7 @@ class Player(pygame.sprite.Sprite):
         if self.playerlevel == wave_num:
             press_timer = -1
             database.complete_level(current_level)
+            database.add_currency(self.coins)
             state_stack.pop()
         
     def update(self):
@@ -336,7 +339,6 @@ class Bullets(pygame.sprite.Sprite):
 bullets_group = pygame.sprite.Group()
 
 #enemies
-
 class Enemies(pygame.sprite.Sprite):
     def __init__(self,posx,posy):
         super().__init__()
