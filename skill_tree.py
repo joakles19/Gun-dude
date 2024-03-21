@@ -1,4 +1,4 @@
-#Skill tree
+#Binary tree
 
 class Node(object):
     def __init__(self,value):
@@ -9,7 +9,20 @@ class Node(object):
 class Tree(object):
     def __init__(self,root):
         self.root = Node(root)
+    
+    def return_tree(self):
+        self.preorder_traversal(self.root)
 
+    def preorder_traversal(self,node):
+        print(node.node_value)
+        if node.left is not None:
+            self.preorder_traversal(node.left)
+        if node.right is not None:
+            self.preorder_traversal(node.right)
+        
+        
+
+#setting up the skill tree
 pwrup_tree = Tree("Base")
 pwrup_tree.root.left = Node("Damage up")
 pwrup_tree.root.right = Node("Health up")
@@ -23,7 +36,7 @@ pwrup_tree.root.left.right.left = Node("Fire rate up 2")
 pwrup_tree.root.left.right.right = Node("More nukes")
 pwrup_tree.root.right.left.left = Node("Coin multiplier 2")
 pwrup_tree.root.right.left.right = Node("Invincibilty")
-pwrup_tree.root.right.right.left = Node("[Passive healing")
+pwrup_tree.root.right.right.left = Node("Passive healing")
 pwrup_tree.root.right.right.right = Node("Health up 3")
 
-print(pwrup_tree.root.right.node_value)
+pwrup_tree.return_tree()
