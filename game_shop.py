@@ -1,4 +1,4 @@
-import pygame,database,image_import
+import pygame,database,image_import, skill_tree
 from math import log10, floor
 pygame.init()
 screen = pygame.display.set_mode((1280,720))
@@ -11,14 +11,13 @@ coin_rect = pygame.rect.Rect(1120,60,90,70)
 #Main shop menu
 menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/shop menu button 2.png",(220,100))
 menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/shop menu button 1.png",(220,100))
-menu_button_rect = menu_button1.get_rect(bottomright = (screen.get_width()-40,screen.get_height()/2))
+menu_button_rect = menu_button1.get_rect(center = (1110,400))
 char_button1 = image_import.get_image("pictures for survivor game/buttons and icons/char button 1.png",(420,540))
 char_button2 = image_import.get_image("pictures for survivor game/buttons and icons/char button 2.png",(420,540))
 char_button_rect = char_button1.get_rect(topleft = (70,150))
 skill_tree_button1 = image_import.get_image("pictures for survivor game/buttons and icons/skill tree button 2.png",(420,540))
 skill_tree_button2 = image_import.get_image("pictures for survivor game/buttons and icons/skill tree button 1.png",(420,540))
 skill_tree_button_rect = skill_tree_button1.get_rect(topleft = (550,150))
-
 def shop_main():
     global mouse_pos, pressed
     #Menu button
@@ -28,12 +27,71 @@ def shop_main():
         if pressed[0]:
             pygame.quit()
             exit()
-
+    #Character customistion button
     screen.blit(char_button1,char_button_rect)
     if char_button_rect.collidepoint(mouse_pos):
         screen.blit(char_button2,char_button_rect)
-
+    #Skill tree button
     screen.blit(skill_tree_button1,skill_tree_button_rect)
+    if skill_tree_button_rect.collidepoint(mouse_pos):
+        screen.blit(skill_tree_button2,skill_tree_button_rect)
+        if pressed[0]:
+            shop_state_stack.append(skill_tree_menu)
+
+
+#Skill tree menu
+skill_tree_base = image_import.get_image("pictures for survivor game/backgrounds/Skill tree base.png",(770,410))
+skill_tree_rect = skill_tree_base.get_rect(center = (480,420))
+red_dot = image_import.get_image("pictures for survivor game/buttons and icons/available skill button.png",(70,70))
+green_dot = image_import.get_image("pictures for survivor game/buttons and icons/purchased skill button.png",(70,70))
+blue_outline = image_import.get_image("pictures for survivor game/buttons and icons/selected skill outline.png",(70,70))
+
+#Rectangles so skill tree nodes are interactive
+STrect1 = pygame.rect.Rect(95,215,70,70)
+STrect2 = pygame.rect.Rect(95,315,70,70)
+STrect3 = pygame.rect.Rect(95,455,70,70)
+STrect4 = pygame.rect.Rect(95,555,70,70)
+STrect5 = pygame.rect.Rect(315,385,70,70)
+STrect6 = pygame.rect.Rect(215,265,70,70)
+STrect7 = pygame.rect.Rect(215,505,70,70)
+STrect8 = pygame.rect.Rect(675,265,70,70)
+STrect9 = pygame.rect.Rect(795,215,70,70)
+STrect10 = pygame.rect.Rect(795,315,70,70)
+STrect11 = pygame.rect.Rect(795,455,70,70)
+STrect12 = pygame.rect.Rect(795,555,70,70)
+STrect13 = pygame.rect.Rect(575,385,70,70)
+STrect14 = pygame.rect.Rect(675,505,70,70)
+STrect_list = [STrect1,STrect2,STrect3,STrect4,STrect5,STrect6,STrect7,STrect8,STrect9,STrect10,STrect11,STrect12,STrect13,STrect14]
+
+class skills:
+    def __init__(self,rect,description):
+        self.node_rect = rect
+        self.skill_description = description
+    def description_display(self):
+        screen.blit(base_description,(900,200))
+        if self.node_rect.collidepoint(mouse_pos):
+            screen.blit(self.skill_description,(900,200))
+            screen.blit(blue_outline,self.node_rect)
+
+damage_up1 = skills(STrect5,image_import.get_image("pictures for survivor game/buttons and icons/Damage up description.png",(330,456)))
+
+#setting up tree
+actual_tree = skill_tree.Tree(None)
+actual_tree.root.left = damage_up1
+#Skill descriptions
+base_description = image_import.get_image("pictures for survivor game/buttons and icons/Base description.png",(330,456))
+
+game_skill_tree = skill_tree.Tree("Base")
+game_skill_tree.root.left = "Fill"
+def skill_tree_menu():
+    screen.blit(skill_tree_base,skill_tree_rect)
+    damage_up1.description_display()
+
+        
+
+    
+
+shop_state_stack = [shop_main]
 
 shop_background = image_import.get_image("pictures for survivor game/backgrounds/menu backgrounds/shop menu background.png",(screen.get_width(),screen.get_height()))
 while True:
@@ -48,8 +106,9 @@ while True:
     #displaying the graphics to the screen
     screen.blit(shop_background,(0,0))
     screen.blit(currency_message,currency_rect)
-    shop_main()
 
+    current_state = len(shop_state_stack) - 1
+    shop_state_stack[current_state]()
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             pygame.quit()

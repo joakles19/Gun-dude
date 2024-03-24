@@ -20,23 +20,3 @@ class Tree(object):
         if node.right is not None:
             self.preorder_traversal(node.right)
         
-        
-
-#setting up the skill tree
-pwrup_tree = Tree("Base")
-pwrup_tree.root.left = Node("Damage up")
-pwrup_tree.root.right = Node("Health up")
-pwrup_tree.root.left.left = Node("Damage up 2")
-pwrup_tree.root.left.right = Node("Fire rate up")
-pwrup_tree.root.right.left = Node("Coin Multiplier")
-pwrup_tree.root.right.right = Node("Health up 2")
-pwrup_tree.root.left.left.left = Node("Damage up 3")
-pwrup_tree.root.left.left.right = Node("Lazer")
-pwrup_tree.root.left.right.left = Node("Fire rate up 2")
-pwrup_tree.root.left.right.right = Node("More nukes")
-pwrup_tree.root.right.left.left = Node("Coin multiplier 2")
-pwrup_tree.root.right.left.right = Node("Invincibilty")
-pwrup_tree.root.right.right.left = Node("Passive healing")
-pwrup_tree.root.right.right.right = Node("Health up 3")
-
-pwrup_tree.return_tree()
