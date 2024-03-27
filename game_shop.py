@@ -51,7 +51,6 @@ STrect1 = pygame.rect.Rect(95,215,70,70)
 STrect2 = pygame.rect.Rect(95,315,70,70)
 STrect3 = pygame.rect.Rect(95,455,70,70)
 STrect4 = pygame.rect.Rect(95,555,70,70)
-STrect5 = pygame.rect.Rect(315,385,70,70)
 STrect6 = pygame.rect.Rect(215,265,70,70)
 STrect7 = pygame.rect.Rect(215,505,70,70)
 STrect8 = pygame.rect.Rect(675,265,70,70)
@@ -61,23 +60,28 @@ STrect11 = pygame.rect.Rect(795,455,70,70)
 STrect12 = pygame.rect.Rect(795,555,70,70)
 STrect13 = pygame.rect.Rect(575,385,70,70)
 STrect14 = pygame.rect.Rect(675,505,70,70)
-STrect_list = [STrect1,STrect2,STrect3,STrect4,STrect5,STrect6,STrect7,STrect8,STrect9,STrect10,STrect11,STrect12,STrect13,STrect14]
 
 class skills:
     def __init__(self,rect,description):
         self.node_rect = rect
         self.skill_description = description
     def description_display(self):
-        screen.blit(base_description,(900,200))
         if self.node_rect.collidepoint(mouse_pos):
             screen.blit(self.skill_description,(900,200))
             screen.blit(blue_outline,self.node_rect)
 
-damage_up1 = skills(STrect5,image_import.get_image("pictures for survivor game/buttons and icons/Damage up description.png",(330,456)))
+damage_up1 = skills(pygame.rect.Rect(315,385,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description.png",(330,456)))
+damage_up2 = skills(pygame.rect.Rect(215,265,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description 2.png",(330,456)))
+damage_up3 = skills(pygame.rect.Rect(95,215,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description 3.png",(330,456)))
+health_up1 = skills(pygame.rect.Rect(575,385,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Health up description.png",(330,456)))
+lazer = skills(pygame.rect.Rect(95,315,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Lazer description.png",(330,456)))
+skills_list = [damage_up1,health_up1,damage_up2,damage_up3,lazer]
 
 #setting up tree
-actual_tree = skill_tree.Tree(None)
-actual_tree.root.left = damage_up1
+upgrade_tree = skill_tree.Tree(None)
+upgrade_tree.root.left = skill_tree.Node(damage_up1)
+upgrade_tree.root.right =  skill_tree.Node(health_up1)
+
 #Skill descriptions
 base_description = image_import.get_image("pictures for survivor game/buttons and icons/Base description.png",(330,456))
 
@@ -85,9 +89,9 @@ game_skill_tree = skill_tree.Tree("Base")
 game_skill_tree.root.left = "Fill"
 def skill_tree_menu():
     screen.blit(skill_tree_base,skill_tree_rect)
-    damage_up1.description_display()
-
-        
+    screen.blit(base_description,(900,200))
+    for skill in skills_list:
+        skill.description_display()
 
     
 
