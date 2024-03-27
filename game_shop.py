@@ -45,6 +45,7 @@ skill_tree_rect = skill_tree_base.get_rect(center = (480,420))
 red_dot = image_import.get_image("pictures for survivor game/buttons and icons/available skill button.png",(70,70))
 green_dot = image_import.get_image("pictures for survivor game/buttons and icons/purchased skill button.png",(70,70))
 blue_outline = image_import.get_image("pictures for survivor game/buttons and icons/selected skill outline.png",(70,70))
+base_description = image_import.get_image("pictures for survivor game/buttons and icons/Base description.png",(330,456))
 
 #Rectangles so skill tree nodes are interactive
 STrect11 = pygame.rect.Rect(795,455,70,70)
@@ -54,7 +55,9 @@ class skills:
         self.node_rect = rect
         self.skill_description = description
         self.purchased = False
+
     def display(self):
+        global current_tree
         if self.purchased:
             screen.blit(green_dot,self.node_rect)
         else:
@@ -62,10 +65,11 @@ class skills:
         if self.node_rect.collidepoint(mouse_pos):
             screen.blit(self.skill_description,(900,200))
             screen.blit(blue_outline,self.node_rect)
-    def purchase_skill(self):
-        global current_tree
-        if pressed[0]:
-            pass
+            if pressed[0] and self.purchased == False:
+                print(self)
+                self.purchased = True
+
+    
 
 damage_up1 = skills(pygame.rect.Rect(315,385,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description.png",(330,456)))
 damage_up2 = skills(pygame.rect.Rect(215,265,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description 2.png",(330,456)))
@@ -84,29 +88,26 @@ passive_healing = skills(pygame.rect.Rect(795,315,70,70),image_import.get_image(
 
 #setting up trees
 #Tree base
-upgrade_tree = skill_tree.Tree(None)
-upgrade_tree.root.left = skill_tree.Node(damage_up1)
-upgrade_tree.root.right =  skill_tree.Node(health_up1)
-upgrade_tree.root.left.left = skill_tree.Node(damage_up2)
-upgrade_tree.root.left.right = skill_tree.Node(fire_rate_up)
-upgrade_tree.root.right.left = skill_tree.Node(coin_multiplier)
-upgrade_tree.root.right.right = skill_tree.Node(health_up2)
-upgrade_tree.root.left.left.left = skill_tree.Node(damage_up3)
-upgrade_tree.root.left.left.right = skill_tree.Node(lazer)
-upgrade_tree.root.left.right.left = skill_tree.Node(fire_rate_up2)
-upgrade_tree.root.left.right.right = skill_tree.Node(more_nukes)
-upgrade_tree.root.right.left.left = skill_tree.Node(coin_multiplier2)
-upgrade_tree.root.right.left.right = skill_tree.Node(invincibility)
-upgrade_tree.root.right.right.left = skill_tree.Node(passive_healing)
-upgrade_tree.root.right.right.right = skill_tree.Node(health_up3)
+upgrade_tree = skill_tree.Tree(8,None)
+upgrade_tree.insert(1,damage_up3)
+upgrade_tree.insert(2,damage_up2)
+upgrade_tree.insert(3,damage_up2)
+upgrade_tree.insert(4,damage_up1)
+upgrade_tree.insert(5,fire_rate_up2)
+upgrade_tree.insert(6,more_nukes)
+upgrade_tree.insert(7,fire_rate_up)
+upgrade_tree.insert(9,coin_multiplier2)
+upgrade_tree.insert(10,invincibility)
+upgrade_tree.insert(11,coin_multiplier)
+upgrade_tree.insert(12,health_up1)
+upgrade_tree.insert(13,passive_healing)
+upgrade_tree.insert(14,health_up3)
+upgrade_tree.insert(15,health_up2)
+
 #User's skill tree
-current_tree = skill_tree.Tree(None)
-current_tree.root.left = skill_tree.Node(damage_up1)
-current_tree.root.right =  skill_tree.Node(health_up1)
-#Skill descriptions
-base_description = image_import.get_image("pictures for survivor game/buttons and icons/Base description.png",(330,456))
-game_skill_tree = skill_tree.Tree("Base")
-game_skill_tree.root.left = "Fill"
+current_tree = skill_tree.Tree(8,None)
+current_tree.insert(4,damage_up1)
+current_tree.insert(12,health_up1)
 
 def skill_tree_menu():
     screen.blit(skill_tree_base,skill_tree_rect)
@@ -115,6 +116,7 @@ def skill_tree_menu():
     for skill in display_tree:
         if skill is not None:
             skill.display()
+
 
     
 
