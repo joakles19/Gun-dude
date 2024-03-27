@@ -10,6 +10,9 @@ class Tree(object):
     def __init__(self,root):
         self.root = Node(root)
         self.tree_list = []
+
+    def append_tree(self,direction):
+        pass
     
     def return_tree(self):
         self.preorder_traversal(self.root)
