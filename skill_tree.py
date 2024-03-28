@@ -53,16 +53,27 @@ class Tree(object):
             return node
             
     def find_next_nodes(self,node):
-        parent_node = self.find_node(node)
-        return parent_node.left,parent_node.right
-        
-tree = Tree(8,"Hello")
-tree.insert(1,"No")
-tree.insert(2,"Po")
-tree.insert(3,"Jjj")
-tree.insert(4,None)
-tree.insert(5,None)
-tree.insert(6,None)
-tree.insert(7,None)
+        parent = self.find_node(node)
+        if parent.left is not None:
+            left = parent.left
+        else: left = None
+        if parent.right is not None:
+            right = parent.right
+        else: right = None
+        return left,right
 
-print(tree.find_next_nodes(1))
+tree = Tree(8,"Hello")
+tree.insert(4,None)
+tree.insert(2,None)
+tree.insert(1,None)
+tree.insert(3,None)
+tree.insert(6,None)
+tree.insert(5,None)
+tree.insert(7,None)
+tree.insert(12,None)
+tree.insert(10,None)
+tree.insert(14,None)
+tree.insert(9,None)
+tree.insert(11,None)
+tree.insert(13,None)
+tree.insert(15,None)

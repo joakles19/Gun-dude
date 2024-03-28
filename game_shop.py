@@ -51,10 +51,11 @@ base_description = image_import.get_image("pictures for survivor game/buttons an
 STrect11 = pygame.rect.Rect(795,455,70,70)
 
 class skills:
-    def __init__(self,rect,description):
+    def __init__(self,rect,description,value):
         self.node_rect = rect
         self.skill_description = description
         self.purchased = False
+        self.value = value
 
     def display(self):
         global current_tree
@@ -66,43 +67,47 @@ class skills:
             screen.blit(self.skill_description,(900,200))
             screen.blit(blue_outline,self.node_rect)
             if pressed[0] and self.purchased == False:
-                print(self)
+                add_to_tree(self)
                 self.purchased = True
 
-    
+def add_to_tree(skill):
+    node1,node2 = upgrade_tree.find_next_nodes(skill.value)
+    if node1 is not None and node2 is not None:
+        current_tree.insert(node1.node_value,node1.node_content)
+        current_tree.insert(node2.node_value,node2.node_content)
 
-damage_up1 = skills(pygame.rect.Rect(315,385,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description.png",(330,456)))
-damage_up2 = skills(pygame.rect.Rect(215,265,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description 2.png",(330,456)))
-damage_up3 = skills(pygame.rect.Rect(95,215,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description 3.png",(330,456)))
-health_up1 = skills(pygame.rect.Rect(575,385,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Health up description.png",(330,456)))
-health_up2 = skills(pygame.rect.Rect(675,265,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Health up description 2.png",(330,456)))
-health_up3 = skills(pygame.rect.Rect(795,215,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Health up description 3.png",(330,456)))
-lazer = skills(pygame.rect.Rect(95,315,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Lazer description.png",(330,456)))
-fire_rate_up = skills(pygame.rect.Rect(215,505,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Fire rate description.png",(330,456)))
-fire_rate_up2 = skills(pygame.rect.Rect(95,455,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Fire rate up description 2.png",(330,456)))
-more_nukes = skills(pygame.rect.Rect(95,555,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/More nukes description.png",(330,456)))
-coin_multiplier = skills(pygame.rect.Rect(675,505,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Coin multiplier description.png",(330,456)))
-coin_multiplier2 = skills(pygame.rect.Rect(795,555,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Coin multiplier description 2.png",(330,456)))
-invincibility = skills(pygame.rect.Rect(795,455,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Invincibility description.png",(330,456)))
-passive_healing = skills(pygame.rect.Rect(795,315,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Passive healing description.png",(330,456)))
+damage_up1 = skills(pygame.rect.Rect(315,385,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description.png",(330,456)),4)
+damage_up2 = skills(pygame.rect.Rect(215,265,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description 2.png",(330,456)),2)
+damage_up3 = skills(pygame.rect.Rect(95,215,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Damage up description 3.png",(330,456)),1)
+health_up1 = skills(pygame.rect.Rect(575,385,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Health up description.png",(330,456)),12)
+health_up2 = skills(pygame.rect.Rect(675,265,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Health up description 2.png",(330,456)),14)
+health_up3 = skills(pygame.rect.Rect(795,215,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Health up description 3.png",(330,456)),15)
+lazer = skills(pygame.rect.Rect(95,315,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Lazer description.png",(330,456)),3)
+fire_rate_up = skills(pygame.rect.Rect(215,505,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Fire rate description.png",(330,456)),6)
+fire_rate_up2 = skills(pygame.rect.Rect(95,455,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Fire rate up description 2.png",(330,456)),5)
+more_nukes = skills(pygame.rect.Rect(95,555,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/More nukes description.png",(330,456)),7)
+coin_multiplier = skills(pygame.rect.Rect(675,505,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Coin multiplier description.png",(330,456)),10)
+coin_multiplier2 = skills(pygame.rect.Rect(795,555,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Coin multiplier description 2.png",(330,456)),9)
+invincibility = skills(pygame.rect.Rect(795,455,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Invincibility description.png",(330,456)),11)
+passive_healing = skills(pygame.rect.Rect(795,315,70,70),image_import.get_image("pictures for survivor game/buttons and icons/skill descriptions/Passive healing description.png",(330,456)),13)
 
 #setting up trees
 #Tree base
 upgrade_tree = skill_tree.Tree(8,None)
-upgrade_tree.insert(1,damage_up3)
-upgrade_tree.insert(2,damage_up2)
-upgrade_tree.insert(3,damage_up2)
 upgrade_tree.insert(4,damage_up1)
+upgrade_tree.insert(2,damage_up2)
+upgrade_tree.insert(1,damage_up3)
+upgrade_tree.insert(3,lazer)
+upgrade_tree.insert(6,fire_rate_up)
 upgrade_tree.insert(5,fire_rate_up2)
-upgrade_tree.insert(6,more_nukes)
-upgrade_tree.insert(7,fire_rate_up)
-upgrade_tree.insert(9,coin_multiplier2)
-upgrade_tree.insert(10,invincibility)
-upgrade_tree.insert(11,coin_multiplier)
+upgrade_tree.insert(7,more_nukes)
 upgrade_tree.insert(12,health_up1)
+upgrade_tree.insert(10,coin_multiplier)
+upgrade_tree.insert(14,health_up2)
+upgrade_tree.insert(9,coin_multiplier2)
+upgrade_tree.insert(11,invincibility)
 upgrade_tree.insert(13,passive_healing)
-upgrade_tree.insert(14,health_up3)
-upgrade_tree.insert(15,health_up2)
+upgrade_tree.insert(15,health_up3)
 
 #User's skill tree
 current_tree = skill_tree.Tree(8,None)
