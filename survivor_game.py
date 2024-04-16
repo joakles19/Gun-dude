@@ -343,10 +343,10 @@ class Enemies(pygame.sprite.Sprite):
     def __init__(self,posx,posy):
         super().__init__()
         self.enemy_type = random.randint(0,len(enemies)-1)
-        self.run = graphics_dict.get(enemies[self.enemy_type][0])
-        self.image = self.run[0]
+        self.animation = graphics_dict.get(enemies[self.enemy_type][0])
+        self.image = self.animation.animation[0]
         self.rect = self.image.get_rect(center = (posx,posy))
-        self.max_health = enemies[self.enemy_type][1]
+        self.max_health = enemies[self.enemy_type][0]
         self.health = self.max_health
         self.bar = pygame.surface.Surface(((self.health/5)*self.image.get_width(),10)).convert_alpha()
         self.bar_rect = self.bar.get_rect(top = self.rect.bottom)
@@ -397,7 +397,7 @@ class Enemies(pygame.sprite.Sprite):
         if self.rect.centery > screen_height * 2 or self.rect.centery < (screen_height * 2) * -1:
             self.kill()
     
-    def animation(self):
+    def animate(self):
         self.run_index += 0.05
         if self.run_index >= len(self.run):
             self.run_index = 0
@@ -411,7 +411,7 @@ class Enemies(pygame.sprite.Sprite):
         self.collide()
         self.movement()
         self.healthbar()
-        self.animation()
+        self.animate()
 enemy_index = -1
 def spawn(frequency):
     global enemy_index
@@ -458,9 +458,9 @@ graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collecta
 graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collectables/scrap 3.png").convert_alpha())
 graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collectables/scrap 4.png").convert_alpha())
 #enemy graphics
-graphics_dict.add("Fly",image_import.get_image("pictures for survivor game/enemy graphics/fly 1.png",(50,35)))
-graphics_dict.add("Fly",image_import.get_image("pictures for survivor game/enemy graphics/fly 2.png",(50,35)))
-graphics_dict.add("Fly",image_import.get_image("pictures for survivor game/enemy graphics/fly 3.png",(50,35)))
+fly_animation = image_import.animation(["pictures for survivor game/enemy graphics/fly 1.png","pictures for survivor game/enemy graphics/fly 2.png",
+"pictures for survivor game/enemy graphics/fly 3.png"],1)
+graphics_dict.add("Fly",fly_animation)
 graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 1.png",(100,100)))
 graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 2.png",(100,100)))
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 1.png",(100,100)))

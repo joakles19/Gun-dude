@@ -9,6 +9,7 @@ class HashTable():
         sum = 0
         if key != None:
             for letter in key:
+                print(letter)
                 sum += ord(letter)
         return sum
     

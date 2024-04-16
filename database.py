@@ -12,17 +12,17 @@ def is_complete():
 
 #Switches a level's state to complete
 def complete_level(level):
-    c.execute(f"""UPDATE level_completion 
+    c.execute("""UPDATE level_completion 
               SET completed = 1
-              WHERE level = {level}""")
+              WHERE level = ?""",str(level))
     conn.commit()
 
 #Returns which enemies feature on an inputted level
 def get_enemies(level):
-    c.execute(f"""SELECT * 
+    c.execute("""SELECT * 
               FROM enemy_information
               INNER JOIN level_enemies 
-              ON level_enemies.enemy = enemy_information.enemy_type AND level_enemies.level = {level}""")
+              ON level_enemies.enemy = enemy_information.enemy_type AND level_enemies.level = ?""",str(level))
     return c.fetchall()
 
 #Returns the player's currency
@@ -35,12 +35,13 @@ def get_currency():
 
 #Adds to the player's currency
 def add_currency(amount):
-    c.execute(f"""UPDATE player_information 
-              SET currency = currency + {amount}
-              WHERE player_id = 1""")
+    c.execute("""UPDATE player_information 
+              SET currency = currency + ?
+              WHERE player_id = 1""", str(amount))
     conn.commit()
 
 def close():
     conn.close()
+
 
 
