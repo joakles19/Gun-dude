@@ -458,11 +458,11 @@ graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collecta
 graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collectables/scrap 3.png").convert_alpha())
 graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collectables/scrap 4.png").convert_alpha())
 #enemy graphics
-fly_animation = image_import.animation(["pictures for survivor game/enemy graphics/fly 1.png","pictures for survivor game/enemy graphics/fly 2.png",
-"pictures for survivor game/enemy graphics/fly 3.png"],1)
+fly_animation = image_import.enemy_animation(["pictures for survivor game/enemy graphics/fly 1.png","pictures for survivor game/enemy graphics/fly 2.png","pictures for survivor game/enemy graphics/fly 3.png"],1,(100,80))
+trash_animation = image_import.enemy_animation(["pictures for survivor game/enemy graphics/trash monster 1.png","pictures for survivor game/enemy graphics/trash monster 2.png"],0.6,(100,100))
+alien_animation = image_import
 graphics_dict.add("Fly",fly_animation)
-graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 1.png",(100,100)))
-graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 2.png",(100,100)))
+graphics_dict.add("Trash",trash_animation)
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 1.png",(100,100)))
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 2.png",(100,100)))
 
