@@ -25,7 +25,7 @@ class animation:
 
         return image
 
-#Child classes for animations
+#Inherited classes for animations
 class player_animation(animation):
     def __init__(self, animation_list, animation_speed,standing_image,size):
         super().__init__(animation_list, animation_speed,size)
