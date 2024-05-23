@@ -45,4 +45,4 @@ def close():
 
 
 
-print(get_enemies(3))
+print(get_enemies(1))

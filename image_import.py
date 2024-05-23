@@ -13,6 +13,7 @@ class animation:
         self.animation = []
         for image in animation_list:
             self.animation.append(get_image(image,size))
+        self.image = self.animation[0]
         self.speed = animation_speed
         self.index = 0
 
