@@ -465,7 +465,14 @@ graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/ene
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 1.png",(100,100)))
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 2.png",(100,100)))
 
+#login screen
+def keyboard_input():
+    pass
 
+text_box = image_import.get_image("pictures for survivor game/backgrounds/Text box.png",(800,160))
+text_box_rect = text_box.get_rect(center = (screen_width/2,screen_height/2))
+username = []
+def login_screen():
 
 #menu screen
 player_menu_1 = image_import.get_image("pictures for survivor game/dude graphics/dude run 1 90.png",(500,650))
@@ -796,7 +803,8 @@ def game_reset():
     game_timer = 0
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
 
-state_stack = [menu]
+#state_stack = [menu]
+state_stack = [login_screen]
 
 #game loop
 while True:
@@ -805,10 +813,10 @@ while True:
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             pygame.quit()
             exit()
-    current_state = len(state_stack) - 1
-    state_stack[current_state]()
     key = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pos()
     pressed = pygame.mouse.get_pressed()
+    current_state = len(state_stack) - 1
+    state_stack[current_state]()
     pygame.display.update()
     clock.tick(60)
