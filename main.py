@@ -465,15 +465,6 @@ graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/ene
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 1.png",(100,100)))
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 2.png",(100,100)))
 
-#login screen
-def keyboard_input():
-    pass
-
-text_box = image_import.get_image("pictures for survivor game/backgrounds/Text box.png",(800,160))
-text_box_rect = text_box.get_rect(center = (screen_width/2,screen_height/2))
-username = []
-def login_screen():
-
 #menu screen
 player_menu_1 = image_import.get_image("pictures for survivor game/dude graphics/dude run 1 90.png",(500,650))
 player_menu_2 = image_import.get_image("pictures for survivor game/dude graphics/dude run 2 90.png",(500,650))
@@ -803,8 +794,8 @@ def game_reset():
     game_timer = 0
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
 
-#state_stack = [menu]
-state_stack = [login_screen]
+state_stack = [menu]
+#state_stack = []
 
 #game loop
 while True:

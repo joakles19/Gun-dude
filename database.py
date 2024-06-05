@@ -43,6 +43,3 @@ def add_currency(amount):
 def close():
     conn.close()
 
-
-
-print(get_enemies(1))
