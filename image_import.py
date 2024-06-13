@@ -6,7 +6,6 @@ def get_image(image,size):
     new_image = pygame.image.load(image).convert_alpha()
     new_image = pygame.transform.scale(new_image,size)
     return new_image
-
 #Parent class for animations
 class animation:
     def __init__(self,animation_list,animation_speed,size):

@@ -18,6 +18,8 @@ char_button_rect = char_button1.get_rect(topleft = (70,150))
 skill_tree_button1 = image_import.get_image("pictures for survivor game/buttons and icons/skill tree button 2.png",(420,540))
 skill_tree_button2 = image_import.get_image("pictures for survivor game/buttons and icons/skill tree button 1.png",(420,540))
 skill_tree_button_rect = skill_tree_button1.get_rect(topleft = (550,150))
+back_button1 = image_import.get_image("pictures for survivor game/buttons and icons/back button 1.png",(70,70))
+back_button2 = image_import.get_image("pictures for survivor game/buttons and icons/back button 2.png",(70,70))
 def shop_main():
     global mouse_pos, pressed
     #Menu button
@@ -113,14 +115,21 @@ upgrade_tree.insert(15,health_up3)
 current_tree = skill_tree.Tree(8,None)
 current_tree.insert(4,damage_up1)
 current_tree.insert(12,health_up1)
+skilltree_back_rect = back_button1.get_rect(center = (650,40))
 
 def skill_tree_menu():
+    #display skill tree
     screen.blit(skill_tree_base,skill_tree_rect)
     screen.blit(base_description,(900,200))
     display_tree = current_tree.return_tree()
     for skill in display_tree:
         if skill is not None:
             skill.display()
+
+    #back button
+    screen.blit(back_button1,skilltree_back_rect)
+    if skilltree_back_rect.collidepoint(mouse_pos):
+        screen.blit(back_button2,skilltree_back_rect)
 
 
     

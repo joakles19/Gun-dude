@@ -1,12 +1,6 @@
-#Main file to be executed
-
-#Hash table in Hash_table.py
-#Database and SQL functions in database.py
-#Binary tree in skill_tree.py
-
 from typing import Any
-import pygame,math,random,subprocess #importing python libraries
-import database,Hash_table,image_import #important my own modules
+import pygame,math,random
+import database
 
 #initialising pygame
 pygame.init()
@@ -22,7 +16,14 @@ level_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf
 global press_timer
 press_timer = -1
 kills = 0
+currency = 0
 game_timer = 0
+
+#function to make importing images more efficient
+def image_import(image,size):
+    new_image = pygame.image.load(image).convert_alpha()
+    new_image = pygame.transform.scale(new_image,size)
+    return new_image
 
 #player
 class Player(pygame.sprite.Sprite):
@@ -44,38 +45,44 @@ class Player(pygame.sprite.Sprite):
         self.stand = right90[0]
         self.image = self.stand
         self.rect = self.image.get_rect(center = (screen_width/2,screen_height/2))
-        self.heart_full = image_import.get_image("pictures for survivor game/heart red.png",(80,80))
-        self.heart_empty = image_import.get_image("pictures for survivor game/heart black.png",(80,80))
-        self.level_bar = image_import.get_image("pictures for survivor game/backgrounds/level up bar.png",(screen_width,screen_height))
-        self.level_bar_full = image_import.get_image("pictures for survivor game/backgrounds/level up bar full.png",(653,13))
-        self.ammo_icon = image_import.get_image("pictures for survivor game/buttons and icons/ammo icon.png",(80,80))
+        self.rect = pygame.rect.Rect(self.rect.left+7,self.rect.top+7,56,77)
+        self.heart_full = image_import("pictures for survivor game/heart red.png",(80,80))
+        self.heart_empty = image_import("pictures for survivor game/heart black.png",(80,80))
+        self.level_bar = image_import("pictures for survivor game/backgrounds/level up bar.png",(screen_width,screen_height))
+        self.level_bar_full = image_import("pictures for survivor game/backgrounds/level up bar full.png",(653,13))
+        self.ammo_icon = image_import("pictures for survivor game/buttons and icons/ammo icon.png",(80,80))
         self.ammo_icon_rect = self.ammo_icon.get_rect(topleft = (100,screen_height - 80))
         self.ammo_num_rect = pygame.rect.Rect(self.ammo_icon_rect.left+8,self.ammo_icon_rect.top+12,60,60)
-        self.reload1_icon = image_import.get_image("pictures for survivor game/buttons and icons/reload icon.png",(40,40))
+        self.reload1_icon = image_import("pictures for survivor game/buttons and icons/reload icon.png",(40,40))
         self.reload2_icon = pygame.transform.rotate(self.reload1_icon,180)
         self.reload_icons = [self.reload1_icon,self.reload2_icon]
         self.reload_icon_rect = self.reload1_icon.get_rect(centerx = self.ammo_icon_rect.centerx - 10,centery = self.ammo_icon_rect.centery)
         self.power_up_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",30)
-        self.nuke_icon = image_import.get_image("pictures for survivor game/buttons and icons/nuke icon.png",(100,70))
+        self.nuke_icon = image_import("pictures for survivor game/buttons and icons/nuke icon.png",(100,70))
         self.nuke_icon_rect = self.nuke_icon.get_rect(bottomright = (screen_width,screen_height))
-        self.explosion1 = image_import.get_image("pictures for survivor game/explosion animation/explosion 1.png",(1000,1000))
-        self.explosion2 = image_import.get_image("pictures for survivor game/explosion animation/explosion 2.png",(1000,1000))
-        self.explosion3 = image_import.get_image("pictures for survivor game/explosion animation/explosion 3.png",(1000,1000))
-        self.explosion4 = image_import.get_image("pictures for survivor game/explosion animation/explosion 4.png",(1000,1000))
+        self.explosion1 = image_import("pictures for survivor game/explosion animation/explosion 1.png",(1000,1000))
+        self.explosion2 = image_import("pictures for survivor game/explosion animation/explosion 2.png",(1000,1000))
+        self.explosion3 = image_import("pictures for survivor game/explosion animation/explosion 3.png",(1000,1000))
+        self.explosion4 = image_import("pictures for survivor game/explosion animation/explosion 4.png",(1000,1000))
         self.explosion_animation = [self.explosion1,self.explosion2,self.explosion3,self.explosion4,self.explosion3]
         self.nuke_num = 0
         self.explosion_animation_index = -1
         #other attributes
+        self.xp = 0
         self.level_up_num = 1
         self.playerlevel = 0
         self.bullet_cooldown = 30
         self.damage_timer = 10
         self.running_index = 0
+        self.speed = 3
         self.cooldown_counter = 0
+        self.health_num = 5
         self.max_health = 5
+        self.invincible = False
         self.invincible_counter = 6
         self.can_shoot = False
         self.max_ammo = 5
+        self.ammo = 5
         self.reload_timer = 100
         self.reload = 0
         self.reload_index = 0
@@ -114,7 +121,6 @@ class Player(pygame.sprite.Sprite):
         self.level_up_num = 1
         self.playerlevel = 0
         self.speed = 3
-        self.coins = 0
     def movement(self):
         self.key = pygame.key.get_pressed()
         #Moves the character using WASD
@@ -172,20 +178,14 @@ class Player(pygame.sprite.Sprite):
     def aim_graphics(self):
         self.x_dist = mouse[0] - self.rect.centerx
         self.y_dist = -(mouse[1] - self.rect.centery)
-        self.image_angle = math.degrees(math.atan2(self.x_dist,self.y_dist))
-        image_index = abs(math.ceil(self.image_angle/36))
-        if self.image_angle > 0:
+        image_angle = math.degrees(math.atan2(self.x_dist,self.y_dist))
+        image_index = abs(math.ceil(image_angle/36))
+        if image_angle > 0:
             self.running_animation = [self.right[image_index-1][1],self.right[image_index-1][2]]
             self.stand = self.right[image_index-1][0]
         else:
             self.running_animation = [self.left[image_index][1],self.left[image_index][2]]
             self.stand = self.left[image_index][0]
-
-    def hitbox(self):
-        if self.image_angle > 0:
-            self.hitbox_rect = pygame.Rect(self.rect.x,self.rect.y,self.image.get_width()/2,self.image.get_height())
-        else:
-            self.hitbox_rect = pygame.Rect(self.rect.x+self.image.get_width()/2,self.rect.y,self.image.get_width()/2,self.image.get_height())
 
     def animations(self):
         image = self.stand
@@ -212,12 +212,12 @@ class Player(pygame.sprite.Sprite):
         bullet_angle = math.degrees(math.atan2(self.y_dist,self.x_dist))
         if self.cooldown_counter == 0 and self.can_shoot and self.ammo > 0:
             if (self.key[pygame.K_SPACE] or pressed[0]):
-                bullets_group.add(Bullets(self.rect.centerx,self.rect.centery,"Bullets",bullet_angle))
+                bullets_group.add(Bullets(self.rect.x + 62,self.rect.centery,"Bullets",bullet_angle))
                 self.ammo -=1
             self.cooldown_counter = 1
         if self.can_shoot  and self.lazer_time > 0:
             if self.key[pygame.K_n]:
-                bullets_group.add(Bullets(self.rect.centerx,self.rect.centery,"Lazer",bullet_angle))
+                bullets_group.add(Bullets(self.rect.x + 62,self.rect.centery,"Lazer",bullet_angle))
                 self.lazer_time -= 1
             
         screen.blit(self.ammo_icon,self.ammo_icon_rect)
@@ -237,7 +237,7 @@ class Player(pygame.sprite.Sprite):
     def health(self):
         general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",40)
         for enemy in enemy_group:    
-            if pygame.Rect.colliderect(self.hitbox_rect,enemy.rect) and self.invincible == False:
+            if pygame.Rect.colliderect(self.rect,enemy.rect) and self.invincible == False:
                 self.health_num -= enemy.damage
                 self.invincible = True
         if self.health_num <= 0:
@@ -257,15 +257,16 @@ class Player(pygame.sprite.Sprite):
         screen.blit(self.health_message,(28,screen_height-68))
 
     def collectables(self):
+        global currency
         for collectable in collectables_group:
-            if pygame.Rect.colliderect(self.hitbox_rect,collectable.rect):
+            if pygame.Rect.colliderect(self.rect,collectable.rect):
                 if collectable.type == "Health":
                     if self.health_num < self.max_health:
                         self.health_num += 1
                 if collectable.type == "Nuke":
                     self.nuke_num += 1
                 if collectable.type == "Coin":
-                    self.coins += 1
+                    currency += 1
                 if collectable.type == "Scrap":
                     self.xp += 1
                 collectable.kill()
@@ -287,7 +288,6 @@ class Player(pygame.sprite.Sprite):
         if self.playerlevel == wave_num:
             press_timer = -1
             database.complete_level(current_level)
-            database.add_currency(self.coins)
             state_stack.pop()
         
     def update(self):
@@ -299,7 +299,6 @@ class Player(pygame.sprite.Sprite):
         self.collectables()
         self.health()
         self.power_ups()
-        self.hitbox()
 
 player = Player()
 player_group = pygame.sprite.GroupSingle()
@@ -339,12 +338,15 @@ class Bullets(pygame.sprite.Sprite):
 bullets_group = pygame.sprite.Group()
 
 #enemies
+
 class Enemies(pygame.sprite.Sprite):
     def __init__(self,posx,posy):
         super().__init__()
         self.enemy_type = random.randint(0,len(enemies)-1)
-        self.animation = graphics_dict.get(f"{enemies[self.enemy_type][0]}")
-        self.image = self.animation[0]
+        self.run = enemy_graphics_dict[f"{enemies[self.enemy_type][0]}"]
+        self.image = self.run[0][0]
+        self.size = (enemies[self.enemy_type][4],enemies[self.enemy_type][5])
+        self.image = pygame.transform.scale(self.image,self.size)
         self.rect = self.image.get_rect(center = (posx,posy))
         self.max_health = enemies[self.enemy_type][1]
         self.health = self.max_health
@@ -353,6 +355,7 @@ class Enemies(pygame.sprite.Sprite):
         self.speed = enemies[self.enemy_type][3]
         self.run_index = 0
         self.damage = enemies[self.enemy_type][2]
+
 
     def item_drop(self):
         global kills
@@ -397,21 +400,22 @@ class Enemies(pygame.sprite.Sprite):
         if self.rect.centery > screen_height * 2 or self.rect.centery < (screen_height * 2) * -1:
             self.kill()
     
-    def animate(self):
-        self.run_index += 0.05
-        if self.run_index >= len(self.animation):
+    def animation(self):
+        self.run_index += self.run[1]
+        if self.run_index >= len(self.run):
             self.run_index = 0
-        self.image = self.animation[int(self.run_index)]
+        self.image = self.run[0][int(self.run_index)]
+        self.image = pygame.transform.scale(self.image,self.size)
 
     def healthbar(self):
         self.bar = pygame.draw.rect(screen,"Red",(self.rect.left,self.rect.bottom,(self.health/self.max_health)*self.image.get_width(),10))
+        pygame.draw
 
     def update(self):
         self.collide()
         self.movement()
         self.healthbar()
-
-        self.animate()
+        self.animation()
 enemy_index = -1
 def spawn(frequency):
     global enemy_index
@@ -432,6 +436,14 @@ def spawn(frequency):
             enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(screen_height + 100,screen_height + 200)))
 enemy_group = pygame.sprite.Group()
 
+#Dictionary of all of the enemy animations/ animation speeds
+enemy_graphics_dict = {"Fly":[[image_import("pictures for survivor game/enemy graphics/fly 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 3.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/fly 2.png").convert_alpha()],
+                              0.1],
+                       "Trash":[[pygame.image.load("pictures for survivor game/enemy graphics/trash monster 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/trash monster 2.png").convert_alpha()],
+                                0.01],
+                        "Alien":[[pygame.image.load("pictures for survivor game/enemy graphics/alien 1.png").convert_alpha(),pygame.image.load("pictures for survivor game/enemy graphics/alien 2.png").convert_alpha()],
+                                 0.06]}
+
 #collectables
 class Collectables(pygame.sprite.Sprite):
     def __init__(self,posx,posy,type):
@@ -439,57 +451,57 @@ class Collectables(pygame.sprite.Sprite):
         self.x = posx
         self.y = posy
         self.type = type
-        if self.type == "Scrap":
-            x = random.randint(0,3)
-            self.image = graphics_dict.get(self.type)[x]
-        else:
-            self.image = graphics_dict.get(self.type)
+        if type == "Health":
+            self.image = self.heart_collectable
+        if type == "Nuke":
+            self.image = self.nuke_collectable
+        if type == "Coin":
+            self.image = self.coin_collectable
+        if type == "Scrap":
+            self.scrap_image = random.randint(0,3)
+            if self.scrap_image == 0:
+                self.image = self.scrap1
+            if self.scrap_image == 1:
+                self.image = self.scrap2
+            if self.scrap_image == 2:
+                self.image = self.scrap3
+            if self.scrap_image == 3:
+                self.image = self.scrap4
+
         self.rect = self.image.get_rect(center = (self.x,self.y))
 collectables_group = pygame.sprite.Group()
 
-#Adding all of the object graphics to the hash table
-graphics_dict = Hash_table.HashTable() #creating hash table
-#collectable graphics
-graphics_dict.add("Health",image_import.get_image("pictures for survivor game/collectables/heart collectable.png",(30,30)))
-graphics_dict.add("Nuke",image_import.get_image("pictures for survivor game/collectables/nuke collectable.png",(40,16)))
-graphics_dict.add("Coin",image_import.get_image("pictures for survivor game/collectables/coin collectable.png",(20,20)))
-graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collectables/scrap 1.png").convert_alpha())
-graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collectables/scrap 2.png").convert_alpha())
-graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collectables/scrap 3.png").convert_alpha())
-graphics_dict.add("Scrap",pygame.image.load("pictures for survivor game/collectables/scrap 4.png").convert_alpha())
-#enemy graphics
-graphics_dict.add("Fly",image_import.get_image("pictures for survivor game/enemy graphics/fly 1.png",(50,40)))
-graphics_dict.add("Fly",image_import.get_image("pictures for survivor game/enemy graphics/fly 2.png",(50,40)))
-graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 1.png",(100,100)))
-graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 2.png",(100,100)))
-graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 1.png",(100,100)))
-graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 2.png",(100,100)))
+collectables_graphics_dicts = {"Health":image_import("pictures for survivor game/collectables/heart collectable.png",(30,30)),
+                                "Nuke":image_import("pictures for survivor game/collectables/nuke collectable.png",(40,16)),
+                                "Coin":image_import("pictures for survivor game/collectables/coin collectable.png",(20,20)),
+                                "Scrap":[pygame.image.load("pictures for survivor game/collectables/scrap 1.png").convert_alpha(),
+                                            pygame.image.load("pictures for survivor game/collectables/scrap 2.png").convert_alpha(),
+                                            pygame.image.load("pictures for survivor game/collectables/scrap 3.png").convert_alpha(),
+                                            pygame.image.load("pictures for survivor game/collectables/scrap 4.png").convert_alpha()]}
 
+        
 #menu screen
-player_menu_1 = image_import.get_image("pictures for survivor game/dude graphics/dude run 1 90.png",(500,650))
-player_menu_2 = image_import.get_image("pictures for survivor game/dude graphics/dude run 2 90.png",(500,650))
+player_menu_1 = image_import("pictures for survivor game/dude graphics/dude run 1 90.png",(500,650))
+player_menu_2 = image_import("pictures for survivor game/dude graphics/dude run 2 90.png",(500,650))
 player_menu = [player_menu_1,player_menu_2]
 player_menu_index = 0
-menu_cloud = image_import.get_image("pictures for survivor game/backgrounds/menu backgrounds/menu clouds.png",(7200,screen_height))
+menu_cloud = image_import("pictures for survivor game/backgrounds/menu backgrounds/menu clouds.png",(7200,screen_height))
 menu_cloud_rect = menu_cloud.get_rect(topleft = (0,0))
-menu_ground = image_import.get_image("pictures for survivor game/backgrounds/menu backgrounds/menu ground.png",(7200,screen_height))
+menu_ground = image_import("pictures for survivor game/backgrounds/menu backgrounds/menu ground.png",(7200,screen_height))
 menu_ground_rect = menu_ground.get_rect(topleft = (0,0))
-menu_sky = image_import.get_image("pictures for survivor game/backgrounds/menu backgrounds/menu sky.png",(7200,screen_height))
+menu_sky = image_import("pictures for survivor game/backgrounds/menu backgrounds/menu sky.png",(7200,screen_height))
 menu_sky_rect = menu_sky.get_rect(topleft = (0,0))
 menu_rects = [menu_cloud_rect,menu_sky_rect,menu_ground_rect]
-title = image_import.get_image("pictures for survivor game/gun dude title.png",(465,225))
-start_button_1 = image_import.get_image("pictures for survivor game/buttons and icons/start button 1.png",(620,200))
-start_button_2 = image_import.get_image("pictures for survivor game/buttons and icons/start button 2.png",(620,200))
+title = image_import("pictures for survivor game/gun dude title.png",(465,225))
+start_button_1 = image_import("pictures for survivor game/buttons and icons/start button 1.png",(620,200))
+start_button_2 = image_import("pictures for survivor game/buttons and icons/start button 2.png",(620,200))
 start_button_rect = start_button_1.get_rect(topleft = (575,300))
-exit_button_1 = image_import.get_image("pictures for survivor game/buttons and icons/exit button 1.png",(50,50))
-exit_button_2 = image_import.get_image("pictures for survivor game/buttons and icons/exit button 2.png",(50,50))
+exit_button_1 = image_import("pictures for survivor game/buttons and icons/exit button 1.png",(50,50))
+exit_button_2 = image_import("pictures for survivor game/buttons and icons/exit button 2.png",(50,50))
 exit_button_rect = exit_button_1.get_rect(topright = (screen_width,0))
-shop_button_1 = image_import.get_image("pictures for survivor game/buttons and icons/shop button 2.png",(500,180))
-shop_button_2 = image_import.get_image("pictures for survivor game/buttons and icons/shop button 1.png",(500,180))
+shop_button_1 = image_import("pictures for survivor game/buttons and icons/shop button 2.png",(500,180))
+shop_button_2 = image_import("pictures for survivor game/buttons and icons/shop button 1.png",(500,180))
 shop_button_rect = shop_button_1.get_rect(centerx = start_button_rect.centerx, centery = start_button_rect.centery + 200)
-save_button1 = image_import.get_image("pictures for survivor game/buttons and icons/save button 1.png",(100,100))
-save_button2 = image_import.get_image("pictures for survivor game/buttons and icons/save button 2.png",(100,100))
-save_button_rect = save_button1.get_rect(center = (570,600))
 def menu():
     global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect
     mouse = pygame.mouse.get_pos()
@@ -523,13 +535,9 @@ def menu():
     if shop_button_rect.collidepoint(mouse):
         screen.blit(shop_button_2,shop_button_rect)
         if mouse_pressed[0] == True:
-            subprocess.run(["Python","game_shop.py"])
-    #save button
-    screen.blit(save_button1,save_button_rect)
-    if save_button_rect.collidepoint(mouse):
-        screen.blit(save_button2,save_button_rect)
-        if mouse_pressed[0] == True:
-            subprocess.run(["Python","login_screen.py"])
+            with open('game_shop.py', 'r') as file:
+                exec(file)
+            press_timer = 0
     #exit button
     screen.blit(exit_button_2,exit_button_rect)
     if exit_button_rect.collidepoint(mouse):
@@ -541,12 +549,12 @@ def menu():
 #game over screen
 def game_over_screen():
     global level_message
-    player_dead = image_import.get_image("pictures for survivor game/dude graphics/dude death.png",(518,238))
+    player_dead = image_import("pictures for survivor game/dude graphics/dude death.png",(518,238))
     player_dead_rect = player_dead.get_rect(centerx = screen_width/2,centery = 500)
-    respawn_button1 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 1.png",(200,200))
-    respawn_button2 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 2.png",(200,200))
-    menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
-    menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
+    respawn_button1 = image_import("pictures for survivor game/buttons and icons/respawn button 1.png",(200,200))
+    respawn_button2 = image_import("pictures for survivor game/buttons and icons/respawn button 2.png",(200,200))
+    menu_button1 = image_import("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
+    menu_button2 = image_import("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
     respawn_button_rect = respawn_button1.get_rect(centery = player_dead_rect.centery, centerx = 1100)
     menu_button_rect = menu_button1.get_rect(centery = player_dead_rect.centery,centerx = 190)
     screen.blit(level_background,level_background_rect)
@@ -573,8 +581,8 @@ def game_over_screen():
 #pause game
 def pause_button(state):
     global pause_button_rect, press_timer
-    pause_button1 = image_import.get_image("pictures for survivor game/buttons and icons/pause button 1.png",(100,100))
-    pause_button2 = image_import.get_image("pictures for survivor game/buttons and icons/pause button 2.png",(100,100))
+    pause_button1 = image_import("pictures for survivor game/buttons and icons/pause button 1.png",(100,100))
+    pause_button2 = image_import("pictures for survivor game/buttons and icons/pause button 2.png",(100,100))
     pause_button_rect = pause_button1.get_rect(topright = (screen_width,0))
     screen.blit(pause_button1,pause_button_rect)
     if pause_button_rect.collidepoint(mouse):
@@ -586,8 +594,8 @@ def pause_button(state):
 
 def pause_screen():
     global press_timer, kills
-    menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
-    menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
+    menu_button1 = image_import("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
+    menu_button2 = image_import("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
     menu_button_rect = menu_button1.get_rect(centerx = screen_width/2,centery = 300)
     screen.blit(pygame.font.Font.render(level_font,"Paused",False,level_colour),(445,60))
     screen.blit(menu_button2,menu_button_rect)
@@ -596,8 +604,8 @@ def pause_screen():
         if pressed[0] == True:
             for n in range(0,3):
                 state_stack.pop()
-    play_button1 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 2.png",(300,300))
-    play_button2 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 1.png",(300,300))
+    play_button1 = image_import("pictures for survivor game/buttons and icons/respawn button 2.png",(300,300))
+    play_button2 = image_import("pictures for survivor game/buttons and icons/respawn button 1.png",(300,300))
     play_button_rect = play_button1.get_rect(centerx = screen_width/2,centery = 550)
     screen.blit(play_button1,play_button_rect)
     if play_button_rect.collidepoint(mouse):
@@ -612,14 +620,14 @@ def pause_screen():
         pause_button("Game")
 
 #level_up screen
-level_up_background = image_import.get_image("pictures for survivor game/backgrounds/level up background.png",(screen_width,813))
+level_up_background = image_import("pictures for survivor game/backgrounds/level up background.png",(screen_width,813))
 level_up_background_rect = level_up_background.get_rect(topleft = (0,627))
 level_up_animation = False
 level_up_exit = False
-upgrade_template = image_import.get_image("pictures for survivor game/backgrounds/level up background.png",(280,560))
-fire_rate_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Fire rate upgrade.png",(280,560))
-speed_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Speed upgrade.png",(280,560))
-damage_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Damage upgrade.png",(280,560))
+upgrade_template = image_import("pictures for survivor game/backgrounds/level up background.png",(280,560))
+fire_rate_upgrade = image_import("pictures for survivor game/buttons and icons/Power ups/Fire rate upgrade.png",(280,560))
+speed_upgrade = image_import("pictures for survivor game/buttons and icons/Power ups/Speed upgrade.png",(280,560))
+damage_upgrade = image_import("pictures for survivor game/buttons and icons/Power ups/Damage upgrade.png",(280,560))
 upgrade_rect1 = fire_rate_upgrade.get_rect(topleft = (152,110))
 upgrade_rect2 = fire_rate_upgrade.get_rect(topleft = (500,110))
 upgrade_rect3 = fire_rate_upgrade.get_rect(topleft = (846,110))
@@ -681,20 +689,20 @@ def pre_game_screen():
     global current_level, level_message, press_timer, kills, enemies
     level_setup()
     screen.blit(level_background,(0,0))
-    arrow_button1 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 1.png",(80,80))
-    arrow_button2 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 2.png",(80,80))
+    arrow_button1 = image_import("pictures for survivor game/buttons and icons/arrow button 1.png",(80,80))
+    arrow_button2 = image_import("pictures for survivor game/buttons and icons/arrow button 2.png",(80,80))
     arrow_button_rect = arrow_button1.get_rect(bottomright = (screen_width,screen_height)) 
     left_arrow_button1 = pygame.transform.flip(arrow_button1,True,False)
     left_arrow_button2 = pygame.transform.flip(arrow_button2,True,False)
     left_arrow_button_rect = left_arrow_button1.get_rect(bottomleft = (0,screen_height))
     level_message = pygame.font.Font.render(level_font,f"Level {current_level}",False,level_colour)
     level_message_rect = pygame.rect.Rect(420,80,480,100)
-    play_button1 = image_import.get_image("pictures for survivor game/buttons and icons/Play button 1.png",(400,400))
-    play_button2 = image_import.get_image("pictures for survivor game/buttons and icons/Play button 2.png",(400,400))
+    play_button1 = image_import("pictures for survivor game/buttons and icons/Play button 1.png",(400,400))
+    play_button2 = image_import("pictures for survivor game/buttons and icons/Play button 2.png",(400,400))
     play_button_rect = pygame.rect.Rect(440,250,400,400)
-    locked_icon = image_import.get_image("pictures for survivor game/buttons and icons/locked icon.png",(400,400))
-    menu_button_1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(220,100))
-    menu_button_2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(220,100))
+    locked_icon = image_import("pictures for survivor game/buttons and icons/locked icon.png",(400,400))
+    menu_button_1 = image_import("pictures for survivor game/buttons and icons/menu button 2.png",(220,100))
+    menu_button_2 = image_import("pictures for survivor game/buttons and icons/menu button 1.png",(220,100))
     menu_button_rect = menu_button_1.get_rect(topleft = (0,0))
     screen.blit(level_message,level_message_rect)
     screen.blit(menu_button_1,menu_button_rect)
@@ -764,7 +772,7 @@ def level_setup():
 #main game
 def main_game():
     global current_level, press_timer, game_timer, kills
-    crosshair = image_import.get_image("pictures for survivor game/Crosshair.png",(30,30))
+    crosshair = image_import("pictures for survivor game/Crosshair.png",(30,30))
     screen.blit(level_background,level_background_rect)
     bullets_group.draw(screen)
     bullets_group.update()
@@ -804,7 +812,6 @@ def game_reset():
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
 
 state_stack = [menu]
-#state_stack = []
 
 #game loop
 while True:
@@ -813,10 +820,10 @@ while True:
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             pygame.quit()
             exit()
+    current_state = len(state_stack) - 1
+    state_stack[current_state]()
     key = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pos()
     pressed = pygame.mouse.get_pressed()
-    current_state = len(state_stack) - 1
-    state_stack[current_state]()
     pygame.display.update()
     clock.tick(60)
