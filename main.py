@@ -587,9 +587,9 @@ def game_over_screen():
     respawn_button2 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 2.png",(200,200))
     menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
     menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
-    stats_screen_button1 = image_import.get_image("pictures for survivor game/buttons and icons/available skill button.png",(50,50))
-    stats_screen_button2 = image_import.get_image("pictures for survivor game/buttons and icons/selected skill outline.png",(50,50))
-    stats_screen_button_rect = stats_screen_button1.get_rect(center = (100,100))
+    stats_screen_button1 = image_import.get_image("pictures for survivor game/buttons and icons/stats button 1.png",(100,70))
+    stats_screen_button2 = image_import.get_image("pictures for survivor game/buttons and icons/stats button 2.png",(100,70))
+    stats_screen_button_rect = stats_screen_button1.get_rect(topleft = (10,10))
     respawn_button_rect = respawn_button1.get_rect(centery = player_dead_rect.centery, centerx = 1100)
     menu_button_rect = menu_button1.get_rect(centery = player_dead_rect.centery,centerx = 190)
     screen.blit(level_background,level_background_rect)
@@ -598,30 +598,49 @@ def game_over_screen():
     screen.blit(death_message,(player_dead_rect.left - 10,50))
     screen.blit(level_message,(player_dead_rect.left + 30,200))
     screen.blit(respawn_button2,respawn_button_rect)
-    screen.blit(stats_screen_button1,start_button_rect)
+    screen.blit(stats_screen_button1,stats_screen_button_rect)
     #game over button collisions
     if respawn_button_rect.collidepoint(mouse):
         screen.blit(respawn_button1,respawn_button_rect)
         if pressed[0] == True:
             game_reset()
+    #Menu button collisions
     screen.blit(menu_button2,menu_button_rect)
     if menu_button_rect.collidepoint(mouse):
         screen.blit(menu_button1,menu_button_rect)
         if pressed[0] == True:
             for n in range(0,2):
                 state_stack.pop()
+    #Game stats screen collisions
     if stats_screen_button_rect.collidepoint(mouse):
         screen.blit(stats_screen_button2,stats_screen_button_rect)
+        if pressed[0] == True:
+            state_stack.append(level_stats_screen)
+    #Reset group for next game
     enemy_group.empty()
     bullets_group.empty()
     collectables_group.empty()
 
+#Post level statistics
 def level_stats_screen():
-    graph1 = image_import.get_image('Game analytics/Collectable graphs.png',(400,300))
-    graph2 = image_import.get_image('Game analytics/Enemy kills.png',(400,300))
-    graph3 = image_import.get_image('Game analytics/General stats.png',(400,300))
-    graph4 = image_import.get_image('Game analytics/Healthgraph.png',(400,300))
-    screen.blit(graph1,(0,0))
+    graph1 = image_import.get_image('Game analytics/Collectable graphs.png',(500,300))
+    graph2 = image_import.get_image('Game analytics/Enemy kills.png',(500,300))
+    graph3 = image_import.get_image('Game analytics/General stats.png',(500,300))
+    graph4 = image_import.get_image('Game analytics/Healthgraph.png',(500,300))
+    back_button1 = image_import.get_image('pictures for survivor game/buttons and icons/back button 2.png',(50,50))
+    back_button2 = image_import.get_image('pictures for survivor game/buttons and icons/back button 1.png',(50,50))
+    back_button_rect = back_button1.get_rect(center = (screen_width/2,screen_height/2))
+    screen.blit(graph1,(93,20))
+    screen.blit(graph2,(686,20))
+    screen.blit(graph3,(93,380))
+    screen.blit(graph4,(686,380))
+    screen.blit(back_button1,back_button_rect)
+
+    if back_button_rect.collidepoint(mouse):
+        screen.blit(back_button2,back_button_rect)
+        if pressed[0] == True:
+            state_stack.pop()
+
 
 #pause game
 def pause_button(state):
@@ -805,8 +824,43 @@ def level_setup():
         enemy_frequency = random.randint(1,100)
     #level 3
     if current_level == 3:
-        level_background = pygame.surface.Surface((1280,720))
-        level_background.fill("Blue")
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
+        level_colour = "#0f9100"
+        wave_num = 30
+        enemy_frequency = 100
+    #level 4
+    if current_level == 4:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
+        level_colour = "#78050b"
+        wave_num = 30
+        enemy_frequency = 100
+    #level 5
+    if current_level == 5:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
+        level_colour = "#8f5703"
+        wave_num = 30
+        enemy_frequency = 100
+    #level 6
+    if current_level == 6:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
+        level_colour = "#636630"
+        wave_num = 30
+        enemy_frequency = 100
+    #level 7
+    if current_level == 7:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 7 background.png").convert_alpha()
+        level_colour = "#080f8c"
+        wave_num = 30
+        enemy_frequency = 100
+    #level 8
+    if current_level == 8:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 7 background.png").convert_alpha()
+        level_colour = "#76088c"
+        wave_num = 30
+        enemy_frequency = 100
+    #level 9
+    if current_level == 9:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
         level_colour = "Pink"
         wave_num = 30
         enemy_frequency = 100
@@ -857,7 +911,6 @@ def game_reset():
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
 
 state_stack = [menu]
-#state_stack = []
 
 #game loop
 while True:

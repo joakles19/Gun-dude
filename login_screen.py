@@ -63,12 +63,25 @@ Username = username()
 text_box = image_import.get_image("pictures for survivor game/backgrounds/Text box.png",(1100,150))
 text_box_rect = text_box.get_rect(center = (screen.get_width()/2,screen.get_height()/2))
 background = image_import.get_image("pictures for survivor game/backgrounds/login screen background.png",(1280,720))
+save_button1 = image_import.get_image("pictures for survivor game/buttons and icons/save 1.png",(400,200))
+save_button2 = image_import.get_image("pictures for survivor game/buttons and icons/save 2.png",(400,200))
+save_button_rect = save_button1.get_rect(center = (640,550))
+
+
 def main_screen():
     screen.blit(background,(0,0))
     screen.blit(text_box,text_box_rect)
+    screen.blit(save_button1,save_button_rect)
     Username.display(text_box_rect)
 
+    if save_button_rect.collidepoint(mouse) and Username.list != []:
+        screen.blit(save_button2,save_button_rect)
+
+
 while True:
+    mouse = pygame.mouse.get_pos()
+    pressed = pygame.mouse.get_pressed()
+
     main_screen()
     for event in pygame.event.get():
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
