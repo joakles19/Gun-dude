@@ -40,6 +40,10 @@ def add_currency(amount):
               WHERE player_id = 1""", str(amount))
     conn.commit()
 
+def enemy_information():
+    c.execute("""SELECT * 
+              FROM enemy_information""")
+    return c.fetchall()
+
 def close():
     conn.close()
-

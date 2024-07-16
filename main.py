@@ -5,8 +5,8 @@
 #Binary tree in skill_tree.py
 
 from typing import Any
-import pygame,math,random,subprocess #importing python libraries
-import database,Hash_table,image_import #important my own modules
+import pygame,math,random,subprocess,numpy as np #importing python libraries
+import database,Hash_table,image_import,analytics_maker #importing my own modules
 
 #initialising pygame
 pygame.init()
@@ -115,6 +115,19 @@ class Player(pygame.sprite.Sprite):
         self.playerlevel = 0
         self.speed = 3
         self.coins = 0
+
+        #Game analytics
+        self.health_track = []
+        self.enemy_kills = []
+        self.collectable_pickups = [0,0,0,0]
+        for enemy in enemies:
+            self.enemy_kills.append(0)
+        self.hits_track = 0
+        self.kills_track = 0
+        self.track_timer = 0
+        self.shots_fired = 0
+        self.collectables_picked = 0
+
     def movement(self):
         self.key = pygame.key.get_pressed()
         #Moves the character using WASD
@@ -213,6 +226,7 @@ class Player(pygame.sprite.Sprite):
         if self.cooldown_counter == 0 and self.can_shoot and self.ammo > 0:
             if (self.key[pygame.K_SPACE] or pressed[0]):
                 bullets_group.add(Bullets(self.rect.centerx,self.rect.centery,"Bullets",bullet_angle))
+                self.shots_fired += 1
                 self.ammo -=1
             self.cooldown_counter = 1
         if self.can_shoot  and self.lazer_time > 0:
@@ -240,8 +254,10 @@ class Player(pygame.sprite.Sprite):
             if pygame.Rect.colliderect(self.hitbox_rect,enemy.rect) and self.invincible == False:
                 self.health_num -= enemy.damage
                 self.invincible = True
+                self.hits_track += 1
         if self.health_num <= 0:
             state_stack.append(game_over_screen)
+            self.create_analytics()
         if game_timer <= 0.1:
             self.health_num = self.max_health
         if self.invincible:
@@ -259,15 +275,20 @@ class Player(pygame.sprite.Sprite):
     def collectables(self):
         for collectable in collectables_group:
             if pygame.Rect.colliderect(self.hitbox_rect,collectable.rect):
+                self.collectables_picked += 1
                 if collectable.type == "Health":
                     if self.health_num < self.max_health:
                         self.health_num += 1
+                    self.collectable_pickups[0] += 1
                 if collectable.type == "Nuke":
                     self.nuke_num += 1
+                    self.collectable_pickups[1] += 1
                 if collectable.type == "Coin":
                     self.coins += 1
+                    self.collectable_pickups[2] += 1
                 if collectable.type == "Scrap":
                     self.xp += 1
+                    self.collectable_pickups[3] += 1
                 collectable.kill()
 
     def player_level(self):
@@ -288,8 +309,24 @@ class Player(pygame.sprite.Sprite):
             press_timer = -1
             database.complete_level(current_level)
             database.add_currency(self.coins)
+            self.create_analytics()
             state_stack.pop()
-        
+
+    def track_health(self):
+        self.track_timer += 0.05
+        if self.track_timer >= 1:
+            self.health_track.append(self.health_num)
+            self.track_timer = 0
+
+    def create_analytics(self):
+        analytics_maker.create_plot(np.linspace(0,game_timer,len(self.health_track)),self.health_track,'Player health','Duration/s','Health','Healthgraph.png')
+        analytics_maker.bar_chart(['Hits taken','Kills','Shots fired','Things collected'],[self.hits_track,self.kills_track,self.shots_fired,self.collectables_picked],'General stats','','','General stats.png')
+        enemy_types = []
+        for enemy in enemies:
+            enemy_types.append(enemy[0])
+        analytics_maker.bar_chart(enemy_types,self.enemy_kills,'Enemy kills','','Kills','Enemy kills.png')
+        analytics_maker.bar_chart(['Health','Nuke','Coin','Scrap'],self.collectable_pickups,'Collectables picked up','','','Collectable graphs.png')
+
     def update(self):
         self.aim_graphics()
         self.player_level()
@@ -300,6 +337,7 @@ class Player(pygame.sprite.Sprite):
         self.health()
         self.power_ups()
         self.hitbox()
+        self.track_health()
 
 player = Player()
 player_group = pygame.sprite.GroupSingle()
@@ -357,6 +395,9 @@ class Enemies(pygame.sprite.Sprite):
     def item_drop(self):
         global kills
         self.kill()
+        for player in player_group:
+            player.kills_track += 1
+            player.enemy_kills[self.enemy_type] += 1
         kills += 1
         will_drop = random.randint(0,2)
         if will_drop <= 1:
@@ -410,7 +451,6 @@ class Enemies(pygame.sprite.Sprite):
         self.collide()
         self.movement()
         self.healthbar()
-
         self.animate()
 enemy_index = -1
 def spawn(frequency):
@@ -547,6 +587,9 @@ def game_over_screen():
     respawn_button2 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 2.png",(200,200))
     menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
     menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
+    stats_screen_button1 = image_import.get_image("pictures for survivor game/buttons and icons/available skill button.png",(50,50))
+    stats_screen_button2 = image_import.get_image("pictures for survivor game/buttons and icons/selected skill outline.png",(50,50))
+    stats_screen_button_rect = stats_screen_button1.get_rect(center = (100,100))
     respawn_button_rect = respawn_button1.get_rect(centery = player_dead_rect.centery, centerx = 1100)
     menu_button_rect = menu_button1.get_rect(centery = player_dead_rect.centery,centerx = 190)
     screen.blit(level_background,level_background_rect)
@@ -555,6 +598,7 @@ def game_over_screen():
     screen.blit(death_message,(player_dead_rect.left - 10,50))
     screen.blit(level_message,(player_dead_rect.left + 30,200))
     screen.blit(respawn_button2,respawn_button_rect)
+    screen.blit(stats_screen_button1,start_button_rect)
     #game over button collisions
     if respawn_button_rect.collidepoint(mouse):
         screen.blit(respawn_button1,respawn_button_rect)
@@ -566,9 +610,18 @@ def game_over_screen():
         if pressed[0] == True:
             for n in range(0,2):
                 state_stack.pop()
+    if stats_screen_button_rect.collidepoint(mouse):
+        screen.blit(stats_screen_button2,stats_screen_button_rect)
     enemy_group.empty()
     bullets_group.empty()
     collectables_group.empty()
+
+def level_stats_screen():
+    graph1 = image_import.get_image('Game analytics/Collectable graphs.png',(400,300))
+    graph2 = image_import.get_image('Game analytics/Enemy kills.png',(400,300))
+    graph3 = image_import.get_image('Game analytics/General stats.png',(400,300))
+    graph4 = image_import.get_image('Game analytics/Healthgraph.png',(400,300))
+    screen.blit(graph1,(0,0))
 
 #pause game
 def pause_button(state):
