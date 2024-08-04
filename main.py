@@ -2,11 +2,11 @@
 
 #Hash table in Hash_table.py
 #Database and SQL functions in database.py
-#Binary tree in skill_tree.py
+#Binary tree and tree traversal in skill_tree.py
 
 from typing import Any
 import pygame,math,random,subprocess,numpy as np #importing python libraries
-import database,Hash_table,image_import,analytics_maker #importing my own modules
+import database,data_structures,image_import,analytics_maker #importing my own modules
 
 #initialising pygame
 pygame.init()
@@ -307,7 +307,7 @@ class Player(pygame.sprite.Sprite):
             state_stack.append(level_up_screen)
         if self.playerlevel == wave_num:
             press_timer = -1
-            database.complete_level(current_level)
+            database.complete_level(current_level,current_user)
             database.add_currency(self.coins)
             self.create_analytics()
             state_stack.pop()
@@ -488,7 +488,7 @@ class Collectables(pygame.sprite.Sprite):
 collectables_group = pygame.sprite.Group()
 
 #Adding all of the object graphics to the hash table
-graphics_dict = Hash_table.HashTable() #creating hash table
+graphics_dict = data_structures.HashTable() #creating hash table
 #collectable graphics
 graphics_dict.add("Health",image_import.get_image("pictures for survivor game/collectables/heart collectable.png",(30,30)))
 graphics_dict.add("Nuke",image_import.get_image("pictures for survivor game/collectables/nuke collectable.png",(40,16)))
@@ -529,6 +529,7 @@ shop_button_2 = image_import.get_image("pictures for survivor game/buttons and i
 shop_button_rect = shop_button_1.get_rect(centerx = start_button_rect.centerx, centery = start_button_rect.centery + 200)
 save_button1 = image_import.get_image("pictures for survivor game/buttons and icons/save button 1.png",(100,100))
 save_button2 = image_import.get_image("pictures for survivor game/buttons and icons/save button 2.png",(100,100))
+save_button_border = image_import.get_image("pictures for survivor game/buttons and icons/save button bordered.png",(100,100))
 save_button_rect = save_button1.get_rect(center = (570,600))
 def menu():
     global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect
@@ -549,23 +550,30 @@ def menu():
         player_menu_index = 0
     screen.blit(player_menu[int(player_menu_index)],(20,50))
     screen.blit(title,(650,50))
+
+    #Display the current user
+    user = pygame.font.Font.render(general_font,f"{current_user}",True,'Red')
+    screen.blit(user,(0,0))
     
     #menu button collisions
     #start button
     screen.blit(start_button_1,start_button_rect)
-    if start_button_rect.collidepoint(mouse):
+    if start_button_rect.collidepoint(mouse) and current_user != "Select/create a user to play":
         screen.blit(start_button_2,start_button_rect)
         if mouse_pressed[0] == True:
             state_stack.append(pre_game_screen)
             press_timer = 0
     #shop button
     screen.blit(shop_button_1,shop_button_rect)
-    if shop_button_rect.collidepoint(mouse):
+    if shop_button_rect.collidepoint(mouse) and current_user != "Select/create a user to play":
         screen.blit(shop_button_2,shop_button_rect)
         if mouse_pressed[0] == True:
             subprocess.run(["Python","game_shop.py"])
     #save button
-    screen.blit(save_button1,save_button_rect)
+    if current_user != "Select/create a user to play":
+        screen.blit(save_button1,save_button_rect)
+    else:
+        screen.blit(save_button_border,save_button_rect)
     if save_button_rect.collidepoint(mouse):
         screen.blit(save_button2,save_button_rect)
         if mouse_pressed[0] == True:
@@ -793,7 +801,7 @@ def pre_game_screen():
         press_timer += 1
     if press_timer >= 10:
         press_timer = -1
-    level_list = database.is_complete()
+    level_list = database.is_complete(current_user)
     if level_list[current_level-1][0] == 1:
         screen.blit(play_button1,play_button_rect)
         if play_button_rect.collidepoint(mouse) and press_timer == -1:
@@ -860,7 +868,13 @@ def level_setup():
         enemy_frequency = 100
     #level 9
     if current_level == 9:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
+        level_colour = "Pink"
+        wave_num = 30
+        enemy_frequency = 100
+    #level 10
+    if current_level == 10:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
         level_colour = "Pink"
         wave_num = 30
         enemy_frequency = 100
@@ -919,6 +933,8 @@ while True:
         if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):
             pygame.quit()
             exit()
+
+    current_user = database.get_user()
     key = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pos()
     pressed = pygame.mouse.get_pressed()

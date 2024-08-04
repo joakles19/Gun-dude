@@ -1,5 +1,31 @@
-#Binary tree
+#Hash table
+class HashTable():
 
+    def __init__(self):
+        self.size = 1000
+        self.table = [[] for i in range(1000)] 
+
+    def get_hash(self,key):
+        sum = 0
+        if key != None:
+            for letter in key:
+                sum += ord(letter)
+        return sum
+    
+    def add(self,key,item):
+        hashcode = self.get_hash(key)
+        if hashcode >= self.size:
+            self.size *= 2
+        self.table[hashcode].append(item)
+   
+    def get(self,key):
+        hashcode = self.get_hash(key)
+        if len(self.table[hashcode]) == 1:
+            return self.table[hashcode][0]
+        else:
+            return self.table[hashcode]
+        
+#Binary tree
 class Node(object):
     def __init__(self,value,content):
         self.node_value = value
@@ -62,18 +88,23 @@ class Tree(object):
         else: right = None
         return left,right
 
-tree = Tree(8,"Hello")
-tree.insert(4,None)
-tree.insert(2,None)
-tree.insert(1,None)
-tree.insert(3,None)
-tree.insert(6,None)
-tree.insert(5,None)
-tree.insert(7,None)
-tree.insert(12,None)
-tree.insert(10,None)
-tree.insert(14,None)
-tree.insert(9,None)
-tree.insert(11,None)
-tree.insert(13,None)
-tree.insert(15,None)
+#Sorting algorithm
+def quick_sort(list):
+    if len(list) < 2:
+        return list
+    
+    lower = []
+    same = []
+    higher = []
+
+    pivot = list[int(len(list)/2)][0]
+
+    for item in list:
+        if item[0] < pivot:
+            lower.append(item)
+        elif item[0] > pivot:
+            higher.append(item)
+        elif item[0] == pivot:
+            same.append(item)
+
+    return quick_sort(lower) + same + quick_sort(higher)

@@ -1,4 +1,4 @@
-import pygame,database,image_import, skill_tree
+import pygame,database,image_import, data_structures
 from math import log10, floor
 pygame.init()
 screen = pygame.display.set_mode((1280,720))
@@ -95,7 +95,7 @@ passive_healing = skills(pygame.rect.Rect(795,315,70,70),image_import.get_image(
 
 #setting up trees
 #Tree base
-upgrade_tree = skill_tree.Tree(8,None)
+upgrade_tree = data_structures.Tree(8,None)
 upgrade_tree.insert(4,damage_up1)
 upgrade_tree.insert(2,damage_up2)
 upgrade_tree.insert(1,damage_up3)
@@ -112,7 +112,7 @@ upgrade_tree.insert(13,passive_healing)
 upgrade_tree.insert(15,health_up3)
 
 #User's skill tree
-current_tree = skill_tree.Tree(8,None)
+current_tree = data_structures.Tree(8,None)
 current_tree.insert(4,damage_up1)
 current_tree.insert(12,health_up1)
 skilltree_back_rect = back_button1.get_rect(center = (650,40))
