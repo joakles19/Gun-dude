@@ -308,7 +308,7 @@ class Player(pygame.sprite.Sprite):
         if self.playerlevel == wave_num:
             press_timer = -1
             database.complete_level(current_level,current_user)
-            database.add_currency(self.coins)
+            database.add_currency(self.coins,current_user)
             self.create_analytics()
             state_stack.pop()
 

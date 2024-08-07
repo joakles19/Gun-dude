@@ -28,15 +28,15 @@ def get_enemies(level):
 #Returns the player's currency
 def get_currency():
     c.execute("""SELECT currency
-              FROM player_information
-              WHERE player_id = 1""")
+              FROM usernames
+              WHERE in_use = 1""")
     return c.fetchall()[0][0]
     
 #Adds to the player's currency
 def add_currency(amount):
-    c.execute("""UPDATE player_information 
+    c.execute(f"""UPDATE usernames 
               SET currency = currency + ?
-              WHERE player_id = 1""", str(amount))
+              WHERE in_use = 1""", (str(amount),))
     conn.commit()
 
 #Returns the enemy information
@@ -54,7 +54,7 @@ def return_usernames():
 #Adds new username
 def new_username(new_name):
     c.execute("""INSERT INTO usernames
-               VALUES (?,False)""",(str(new_name),))
+               VALUES (?,False,0)""",(str(new_name),))
     conn.commit()
 
 #Deletes user
@@ -62,6 +62,7 @@ def delete_user(username):
     c.execute("""DELETE FROM usernames
                WHERE username = ?""",(str(username),))
     c.execute(f"""DROP TABLE {username}levels""")
+    c.execute(f"""DROP TABLE {username}skills""")
     conn.commit()
 
 #Choose user
@@ -94,7 +95,32 @@ def create_tables(username):
     for n in range(1,11):
         c.execute(f"""INSERT INTO {username}levels
                   VALUES({n},0)""")
+    c.execute(f"""CREATE TABLE {username}skills(
+              skill varchar,
+              purchased boolean)""")
+    for n in range(1,16):
+        c.execute(f"""INSERT INTO {username}skills
+                   VALUES(?,0)""",(str(n),))
     conn.commit()
+
+#Purchase skill
+def purchase_skill(skill):
+    c.execute("""SELECT username FROM usernames
+              WHERE in_use = 1""")
+    user = c.fetchone()[0]
+    c.execute(f"""UPDATE {user}skills
+              SET purchased = 1
+              WHERE skill = ?""",(str(skill),))
+    conn.commit()
+
+#Return skills
+def get_skills():
+    c.execute("""SELECT username FROM usernames
+              WHERE in_use = 1""")
+    user = c.fetchone()[0]
+    c.execute(f"""SELECT skill FROM {user}skills
+              WHERE purchased = 1""")
+    return c.fetchall()
     
 #Closes database
 def close():
