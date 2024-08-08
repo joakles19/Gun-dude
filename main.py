@@ -58,6 +58,10 @@ class Player(pygame.sprite.Sprite):
         self.power_up_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",30)
         self.nuke_icon = image_import.get_image("pictures for survivor game/buttons and icons/nuke icon.png",(100,70))
         self.nuke_icon_rect = self.nuke_icon.get_rect(bottomright = (screen_width,screen_height))
+        self.lazer_ammo_icon = image_import.get_image("pictures for survivor game/buttons and icons/lazer ammo icon.png",(80,50))
+        self.lazer_ammo_icon_rect = self.lazer_ammo_icon.get_rect(right = self.nuke_icon_rect.left - 10,centery = self.nuke_icon_rect.centery - 10)
+        self.invincibility_icon = image_import.get_image("pictures for survivor game/buttons and icons/invincibilty icon.png",(80,80))
+        self.invincibility_icon_rect = self.invincibility_icon.get_rect(right = self.lazer_ammo_icon_rect.left -10, centery = self.lazer_ammo_icon_rect.centery)
         self.explosion1 = image_import.get_image("pictures for survivor game/explosion animation/explosion 1.png",(1000,1000))
         self.explosion2 = image_import.get_image("pictures for survivor game/explosion animation/explosion 2.png",(1000,1000))
         self.explosion3 = image_import.get_image("pictures for survivor game/explosion animation/explosion 3.png",(1000,1000))
@@ -79,8 +83,8 @@ class Player(pygame.sprite.Sprite):
         self.reload_timer = 100
         self.reload = 0
         self.reload_index = 0
-        self.lazer_time = 10000
         self.weapon_damage = 1
+        self.coin_multiplier = 1
 
     def power_ups(self):
         global press_timer
@@ -104,6 +108,51 @@ class Player(pygame.sprite.Sprite):
             press_timer = -1
 
     def reset(self):
+        #Set up skills from skill tree
+        if skill_purchased[3]:#Damage up 1
+            self.weapon_damage = 3
+            if skill_purchased[1]:#Damage up 2
+                self.weapon_damage = 5
+                if skill_purchased[0]:#Damage up 3
+                    self.weapon_damage = 7
+        
+        if skill_purchased[2]:#Lazer
+            self.can_lazer = True
+            self.lazer_time = 10
+        else:
+            self.can_lazer = False
+            self.lazer_time = 0
+
+        if skill_purchased[5]:#Fire rate up 1
+            self.bullet_cooldown = 20
+            if skill_purchased[4]:#Fire rate upgrade 2
+                self.bullet_cooldown = 10
+
+        if skill_purchased[9]:#Coin multiplier 1
+            self.coin_multiplier = 2
+            if skill_purchased[8]:#Coin multiplier 2
+                self.coin_multiplier = 3
+
+        if skill_purchased[11]:#Health up 1
+            self.max_health = 8
+            if skill_purchased[13]:#Health up 2
+                self.max_health = 12
+                if skill_purchased[14]:#Health up 3
+                    self.max_health = 15
+
+        if skill_purchased[12]:#Passive heal
+            self.passive_heal = True
+            self.passive_heal_timer = 0
+        else:
+            self.passive_heal = False
+
+        if skill_purchased[10]:
+            self.invincible_skill = True
+        else:
+            self.invincible_skill = False
+        self.invincible_skill_cooldown = 0
+
+        #Reset player attributes
         self.rect = self.image.get_rect(center = (screen_width/2,screen_height/2))
         self.health_num = self.max_health
         self.invincible = False
@@ -229,15 +278,23 @@ class Player(pygame.sprite.Sprite):
                 self.shots_fired += 1
                 self.ammo -=1
             self.cooldown_counter = 1
-        if self.can_shoot  and self.lazer_time > 0:
+        if self.can_shoot  and self.lazer_time > 1 and self.can_lazer:
             if self.key[pygame.K_n]:
                 bullets_group.add(Bullets(self.rect.centerx,self.rect.centery,"Lazer",bullet_angle))
                 self.lazer_time -= 1
-            
+
+        if self.lazer_time > 0 and self.lazer_time < 10 and self.can_lazer:
+            self.lazer_time += 0.02
+        lazer_num = pygame.font.Font.render(general_font,f"{int(self.lazer_time)}",False,"#000045")
+        lazer_num_rect = lazer_num.get_rect(center = self.lazer_ammo_icon_rect.center)
+        if self.can_lazer:
+            screen.blit(self.lazer_ammo_icon,(self.lazer_ammo_icon_rect))
+            screen.blit(lazer_num,lazer_num_rect)
+
         screen.blit(self.ammo_icon,self.ammo_icon_rect)
-        self.ammo_num = pygame.font.Font.render(general_font,f"{self.ammo}",False,"#765301")
+        ammo_num = pygame.font.Font.render(general_font,f"{self.ammo}",False,"#765301")
         if self.ammo > 0:
-            screen.blit(self.ammo_num,self.ammo_num_rect)
+            screen.blit(ammo_num,self.ammo_num_rect)
         else:
             self.reload += 1
             if self.reload > self.reload_timer:
@@ -265,6 +322,23 @@ class Player(pygame.sprite.Sprite):
         if self.invincible_counter < 0 and self.invincible:
             self.invincible_counter = 6
             self.invincible = False
+
+        if self.invincible_skill and self.invincible_skill_cooldown < 1:
+            screen.blit(self.invincibility_icon,self.invincibility_icon_rect)
+            if key[pygame.K_b]:
+                self.invincible = True
+                self.invincible_skill_cooldown = 800
+            
+        if self.invincible_skill_cooldown >= 1:
+            self.invincible_skill_cooldown -= 1
+
+        if self.passive_heal:
+            self.passive_heal_timer += 1
+            if self.passive_heal_timer > 1000:
+                if self.health_num < self.max_health:
+                    self.health_num += 1
+                self.passive_heal_timer = 0
+
         if self.health_num >= 10:
             general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",20)
         self.health_message = pygame.font.Font.render(general_font,f"{self.health_num}",False,"#8B0000")
@@ -284,7 +358,7 @@ class Player(pygame.sprite.Sprite):
                     self.nuke_num += 1
                     self.collectable_pickups[1] += 1
                 if collectable.type == "Coin":
-                    self.coins += 1
+                    self.coins += 1 * self.coin_multiplier
                     self.collectable_pickups[2] += 1
                 if collectable.type == "Scrap":
                     self.xp += 1
@@ -308,7 +382,7 @@ class Player(pygame.sprite.Sprite):
         if self.playerlevel == wave_num:
             press_timer = -1
             database.complete_level(current_level,current_user)
-            database.add_currency(self.coins,current_user)
+            database.add_currency(self.coins)
             self.create_analytics()
             state_stack.pop()
 
@@ -399,17 +473,26 @@ class Enemies(pygame.sprite.Sprite):
             player.kills_track += 1
             player.enemy_kills[self.enemy_type] += 1
         kills += 1
-        will_drop = random.randint(0,2)
-        if will_drop <= 1:
-            decider = random.randint(1,100)
-            if decider >= 8 and decider <= 35:
+
+        if skill_purchased[6]:
+            more_nukes = True
+        else:
+            more_nukes = False
+
+        will_drop = random.randint(0,3)
+        if will_drop <= 2:
+            if more_nukes:
+                decider = random.randint(1,105)
+            else:
+                decider = random.randint(1,100)
+            if decider >= 8 and decider <= 40:
                 collectables_group.add(Collectables(self.rect.centerx,self.rect.centery,"Coin"))
-            if decider == 1:
-                collectables_group.add(Collectables(self.rect.centerx,self.rect.centery,"Nuke"))
-            if decider > 1 and decider < 8:
+            if decider > 0 and decider < 8:
                 collectables_group.add(Collectables(self.rect.centerx,self.rect.centery,"Health"))
-            if decider > 35:
+            if decider > 40 and decider < 100:
                 collectables_group.add(Collectables(self.rect.centerx,self.rect.centery,"Scrap"))
+            if decider >= 100:
+                collectables_group.add(Collectables(self.rect.centerx,self.rect.centery,"Nuke"))
 
     def collide(self):
         if pygame.sprite.spritecollide(self,bullets_group,True):
@@ -723,7 +806,7 @@ class level_ups(pygame.sprite.Sprite):
                 if self.image == fire_rate_upgrade:
                     player.bullet_cooldown *= 0.85
                 if self.image == damage_upgrade:
-                    player.weapon_damage += 0.5
+                    player.weapon_damage += 0.3
                 if self.image == speed_upgrade:
                     player.speed += 0.2
 
@@ -911,7 +994,7 @@ def main_game():
         pause_button("Pause")
     game_timer += 0.016
 
-#game reset
+#reset game
 def game_reset():
     global kills, game_timer, power_up_list
     state_stack.append(main_game)
@@ -924,9 +1007,16 @@ def game_reset():
     game_timer = 0
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
 
+
+skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]
+def update_skills():
+    for skill in user_skills:
+        skill_purchased[int(skill[0])-1] = True
+
+#define stack which holds the game state
 state_stack = [menu]
 
-#game loop
+#main game loop
 while True:
     #event loop
     for event in pygame.event.get():
@@ -934,11 +1024,20 @@ while True:
             pygame.quit()
             exit()
 
+    #constantly update user information
     current_user = database.get_user()
+    user_skills = database.get_skills()
+    update_skills()
+
+    #constantly update keyboard/mouse variables
     key = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pos()
     pressed = pygame.mouse.get_pressed()
+
+    #run the current state
     current_state = len(state_stack) - 1
     state_stack[current_state]()
+
+    #update everything on screen
     pygame.display.update()
     clock.tick(60)
