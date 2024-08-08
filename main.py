@@ -24,20 +24,22 @@ press_timer = -1
 kills = 0
 game_timer = 0
 
+player_skin = ''
+
 #player
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
         #graphics
-        right90 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 90.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 90.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 90.png").convert_alpha()]
+        right90 = [pygame.image.load(f"pictures for survivor game/dude graphics/dude stand 90{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 1 90{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 2 90{player_skin}.png").convert_alpha()]
         left90 = [pygame.transform.flip(right90[0],True,False),pygame.transform.flip(right90[1],True,False),pygame.transform.flip(right90[2],True,False)]
-        right45 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 45.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 45.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 45.png").convert_alpha()]
+        right45 = [pygame.image.load(f"pictures for survivor game/dude graphics/dude stand 45{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 1 45{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 2 45{player_skin}.png").convert_alpha()]
         left45 = [pygame.transform.flip(right45[0],True,False),pygame.transform.flip(right45[1],True,False),pygame.transform.flip(right45[2],True,False)]
-        right135 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 135.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 135.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 135.png").convert_alpha()]
+        right135 = [pygame.image.load(f"pictures for survivor game/dude graphics/dude stand 135{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 1 135{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 2 135{player_skin}.png").convert_alpha()]
         left135 = [pygame.transform.flip(right135[0],True,False),pygame.transform.flip(right135[1],True,False),pygame.transform.flip(right135[2],True,False)]
-        right0 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 0.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 0.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 0.png").convert_alpha()]
+        right0 = [pygame.image.load(f"pictures for survivor game/dude graphics/dude stand 0{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 1 0{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 2 0{player_skin}.png").convert_alpha()]
         left0 = [pygame.transform.flip(right0[0],True,False),pygame.transform.flip(right0[1],True,False),pygame.transform.flip(right0[2],True,False)]
-        right180 = [pygame.image.load("pictures for survivor game/dude graphics/dude stand 180.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 1 180.png").convert_alpha(),pygame.image.load("pictures for survivor game/dude graphics/dude run 2 180.png").convert_alpha()]
+        right180 = [pygame.image.load(f"pictures for survivor game/dude graphics/dude stand 180{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 1 180{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 2 180{player_skin}.png").convert_alpha()]
         left180 = [pygame.transform.flip(right180[0],True,False),pygame.transform.flip(right180[1],True,False),pygame.transform.flip(right180[2],True,False)]
         self.right = [right0,right45,right90,right135,right180]
         self.left = [left0,left45,left90,left135,left180]
@@ -414,8 +416,6 @@ class Player(pygame.sprite.Sprite):
         self.track_health()
 
 player = Player()
-player_group = pygame.sprite.GroupSingle()
-player_group.add(Player())
 
 #bullets
 class Bullets(pygame.sprite.Sprite):
@@ -589,9 +589,6 @@ graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/ene
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 2.png",(100,100)))
 
 #menu screen
-player_menu_1 = image_import.get_image("pictures for survivor game/dude graphics/dude run 1 90.png",(500,650))
-player_menu_2 = image_import.get_image("pictures for survivor game/dude graphics/dude run 2 90.png",(500,650))
-player_menu = [player_menu_1,player_menu_2]
 player_menu_index = 0
 menu_cloud = image_import.get_image("pictures for survivor game/backgrounds/menu backgrounds/menu clouds.png",(7200,screen_height))
 menu_cloud_rect = menu_cloud.get_rect(topleft = (0,0))
@@ -616,6 +613,9 @@ save_button_border = image_import.get_image("pictures for survivor game/buttons 
 save_button_rect = save_button1.get_rect(center = (570,600))
 def menu():
     global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect
+    player_menu_1 = image_import.get_image(f"pictures for survivor game/dude graphics/dude run 1 90{player_skin}.png",(500,650))
+    player_menu_2 = image_import.get_image(f"pictures for survivor game/dude graphics/dude run 2 90{player_skin}.png",(500,650))
+    player_menu = [player_menu_1,player_menu_2]
     mouse = pygame.mouse.get_pos()
     mouse_pressed = pygame.mouse.get_pressed()
     #menu background animations
@@ -672,7 +672,7 @@ def menu():
 #game over screen
 def game_over_screen():
     global level_message
-    player_dead = image_import.get_image("pictures for survivor game/dude graphics/dude death.png",(518,238))
+    player_dead = image_import.get_image(f"pictures for survivor game/dude graphics/dude death{player_skin}.png",(518,238))
     player_dead_rect = player_dead.get_rect(centerx = screen_width/2,centery = 500)
     respawn_button1 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 1.png",(200,200))
     respawn_button2 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 2.png",(200,200))
@@ -996,8 +996,10 @@ def main_game():
 
 #reset game
 def game_reset():
-    global kills, game_timer, power_up_list
+    global kills, game_timer, power_up_list, player_group
     state_stack.append(main_game)
+    player_group = pygame.sprite.GroupSingle()
+    player_group.add(Player())
     for player in player_group:
         player.reset()
     bullets_group.empty()
@@ -1026,8 +1028,13 @@ while True:
 
     #constantly update user information
     current_user = database.get_user()
-    user_skills = database.get_skills()
-    update_skills()
+    try:
+        user_skills = database.get_skills()
+        player_skin = database.get_selected_skin()
+        update_skills()
+    except:
+        pass
+
 
     #constantly update keyboard/mouse variables
     key = pygame.key.get_pressed()

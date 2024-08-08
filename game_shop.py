@@ -20,6 +20,8 @@ skill_tree_button2 = image_import.get_image("pictures for survivor game/buttons 
 skill_tree_button_rect = skill_tree_button1.get_rect(topleft = (550,150))
 back_button1 = image_import.get_image("pictures for survivor game/buttons and icons/back button 1.png",(90,90))
 back_button2 = image_import.get_image("pictures for survivor game/buttons and icons/back button 2.png",(90,90))
+back_button_rect = back_button1.get_rect(center = (1000,100))
+
 def shop_main():
     global mouse_pos, pressed
     #Menu button
@@ -33,6 +35,8 @@ def shop_main():
     screen.blit(char_button1,char_button_rect)
     if char_button_rect.collidepoint(mouse_pos):
         screen.blit(char_button2,char_button_rect)
+        if pressed[0]:
+            shop_state_stack.append(customisation_menu)
     #Skill tree button
     screen.blit(skill_tree_button1,skill_tree_button_rect)
     if skill_tree_button_rect.collidepoint(mouse_pos):
@@ -132,8 +136,6 @@ for skill in users_skills:
     skills_list[skill_num].purchase()
     add_to_tree(skills_list[skill_num])
 
-skilltree_back_rect = back_button1.get_rect(center = (1000,100))
-
 def skill_tree_menu():
     #display skill tree
     screen.blit(skill_tree_base,skill_tree_rect)
@@ -144,9 +146,80 @@ def skill_tree_menu():
             skill.display()
 
     #back button
-    screen.blit(back_button1,skilltree_back_rect)
-    if skilltree_back_rect.collidepoint(mouse_pos):
-        screen.blit(back_button2,skilltree_back_rect)
+    screen.blit(back_button1,back_button_rect)
+    if back_button_rect.collidepoint(mouse_pos):
+        screen.blit(back_button2,back_button_rect)
+        if pressed[0]:
+            shop_state_stack.pop()
+
+
+class skin_button:
+    def __init__(self,skin,skin_name):
+        self.base1 = image_import.get_image("pictures for survivor game/buttons and icons/skin button 1.png",(230,290))
+        self.base2 = image_import.get_image("pictures for survivor game/buttons and icons/skin button 2.png",(230,290))
+        self.skin = image_import.get_image(skin,(192,228))
+        self.skin_name = skin_name
+        self.num = 1
+        self.selected = False
+        self.purchased = False
+    
+    def display(self):
+        self.rect = self.base1.get_rect(topleft = (250*self.num-100,250))
+        self.skin_rect = self.skin.get_rect(center = self.rect.center)
+
+        screen.blit(self.base1,self.rect)
+        if self.rect.collidepoint(mouse_pos):
+            screen.blit(self.base2,self.rect)
+            if pressed[0]:
+                database.select_skin(self.skin_name)
+        screen.blit(self.skin,self.skin_rect)
+
+skin_buttons = []
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90.png",''))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Green.png",'Green'))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Purple.png",'Purple'))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Grey.png",'Grey'))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Orange.png",'Orange'))
+
+display_list = []
+for n in range(0,4):
+    display_list.append(skin_buttons[n])
+
+right_arrow1 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 1.png",(60,60))
+right_arrow2 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 2.png",(60,60))
+left_arrow1 = pygame.transform.rotate(right_arrow1,180)
+left_arrow2 = pygame.transform.rotate(right_arrow2,180)
+left_arrow_rect = left_arrow1.get_rect(topleft = (70,370))
+right_arrow_rect = right_arrow1.get_rect(topleft = (1150,370))
+
+def customisation_menu():
+
+    for button in display_list:
+        button.display()
+
+    for n in range(0,4):
+        display_list[n].num = n+1
+
+    if display_list[0] != skin_buttons[0]:
+        screen.blit(left_arrow1,left_arrow_rect)
+        if left_arrow_rect.collidepoint(mouse_pos):
+            screen.blit(left_arrow2,left_arrow_rect)
+            if pressed[0]:
+                display_list.pop()
+                display_list.insert(0,skin_buttons[skin_buttons.index(display_list[0])-1])
+
+    if display_list[3] != skin_buttons[4]:
+        screen.blit(right_arrow1,right_arrow_rect)
+        if right_arrow_rect.collidepoint(mouse_pos):
+            screen.blit(right_arrow2,right_arrow_rect)
+            if pressed[0]:
+                display_list.append(skin_buttons[skin_buttons.index(display_list[3])+1])
+                display_list.pop(0)
+
+    #back button
+    screen.blit(back_button1,back_button_rect)
+    if back_button_rect.collidepoint(mouse_pos):
+        screen.blit(back_button2,back_button_rect)
         if pressed[0]:
             shop_state_stack.pop()
 

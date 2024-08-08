@@ -63,6 +63,7 @@ def delete_user(username):
                WHERE username = ?""",(str(username),))
     c.execute(f"""DROP TABLE {username}levels""")
     c.execute(f"""DROP TABLE {username}skills""")
+    c.execute(f"""DROP TABLE {username}skins""")
     conn.commit()
 
 #Choose user
@@ -101,6 +102,16 @@ def create_tables(username):
     for n in range(1,16):
         c.execute(f"""INSERT INTO {username}skills
                    VALUES(?,0)""",(str(n),))
+    c.execute(f"""CREATE TABLE {username}skins(
+              skin varchar,
+              purchased boolean,
+              selected boolean)""")
+    c.execute(f"""INSERT INTO {username}skins
+                  VALUES('',1,1)""")
+    color_list = ['Green','Grey','Orange','Purple']
+    for color in color_list:
+        c.execute(f"""INSERT INTO {username}skins
+                  VALUES(?,0,0)""",(str(color),))
     conn.commit()
 
 #Purchase skill
@@ -122,6 +133,38 @@ def get_skills():
               WHERE purchased = 1""")
     return c.fetchall()
     
+#Return skins
+def get_purchased_skins():
+    c.execute("""SELECT username FROM usernames
+              WHERE in_use = 1""")
+    user = c.fetchone()[0]
+    c.execute(f"""SELECT skin FROM {user}skins
+              WHERE purchased = 1""")
+    return c.fetchall()
+
+def get_selected_skin():
+    c.execute("""SELECT username FROM usernames
+              WHERE in_use = 1""")
+    user = c.fetchone()[0]
+    c.execute(f"""SELECT skin FROM {user}skins
+              WHERE selected = 1""")
+    skin = c.fetchone()
+    if skin is None:
+        return ""
+    else:
+        return skin[0]
+
+#Select skin
+def select_skin(skin):
+    c.execute("""SELECT username FROM usernames
+              WHERE in_use = 1""")
+    user = c.fetchone()[0]
+    c.execute(f"""UPDATE {user}skins
+              SET selected = 
+              (CASE WHEN skin = ? THEN 1 
+              ELSE 0 
+              END)""",(str(skin),))
+    conn.commit()
 #Closes database
 def close():
     conn.close()
