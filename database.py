@@ -25,6 +25,13 @@ def get_enemies(level):
               ON level_enemies.enemy = enemy_information.enemy_type AND level_enemies.level = ?""",(str(level),))
     return c.fetchall()
 
+#Returns enemy_information
+def enemy_information(enemy):
+    c.execute("""SELECT *
+              FROM enemy_information
+              WHERE enemy_type = ?""",(str(enemy),))
+    return c.fetchone()
+
 #Returns the player's currency
 def get_currency():
     c.execute("""SELECT currency
@@ -38,12 +45,6 @@ def add_currency(amount):
               SET currency = currency + ?
               WHERE in_use = 1""", (str(amount),))
     conn.commit()
-
-#Returns the enemy information
-def enemy_information():
-    c.execute("""SELECT * 
-              FROM enemy_information""")
-    return c.fetchall()
 
 #Returns all usernames 
 def return_usernames():
@@ -176,3 +177,4 @@ def select_skin(skin,select,purchase):
 #Closes database
 def close():
     conn.close()
+

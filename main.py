@@ -4,7 +4,6 @@
 #Database and SQL functions in database.py
 #Binary tree and tree traversal in skill_tree.py
 
-from typing import Any
 import pygame,math,random,subprocess,numpy as np #importing python libraries
 import database,data_structures,image_import,analytics_maker #importing my own modules
 
@@ -433,14 +432,13 @@ class Bullets(pygame.sprite.Sprite):
         self.dy = -(math.sin(self.rangle)) * self.speed
         if self.type == "Bullets":
             self.image = pygame.image.load("pictures for survivor game/Bullet.png").convert_alpha()
-            self.image = pygame.transform.rotate(self.image,self.dangle)
-            self.rect.x += self.dx
-            self.rect.y += self.dy
         if self.type == "Lazer":
             self.image = pygame.image.load("pictures for survivor game/Lazer bullet.png").convert_alpha()
-            self.image = pygame.transform.rotate(self.image,self.dangle)
-            self.rect.x += self.dx
-            self.rect.y += self.dy
+        if self.type == "Fireball":
+            self.image = pygame.image.load("pictures for survivor game/Fireball.png").convert_alpha()
+        self.image = pygame.transform.rotate(self.image,self.dangle)
+        self.rect.x += self.dx
+        self.rect.y += self.dy
 
     def update(self):
         self.movement()
@@ -448,30 +446,37 @@ class Bullets(pygame.sprite.Sprite):
             self.kill()
         if self.rect.x <= -50:
             self.kill()
+
+class Enemy_bullets(Bullets):
+    def __init__(self, posx, posy, type, angle,damage,speed):
+        super().__init__(posx, posy, type, angle)
+        self.damage = damage
+        self.speed = speed
+
 bullets_group = pygame.sprite.Group()
 
 #enemies
 class Enemies(pygame.sprite.Sprite):
-    def __init__(self,posx,posy):
+    def __init__(self,posx,posy,info):
         super().__init__()
-        self.enemy_type = random.randint(0,len(enemies)-1)
-        self.animation = graphics_dict.get(f"{enemies[self.enemy_type][0]}")
+        self.enemy_info = info
+        self.animation = graphics_dict.get(f"{info[0]}")
         self.image = self.animation[0]
         self.rect = self.image.get_rect(center = (posx,posy))
-        self.max_health = enemies[self.enemy_type][1]
+        self.max_health = info[1]
         self.health = self.max_health
         self.bar = pygame.surface.Surface(((self.health/5)*self.image.get_width(),10)).convert_alpha()
         self.bar_rect = self.bar.get_rect(top = self.rect.bottom)
-        self.speed = enemies[self.enemy_type][3]
+        self.speed = info[3]
         self.run_index = 0
-        self.damage = enemies[self.enemy_type][2]
+        self.damage = info[2]
 
     def item_drop(self):
         global kills
         self.kill()
         for player in player_group:
             player.kills_track += 1
-            player.enemy_kills[self.enemy_type] += 1
+            player.enemy_kills[enemies.index(self.enemy_info)] += 1
         kills += 1
 
         if skill_purchased[6]:
@@ -537,28 +542,59 @@ class Enemies(pygame.sprite.Sprite):
         self.animate()
 
 class Boss(Enemies):
-    def __init__(self, posx, posy):
-        super().__init__(posx, posy)
+    def __init__(self, posx, posy, info):
+        super().__init__(posx, posy, info)
+        self.shoot_cooldown = 0
 
+    def boss_health_bar(self):
+        healthbar = image_import.get_image("pictures for survivor game/boss healthbar.png",(960,64))
+        healthbar_full = image_import.get_image("pictures for survivor game/boss healthbar full.png",(960,64))
+        screen.blit(healthbar,(170,30))
+        screen.blit(healthbar_full,(170,30),pygame.rect.Rect(0,0,(self.health/self.max_health)*960,64))
 
-enemy_index = -1
+    def shoot(self):
+        for player in player_group:
+            endx,endy = player.rect.x,player.rect.y
+        x_dist = endx-self.rect.centerx
+        y_dist = -(endy-self.rect.centery)
+        angle = math.degrees(math.atan2(y_dist,x_dist))
+
+        self.shoot_cooldown += 1
+        if self.shoot_cooldown >= 50:
+            enemy_group.add(Enemy_bullets(self.rect.centerx,self.rect.centery,"Fireball",angle,self.damage/2,10))
+            self.shoot_cooldown = 0
+
+    def update(self):
+        self.collide()
+        self.movement()
+        self.boss_health_bar()
+        self.animate()
+        self.shoot()
+
+enemy_index = 0
 def spawn(frequency):
-    global enemy_index
-    if enemy_index >= -1:
+    global enemy_index, boss_spawn
+    if enemy_index >= 0:
         enemy_index += 1
     if enemy_index >= frequency:
-        enemy_index = -1
-    if enemy_index == 0:
-        spawn_side = random.randint(0,3)    
+        enemy_index = 0
+        spawn_side = random.randint(0,3)
+        enemy_type = random.randint(0,len(enemies)-1)
+        enemy_info = enemies[enemy_type]
         #Chooses which side of the screen the enemies spawn on
-        if spawn_side == 0:
-            enemy_group.add(Enemies(random.randint(-200,-100),random.randint(0,screen_height)))
-        if spawn_side == 1:
-            enemy_group.add(Enemies(random.randint(screen_width + 100,screen_width + 200),random.randint(0,screen_height)))
-        if spawn_side == 2:
-            enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(-200,-100)))
-        if spawn_side == 3:
-            enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(screen_height + 100,screen_height + 200)))
+        if enemy_info[4] == 0:
+            if spawn_side == 0:
+                enemy_group.add(Enemies(random.randint(-200,-100),random.randint(0,screen_height),enemy_info))
+            if spawn_side == 1:
+                enemy_group.add(Enemies(random.randint(screen_width + 100,screen_width + 200),random.randint(0,screen_height),enemy_info))
+            if spawn_side == 2:
+                enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(-200,-100),enemy_info))
+            if spawn_side == 3:
+                enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(screen_height + 100,screen_height + 200),enemy_info))
+
+        if enemy_info[4] == 1 and boss_spawn:
+            enemy_group.add(Boss(300,-100,enemy_info))
+            boss_spawn = False
 enemy_group = pygame.sprite.Group()
 
 #collectables
@@ -593,6 +629,13 @@ graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/ene
 graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 2.png",(100,100)))
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 1.png",(100,100)))
 graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 2.png",(100,100)))
+graphics_dict.add("Test",image_import.get_image("pictures for survivor game/buttons and icons/purchased skill button.png",(20,20)))
+graphics_dict.add("Test",image_import.get_image("pictures for survivor game/buttons and icons/available skill button.png",(20,20)))
+
+#boss graphics
+graphics_dict.add("Boss1",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 1.png",(300,300)))
+graphics_dict.add("Boss1",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 2.png",(300,300)))
+
 
 #menu screen
 player_menu_index = 0
@@ -1002,7 +1045,7 @@ def main_game():
 
 #reset game
 def game_reset():
-    global kills, game_timer, power_up_list, player_group
+    global kills, game_timer, power_up_list, player_group, boss_spawn
     state_stack.append(main_game)
     player_group = pygame.sprite.GroupSingle()
     player_group.add(Player())
@@ -1014,6 +1057,8 @@ def game_reset():
     kills = 0
     game_timer = 0
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
+    boss_spawn = True
+    
 
 
 skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]

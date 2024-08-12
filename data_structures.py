@@ -109,3 +109,4 @@ def quick_sort(list):
 
     return quick_sort(lower) + same + quick_sort(higher)
 
+

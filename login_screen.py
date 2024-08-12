@@ -68,8 +68,6 @@ class keyboard:
         for n in range(2,len(word)-3):
             self.list.append(word[n].upper())
 
-
-
 Username = keyboard()
 
 text_box = image_import.get_image("pictures for survivor game/backgrounds/Text box.png",(1100,150))
@@ -203,7 +201,10 @@ def new_user_screen():
     if random_word_rect.collidepoint(mouse):
         screen.blit(random_word_button2,random_word_rect)
         if pressed[0] and can_press:
-            Username.generate_word()
+            try:
+                Username.generate_word()
+            except:
+                pass
 
 
 login_screen_stack = [main_screen]
