@@ -196,33 +196,33 @@ class Player(pygame.sprite.Sprite):
             level_background_rect.x += self.speed
             if self.rect.left > level_background_rect.left:
                 for enemy in enemy_group:
-                    enemy.rect.x += self.speed
+                    enemy.rect.x += 3
                 for collectable in collectables_group:
-                    collectable.rect.x += self.speed
+                    collectable.rect.x += 3
         if self.rect.centerx > screen_width - 580:
             self.rect.centerx = screen_width - 580
             level_background_rect.x -= self.speed
             if self.rect.right < level_background_rect.right:
                 for enemy in enemy_group:
-                    enemy.rect.x -= self.speed
+                    enemy.rect.x -= 3
                 for collectable in collectables_group:
-                    collectable.rect.x -= self.speed
+                    collectable.rect.x -= 3
         if self.rect.centery < 300:
             self.rect.centery = 300
             level_background_rect.y += self.speed
             if self.rect.top > level_background_rect.top:
                 for enemy in enemy_group:
-                    enemy.rect.y += self.speed
+                    enemy.rect.y += 3
                 for collectable in collectables_group:
-                    collectable.rect.y += self.speed
+                    collectable.rect.y += 3
         if self.rect.centery > screen_height - 300:
             self.rect.centery = screen_height - 300
             level_background_rect.y -= self.speed
             if self.rect.bottom < level_background_rect.bottom:
                 for enemy in enemy_group:
-                    enemy.rect.y -= self.speed
+                    enemy.rect.y -= 3
                 for collectable in collectables_group:
-                    collectable.rect.y -= self.speed
+                    collectable.rect.y -= 3
         #Moves background to appear infinite
         if level_background_rect.top > 0:
             level_background_rect.bottom = screen_height
@@ -535,6 +535,12 @@ class Enemies(pygame.sprite.Sprite):
         self.movement()
         self.healthbar()
         self.animate()
+
+class Boss(Enemies):
+    def __init__(self, posx, posy):
+        super().__init__(posx, posy)
+
+
 enemy_index = -1
 def spawn(frequency):
     global enemy_index
@@ -1034,7 +1040,6 @@ while True:
         update_skills()
     except:
         pass
-
 
     #constantly update keyboard/mouse variables
     key = pygame.key.get_pressed()

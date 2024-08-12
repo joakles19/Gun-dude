@@ -23,7 +23,7 @@ back_button2 = image_import.get_image("pictures for survivor game/buttons and ic
 back_button_rect = back_button1.get_rect(center = (1000,100))
 
 def shop_main():
-    global mouse_pos, pressed
+    global mouse_pos, pressed, can_press,press_cooldown
     #Menu button
     screen.blit(menu_button1,menu_button_rect)
     if menu_button_rect.collidepoint(mouse_pos):
@@ -35,14 +35,18 @@ def shop_main():
     screen.blit(char_button1,char_button_rect)
     if char_button_rect.collidepoint(mouse_pos):
         screen.blit(char_button2,char_button_rect)
-        if pressed[0]:
+        if pressed[0] and can_press:
             shop_state_stack.append(customisation_menu)
+            can_press = False
+            press_cooldown = 0
     #Skill tree button
     screen.blit(skill_tree_button1,skill_tree_button_rect)
     if skill_tree_button_rect.collidepoint(mouse_pos):
         screen.blit(skill_tree_button2,skill_tree_button_rect)
         if pressed[0]:
             shop_state_stack.append(skill_tree_menu)
+            can_press = False
+            press_cooldown = 0
 
 
 #Skill tree menu
@@ -154,32 +158,61 @@ def skill_tree_menu():
 
 
 class skin_button:
-    def __init__(self,skin,skin_name):
+    def __init__(self,skin,skin_name,price):
         self.base1 = image_import.get_image("pictures for survivor game/buttons and icons/skin button 1.png",(230,290))
         self.base2 = image_import.get_image("pictures for survivor game/buttons and icons/skin button 2.png",(230,290))
+        self.price = price
+        if price == 5:
+            self.locked = image_import.get_image("pictures for survivor game/buttons and icons/lock 5.png",(230,290))
+        else:
+            self.locked = image_import.get_image("pictures for survivor game/buttons and icons/lock 10.png",(230,290))
         self.skin = image_import.get_image(skin,(192,228))
         self.skin_name = skin_name
         self.num = 1
-        self.selected = False
-        self.purchased = False
+        if database.is_skin_puchased(skin_name) == 1:
+            self.purchased = True
+        else:
+            self.purchased = False
     
     def display(self):
+        global can_press, press_cooldown, currency
         self.rect = self.base1.get_rect(topleft = (250*self.num-100,250))
         self.skin_rect = self.skin.get_rect(center = self.rect.center)
+        self.selected_message = image_import.get_image("pictures for survivor game/selected.png",(186,50))
+        self.message_rect = self.selected_message.get_rect(bottom = self.rect.top, centerx = self.rect.centerx)
 
         screen.blit(self.base1,self.rect)
         if self.rect.collidepoint(mouse_pos):
             screen.blit(self.base2,self.rect)
-            if pressed[0]:
-                database.select_skin(self.skin_name)
+            if pressed[0] and can_press:
+                if self.purchased:
+                    database.select_skin(self.skin_name,True,False)
+                if self.purchased == False and currency >= self.price:
+                    database.add_currency(-self.price)
+                    currency -= self.price
+                    database.select_skin(self.skin_name,False,True)
+                    self.purchased = True
+                can_press = False
+                press_cooldown = 0
+
         screen.blit(self.skin,self.skin_rect)
 
+        if self.purchased == False:
+            screen.blit(self.locked,self.rect)
+        
+        if database.get_selected_skin() == self.skin_name:
+            screen.blit(self.selected_message,self.message_rect)
+
 skin_buttons = []
-skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90.png",''))
-skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Green.png",'Green'))
-skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Purple.png",'Purple'))
-skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Grey.png",'Grey'))
-skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Orange.png",'Orange'))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90.png",'',0))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Green.png",'Green',5))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Purple.png",'Purple',5))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Grey.png",'Grey',5))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Orange.png",'Orange',5))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Black.png",'Black',10))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Naked.png",'Naked',10))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Gman.png",'Gman',10))
+
 
 display_list = []
 for n in range(0,4):
@@ -193,6 +226,7 @@ left_arrow_rect = left_arrow1.get_rect(topleft = (70,370))
 right_arrow_rect = right_arrow1.get_rect(topleft = (1150,370))
 
 def customisation_menu():
+    global can_press,press_cooldown
 
     for button in display_list:
         button.display()
@@ -204,15 +238,19 @@ def customisation_menu():
         screen.blit(left_arrow1,left_arrow_rect)
         if left_arrow_rect.collidepoint(mouse_pos):
             screen.blit(left_arrow2,left_arrow_rect)
-            if pressed[0]:
+            if pressed[0] and can_press:
+                can_press = False
+                press_cooldown = 0
                 display_list.pop()
                 display_list.insert(0,skin_buttons[skin_buttons.index(display_list[0])-1])
 
-    if display_list[3] != skin_buttons[4]:
+    if display_list[3] != skin_buttons[len(skin_buttons)-1]:
         screen.blit(right_arrow1,right_arrow_rect)
         if right_arrow_rect.collidepoint(mouse_pos):
             screen.blit(right_arrow2,right_arrow_rect)
-            if pressed[0]:
+            if pressed[0] and can_press:
+                can_press = False
+                press_cooldown = 0
                 display_list.append(skin_buttons[skin_buttons.index(display_list[3])+1])
                 display_list.pop(0)
 
@@ -223,6 +261,8 @@ def customisation_menu():
         if pressed[0]:
             shop_state_stack.pop()
 
+can_press = True
+press_cooldown = -1
 
 shop_state_stack = [shop_main]
 
@@ -231,6 +271,13 @@ while True:
     key = pygame.key.get_pressed()
     mouse_pos = pygame.mouse.get_pos()
     pressed = pygame.mouse.get_pressed()
+
+    if press_cooldown >= 0:
+        press_cooldown += 1
+        if press_cooldown >= 60:
+            press_cooldown = -1
+            can_press = True
+
     #Rendering permanent shop background graphics
     #Rendering currency in top corner/ resizing it to fit in graphic
     currency_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",floor(50-(log10(currency+1))*5))

@@ -108,7 +108,7 @@ def create_tables(username):
               selected boolean)""")
     c.execute(f"""INSERT INTO {username}skins
                   VALUES('',1,1)""")
-    color_list = ['Green','Grey','Orange','Purple']
+    color_list = ['Green','Grey','Orange','Purple','Black','Naked','Gman']
     for color in color_list:
         c.execute(f"""INSERT INTO {username}skins
                   VALUES(?,0,0)""",(str(color),))
@@ -134,13 +134,13 @@ def get_skills():
     return c.fetchall()
     
 #Return skins
-def get_purchased_skins():
+def is_skin_puchased(skin):
     c.execute("""SELECT username FROM usernames
               WHERE in_use = 1""")
     user = c.fetchone()[0]
-    c.execute(f"""SELECT skin FROM {user}skins
-              WHERE purchased = 1""")
-    return c.fetchall()
+    c.execute(f"""SELECT purchased FROM {user}skins
+              WHERE skin = ?""",(str(skin),))
+    return c.fetchone()[0]
 
 def get_selected_skin():
     c.execute("""SELECT username FROM usernames
@@ -154,17 +154,25 @@ def get_selected_skin():
     else:
         return skin[0]
 
-#Select skin
-def select_skin(skin):
+#Select/purchase skin
+def select_skin(skin,select,purchase):
     c.execute("""SELECT username FROM usernames
               WHERE in_use = 1""")
     user = c.fetchone()[0]
-    c.execute(f"""UPDATE {user}skins
-              SET selected = 
-              (CASE WHEN skin = ? THEN 1 
-              ELSE 0 
-              END)""",(str(skin),))
+    if select:
+        c.execute(f"""UPDATE {user}skins
+                SET selected = 
+                (CASE WHEN skin = ? THEN 1 
+                ELSE 0 
+                END)""",(str(skin),))
+    if purchase:
+        c.execute(f"""UPDATE {user}skins
+                  SET purchased = 1
+                  WHERE skin = ?""",(str(skin),))
     conn.commit()
+
+
+
 #Closes database
 def close():
     conn.close()

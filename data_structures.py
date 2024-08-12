@@ -108,3 +108,4 @@ def quick_sort(list):
             same.append(item)
 
     return quick_sort(lower) + same + quick_sort(higher)
+

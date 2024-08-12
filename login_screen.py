@@ -1,4 +1,4 @@
-import pygame, database, image_import, data_structures
+import pygame, database, image_import, data_structures, requests
 pygame.init()
 screen = pygame.display.set_mode((1280,720))
 
@@ -59,6 +59,16 @@ class keyboard:
         for letter in self.list:
             self.word = self.word + letter
         return self.word
+    
+    def generate_word(self):
+        self.list = []
+        word_API = requests.get("https://random-word-api.herokuapp.com/word")
+        word = word_API.text
+
+        for n in range(2,len(word)-3):
+            self.list.append(word[n].upper())
+
+
 
 Username = keyboard()
 
@@ -123,6 +133,10 @@ add_user_button1 = image_import.get_image("pictures for survivor game/buttons an
 add_user_button2 = image_import.get_image("pictures for survivor game/buttons and icons/add user button 2.png",(180,130))
 add_user_button_rect = add_user_button1.get_rect(center = (1010,400))
 
+random_word_button1 = image_import.get_image("pictures for survivor game/buttons and icons/random name1.png",(200,80))
+random_word_button2 = image_import.get_image("pictures for survivor game/buttons and icons/random name2.png",(200,80))
+random_word_rect = random_word_button1.get_rect(center = (640,230))
+
 cooldown_timer = 0
 can_press = True
 min_name = 0
@@ -166,7 +180,7 @@ def main_screen():
             login_screen_stack.append(new_user_screen)
 
 def new_user_screen():
-    global cooldown_timer, can_press, Username, unique_name
+    global cooldown_timer, can_press, Username
     screen.blit(background2,(0,0))
     screen.blit(text_box,text_box_rect)
     screen.blit(save_button1,save_button_rect)
@@ -184,6 +198,13 @@ def new_user_screen():
             can_press = False
             cooldown_timer = 1
             login_screen_stack.pop()
+
+    screen.blit(random_word_button1,random_word_rect)
+    if random_word_rect.collidepoint(mouse):
+        screen.blit(random_word_button2,random_word_rect)
+        if pressed[0] and can_press:
+            Username.generate_word()
+
 
 login_screen_stack = [main_screen]
 
