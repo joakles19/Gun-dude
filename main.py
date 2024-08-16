@@ -627,14 +627,21 @@ graphics_dict.add("Fly",image_import.get_image("pictures for survivor game/enemy
 graphics_dict.add("Fly",image_import.get_image("pictures for survivor game/enemy graphics/fly 2.png",(50,40)))
 graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 1.png",(100,100)))
 graphics_dict.add("Trash",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 2.png",(100,100)))
-graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 1.png",(100,100)))
-graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 2.png",(100,100)))
-graphics_dict.add("Test",image_import.get_image("pictures for survivor game/buttons and icons/purchased skill button.png",(20,20)))
-graphics_dict.add("Test",image_import.get_image("pictures for survivor game/buttons and icons/available skill button.png",(20,20)))
+graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 1.png",(60,100)))
+graphics_dict.add("Alien",image_import.get_image("pictures for survivor game/enemy graphics/alien 2.png",(60,100)))
+graphics_dict.add("Zombie",image_import.get_image("pictures for survivor game/enemy graphics/zombie 1.png",(90,90)))
+graphics_dict.add("Zombie",image_import.get_image("pictures for survivor game/enemy graphics/zombie 2.png",(90,90)))
+graphics_dict.add("UFO",image_import.get_image("pictures for survivor game/enemy graphics/ufo 1.png",(50,50)))
+graphics_dict.add("UFO",image_import.get_image("pictures for survivor game/enemy graphics/ufo 2.png",(50,50)))
+graphics_dict.add("Ninja",image_import.get_image("pictures for survivor game/enemy graphics/ninja 1.png",(80,100)))
+graphics_dict.add("Ninja",image_import.get_image("pictures for survivor game/enemy graphics/ninja 2.png",(80,100)))
+graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 1.png",(40,100)))
+graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 2.png",(40,100)))
+graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 3.png",(60,100)))
+graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 4.png",(60,100)))
 
 #boss graphics
-graphics_dict.add("Boss1",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 1.png",(300,300)))
-graphics_dict.add("Boss1",image_import.get_image("pictures for survivor game/enemy graphics/trash monster 2.png",(300,300)))
+
 
 
 #menu screen
@@ -952,58 +959,58 @@ def level_setup():
     global level_background, enemy_frequency, level_colour, wave_num, level_background_rect
     #level 1
     if current_level == 1:
-        enemy_frequency = random.randint(25,200)
+        enemy_frequency = 50
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "Brown"
-        wave_num = 3
+        wave_num = 10
     #level 2
     if current_level == 2:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "#44230D"
-        wave_num = 1
-        enemy_frequency = random.randint(1,100)
+        wave_num = 10
+        enemy_frequency = 50
     #level 3
     if current_level == 3:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
         level_colour = "#0f9100"
-        wave_num = 30
-        enemy_frequency = 100
+        wave_num = 20
+        enemy_frequency = 60
     #level 4
     if current_level == 4:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
         level_colour = "#78050b"
-        wave_num = 30
-        enemy_frequency = 100
+        wave_num = 20
+        enemy_frequency = 60
     #level 5
     if current_level == 5:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
         level_colour = "#8f5703"
         wave_num = 30
-        enemy_frequency = 100
+        enemy_frequency = 70
     #level 6
     if current_level == 6:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
         level_colour = "#636630"
         wave_num = 30
-        enemy_frequency = 100
+        enemy_frequency = 70
     #level 7
     if current_level == 7:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 7 background.png").convert_alpha()
         level_colour = "#080f8c"
         wave_num = 30
-        enemy_frequency = 100
+        enemy_frequency = 80
     #level 8
     if current_level == 8:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 7 background.png").convert_alpha()
         level_colour = "#76088c"
         wave_num = 30
-        enemy_frequency = 100
+        enemy_frequency = 80
     #level 9
     if current_level == 9:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
         level_colour = "Pink"
         wave_num = 30
-        enemy_frequency = 100
+        enemy_frequency = 90
     #level 10
     if current_level == 10:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
