@@ -70,6 +70,8 @@ class Player(pygame.sprite.Sprite):
         self.explosion_animation = [self.explosion1,self.explosion2,self.explosion3,self.explosion4,self.explosion3]
         self.nuke_num = 0
         self.explosion_animation_index = -1
+        self.x = self.rect.centerx
+        self.y = self.rect.centery
         #other attributes
         self.level_up_num = 1
         self.playerlevel = 0
@@ -179,49 +181,50 @@ class Player(pygame.sprite.Sprite):
         self.collectables_picked = 0
 
     def movement(self):
+        global level_backgroundy,level_backgroundx
         self.key = pygame.key.get_pressed()
         #Moves the character using WASD
         if self.key[pygame.K_d]:
-            self.rect.x += self.speed
+            self.x += self.speed
         if self.key[pygame.K_a]:
-            self.rect.x -= self.speed
+            self.x -= self.speed
         if self.key[pygame.K_w]:
-            self.rect.y -= self.speed
+            self.y -= self.speed
         if self.key[pygame.K_s]:
-            self.rect.y += self.speed
+            self.y += self.speed
         #Moves the enemies/collectables/background when character walks away
-        if self.rect.centerx < 580:
-            self.rect.centerx = 580
-            level_background_rect.x += self.speed
+        if self.x < 500:
+            self.x = 500
+            level_backgroundx += self.speed
             if self.rect.left > level_background_rect.left:
                 for enemy in enemy_group:
-                    enemy.rect.x += 3
+                    enemy.x += 3
                 for collectable in collectables_group:
-                    collectable.rect.x += 3
-        if self.rect.centerx > screen_width - 580:
-            self.rect.centerx = screen_width - 580
-            level_background_rect.x -= self.speed
+                    collectable.x += 3
+        if self.x > screen_width - 580:
+            self.x = screen_width - 580
+            level_backgroundx -= self.speed
             if self.rect.right < level_background_rect.right:
                 for enemy in enemy_group:
-                    enemy.rect.x -= 3
+                    enemy.x -= 3
                 for collectable in collectables_group:
-                    collectable.rect.x -= 3
-        if self.rect.centery < 300:
-            self.rect.centery = 300
-            level_background_rect.y += self.speed
+                    collectable.x -= 3
+        if self.y < 200:
+            self.y = 200
+            level_backgroundy += self.speed
             if self.rect.top > level_background_rect.top:
                 for enemy in enemy_group:
-                    enemy.rect.y += 3
+                    enemy.y += 3
                 for collectable in collectables_group:
-                    collectable.rect.y += 3
-        if self.rect.centery > screen_height - 300:
-            self.rect.centery = screen_height - 300
-            level_background_rect.y -= self.speed
+                    collectable.y += 3
+        if self.y > screen_height - 300:
+            self.y = screen_height - 300
+            level_backgroundy -= self.speed
             if self.rect.bottom < level_background_rect.bottom:
                 for enemy in enemy_group:
-                    enemy.rect.y -= 3
+                    enemy.y -= 3
                 for collectable in collectables_group:
-                    collectable.rect.y -= 3
+                    collectable.y -= 3
         #Moves background to appear infinite
         if level_background_rect.top > 0:
             level_background_rect.bottom = screen_height
@@ -231,6 +234,9 @@ class Player(pygame.sprite.Sprite):
             level_background_rect.right = screen_width
         if level_background_rect.right < screen_width:
             level_background_rect.left = 0
+
+        self.rect.x = math.floor(self.x)
+        self.rect.y = math.floor(self.y)
 
     def aim_graphics(self):
         self.x_dist = mouse[0] - self.rect.centerx
@@ -470,6 +476,8 @@ class Enemies(pygame.sprite.Sprite):
         self.speed = info[3]
         self.run_index = 0
         self.damage = info[2]
+        self.x = posx
+        self.y = posy
 
     def item_drop(self):
         global kills
@@ -512,14 +520,18 @@ class Enemies(pygame.sprite.Sprite):
     def movement(self):
         for player in player_group:
             destination = player.rect
-        if self.rect.x > destination.x:
-            self.rect.x -= self.speed
-        elif self.rect.x < destination.x:
-            self.rect.x += self.speed
-        if self.rect.y > destination.y:
-            self.rect.y -= self.speed
-        elif self.rect.y < destination.y:
-            self.rect.y += self.speed
+        if self.rect.x >= destination.x:
+            self.x -= self.speed
+        if self.rect.x < destination.x:
+            self.x += self.speed
+        if self.rect.y >= destination.y:
+            self.y -= self.speed
+        if self.rect.y < destination.y:
+            self.y += self.speed
+        
+        self.rect.x = math.floor(self.x)
+        self.rect.y = math.floor(self.y)
+
 
         if self.rect.centerx > screen_width * 2 or self.rect.centerx < (screen_width * 2) * -1:
             self.kill()
@@ -610,6 +622,9 @@ class Collectables(pygame.sprite.Sprite):
         else:
             self.image = graphics_dict.get(self.type)
         self.rect = self.image.get_rect(center = (self.x,self.y))
+    def update(self):
+        self.rect.x = math.floor(self.x)
+        self.rect.y = math.floor(self.y)
 collectables_group = pygame.sprite.Group()
 
 #Adding all of the object graphics to the hash table
@@ -956,10 +971,10 @@ def pre_game_screen():
 #levels
 current_level = 1
 def level_setup():
-    global level_background, enemy_frequency, level_colour, wave_num, level_background_rect
+    global level_background, enemy_frequency, level_colour, wave_num, level_background_rect, level_backgroundx, level_backgroundy
     #level 1
     if current_level == 1:
-        enemy_frequency = 50
+        enemy_frequency = 200
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "Brown"
         wave_num = 10
@@ -1020,11 +1035,15 @@ def level_setup():
     
     level_background = pygame.transform.scale(level_background,(screen_width*3,screen_height*3))
     level_background_rect = level_background.get_rect(center = (screen_width/2,screen_height/2))
+    level_backgroundx = level_background_rect.x
+    level_backgroundy = level_background_rect.y
 
 #main game
 def main_game():
     global current_level, press_timer, game_timer, kills
     crosshair = image_import.get_image("pictures for survivor game/Crosshair.png",(30,30))
+    level_background_rect.x = math.floor(level_backgroundx)
+    level_background_rect.y = math.floor(level_backgroundy)
     screen.blit(level_background,level_background_rect)
     bullets_group.draw(screen)
     bullets_group.update()

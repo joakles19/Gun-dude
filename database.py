@@ -178,3 +178,4 @@ def select_skin(skin,select,purchase):
 def close():
     conn.close()
 
+print(get_enemies(2))
