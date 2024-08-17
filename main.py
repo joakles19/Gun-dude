@@ -9,27 +9,25 @@ import database,data_structures,image_import,analytics_maker #importing my own m
 
 #initialising pygame
 pygame.init()
-screen = pygame.display.set_mode((1280,720))
-clock = pygame.time.Clock()
+screen = pygame.display.set_mode((1280,720)) #Screen surface
+clock = pygame.time.Clock() #Clock object
 screen_height = screen.get_height()
 screen_width = screen.get_width()
-print(screen_height,screen_width)
 
 #general variable setup
 general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",40)
 level_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",100)
 global press_timer
-press_timer = -1
-kills = 0
-game_timer = 0
-
-player_skin = ''
+press_timer = -1 #Press timer used for interface buttons
+game_timer = 0 #Define the game timer
+player_skin = '' #Sets skin to default
 
 #player
 class Player(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        #graphics
+        #load graphics
+        #graphic for each angle the player aims
         right90 = [pygame.image.load(f"pictures for survivor game/dude graphics/dude stand 90{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 1 90{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 2 90{player_skin}.png").convert_alpha()]
         left90 = [pygame.transform.flip(right90[0],True,False),pygame.transform.flip(right90[1],True,False),pygame.transform.flip(right90[2],True,False)]
         right45 = [pygame.image.load(f"pictures for survivor game/dude graphics/dude stand 45{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 1 45{player_skin}.png").convert_alpha(),pygame.image.load(f"pictures for survivor game/dude graphics/dude run 2 45{player_skin}.png").convert_alpha()]
@@ -45,10 +43,14 @@ class Player(pygame.sprite.Sprite):
         self.stand = right90[0]
         self.image = self.stand
         self.rect = self.image.get_rect(center = (screen_width/2,screen_height/2))
+        self.running_index = 0
+        #health graphics
         self.heart_full = image_import.get_image("pictures for survivor game/heart red.png",(80,80))
         self.heart_empty = image_import.get_image("pictures for survivor game/heart black.png",(80,80))
+        #level bar graphics
         self.level_bar = image_import.get_image("pictures for survivor game/backgrounds/level up bar.png",(screen_width,screen_height))
         self.level_bar_full = image_import.get_image("pictures for survivor game/backgrounds/level up bar full.png",(653,13))
+        #ammo icon graphics
         self.ammo_icon = image_import.get_image("pictures for survivor game/buttons and icons/ammo icon.png",(80,80))
         self.ammo_icon_rect = self.ammo_icon.get_rect(topleft = (100,screen_height - 80))
         self.ammo_num_rect = pygame.rect.Rect(self.ammo_icon_rect.left+8,self.ammo_icon_rect.top+12,60,60)
@@ -56,38 +58,37 @@ class Player(pygame.sprite.Sprite):
         self.reload2_icon = pygame.transform.rotate(self.reload1_icon,180)
         self.reload_icons = [self.reload1_icon,self.reload2_icon]
         self.reload_icon_rect = self.reload1_icon.get_rect(centerx = self.ammo_icon_rect.centerx - 10,centery = self.ammo_icon_rect.centery)
+        self.reload_index = 0 
+        #nuke icon graphics
         self.power_up_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",30)
         self.nuke_icon = image_import.get_image("pictures for survivor game/buttons and icons/nuke icon.png",(100,70))
         self.nuke_icon_rect = self.nuke_icon.get_rect(bottomright = (screen_width,screen_height))
+        #lazer icon graphics
         self.lazer_ammo_icon = image_import.get_image("pictures for survivor game/buttons and icons/lazer ammo icon.png",(80,50))
         self.lazer_ammo_icon_rect = self.lazer_ammo_icon.get_rect(right = self.nuke_icon_rect.left - 10,centery = self.nuke_icon_rect.centery - 10)
+        #invcincibility icon graphics
         self.invincibility_icon = image_import.get_image("pictures for survivor game/buttons and icons/invincibilty icon.png",(80,80))
         self.invincibility_icon_rect = self.invincibility_icon.get_rect(right = self.lazer_ammo_icon_rect.left -10, centery = self.lazer_ammo_icon_rect.centery)
+        #explosion animation graphics
         self.explosion1 = image_import.get_image("pictures for survivor game/explosion animation/explosion 1.png",(1000,1000))
         self.explosion2 = image_import.get_image("pictures for survivor game/explosion animation/explosion 2.png",(1000,1000))
         self.explosion3 = image_import.get_image("pictures for survivor game/explosion animation/explosion 3.png",(1000,1000))
         self.explosion4 = image_import.get_image("pictures for survivor game/explosion animation/explosion 4.png",(1000,1000))
         self.explosion_animation = [self.explosion1,self.explosion2,self.explosion3,self.explosion4,self.explosion3]
-        self.nuke_num = 0
         self.explosion_animation_index = -1
+        #player position
         self.x = self.rect.centerx
         self.y = self.rect.centery
         #other attributes
-        self.level_up_num = 1
-        self.playerlevel = 0
-        self.bullet_cooldown = 30
-        self.damage_timer = 10
-        self.running_index = 0
-        self.cooldown_counter = 0
-        self.max_health = 5
-        self.invincible_counter = 6
-        self.can_shoot = False
-        self.max_ammo = 5
-        self.reload_timer = 100
-        self.reload = 0
-        self.reload_index = 0
-        self.weapon_damage = 1
-        self.coin_multiplier = 1
+        self.bullet_cooldown = 30 #Time between when bullets can be fired
+        self.cooldown_counter = 0 #Variable which tracks the bullet cooldown
+        self.max_health = 5 #Players starting max health
+        self.invincible_counter = 6 #How long player is invincible for
+        self.max_ammo = 5 #Starting max ammo
+        self.reload_timer = 100 #Starting time for reloading
+        self.reload = 0 #Variable which tracks how long reloading takes
+        self.weapon_damage = 1 #Starting damage of players gun
+        self.coin_multiplier = 1 #Starting coin multiplier
 
     def power_ups(self):
         global press_timer
@@ -105,10 +106,6 @@ class Player(pygame.sprite.Sprite):
             self.explosion_animation_index += 0.1
             if self.explosion_animation_index >= len(self.explosion_animation):
                 self.explosion_animation_index = -1
-        if press_timer >= 0:
-            press_timer += 1
-        if press_timer >= 20:
-            press_timer = -1
 
     def reset(self):
         #Set up skills from skill tree
@@ -163,10 +160,11 @@ class Player(pygame.sprite.Sprite):
         self.explosion_animation_index = -1
         self.ammo = 5
         self.xp = 0
-        self.level_up_num = 1
+        self.level_up_num = 2
         self.playerlevel = 0
         self.speed = 3
         self.coins = 0
+        self.nuke_num = 0
 
         #Game analytics
         self.health_track = []
@@ -227,13 +225,13 @@ class Player(pygame.sprite.Sprite):
                     collectable.y -= 3
         #Moves background to appear infinite
         if level_background_rect.top > 0:
-            level_background_rect.bottom = screen_height
+            level_backgroundy = -screen_height
         if level_background_rect.bottom < screen_height:
-            level_background_rect.top = 0
+            level_backgroundy = 0
         if level_background_rect.left > 0:
-            level_background_rect.right = screen_width
+            level_backgroundx = -screen_width
         if level_background_rect.right < screen_width:
-            level_background_rect.left = 0
+            level_backgroundx = 0
 
         self.rect.x = math.floor(self.x)
         self.rect.y = math.floor(self.y)
@@ -391,7 +389,7 @@ class Player(pygame.sprite.Sprite):
             database.complete_level(current_level,current_user)
             database.add_currency(self.coins)
             self.create_analytics()
-            state_stack.pop()
+            state_stack.append(level_completion_screen)
 
     def track_health(self):
         self.track_timer += 0.05
@@ -480,12 +478,10 @@ class Enemies(pygame.sprite.Sprite):
         self.y = posy
 
     def item_drop(self):
-        global kills
         self.kill()
         for player in player_group:
             player.kills_track += 1
             player.enemy_kills[enemies.index(self.enemy_info)] += 1
-        kills += 1
 
         if skill_purchased[6]:
             more_nukes = True
@@ -650,8 +646,8 @@ graphics_dict.add("UFO",image_import.get_image("pictures for survivor game/enemy
 graphics_dict.add("UFO",image_import.get_image("pictures for survivor game/enemy graphics/ufo 2.png",(50,50)))
 graphics_dict.add("Ninja",image_import.get_image("pictures for survivor game/enemy graphics/ninja 1.png",(80,100)))
 graphics_dict.add("Ninja",image_import.get_image("pictures for survivor game/enemy graphics/ninja 2.png",(80,100)))
-graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 1.png",(40,100)))
-graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 2.png",(40,100)))
+graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 1.png",(60,100)))
+graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 2.png",(60,100)))
 graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 3.png",(60,100)))
 graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 4.png",(60,100)))
 
@@ -682,13 +678,14 @@ save_button1 = image_import.get_image("pictures for survivor game/buttons and ic
 save_button2 = image_import.get_image("pictures for survivor game/buttons and icons/save button 2.png",(100,100))
 save_button_border = image_import.get_image("pictures for survivor game/buttons and icons/save button bordered.png",(100,100))
 save_button_rect = save_button1.get_rect(center = (570,600))
+i_button1 = image_import.get_image("pictures for survivor game/buttons and icons/i button 1.png",(50,50))
+i_button2 = image_import.get_image("pictures for survivor game/buttons and icons/i button 2.png",(50,50))
+i_button_rect = i_button1.get_rect(topleft = (0,50))
 def menu():
-    global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect
+    global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect, mouse, pressed
     player_menu_1 = image_import.get_image(f"pictures for survivor game/dude graphics/dude run 1 90{player_skin}.png",(500,650))
     player_menu_2 = image_import.get_image(f"pictures for survivor game/dude graphics/dude run 2 90{player_skin}.png",(500,650))
     player_menu = [player_menu_1,player_menu_2]
-    mouse = pygame.mouse.get_pos()
-    mouse_pressed = pygame.mouse.get_pressed()
     #menu background animations
     menu_cloud_rect.x -= 4
     menu_ground_rect.x -= 6
@@ -714,14 +711,14 @@ def menu():
     screen.blit(start_button_1,start_button_rect)
     if start_button_rect.collidepoint(mouse) and current_user != "Select/create a user to play":
         screen.blit(start_button_2,start_button_rect)
-        if mouse_pressed[0] == True:
+        if pressed[0] == True:
             state_stack.append(pre_game_screen)
             press_timer = 0
     #shop button
     screen.blit(shop_button_1,shop_button_rect)
     if shop_button_rect.collidepoint(mouse) and current_user != "Select/create a user to play":
         screen.blit(shop_button_2,shop_button_rect)
-        if mouse_pressed[0] == True:
+        if pressed[0] == True:
             subprocess.run(["Python","game_shop.py"])
     #save button
     if current_user != "Select/create a user to play":
@@ -730,15 +727,36 @@ def menu():
         screen.blit(save_button_border,save_button_rect)
     if save_button_rect.collidepoint(mouse):
         screen.blit(save_button2,save_button_rect)
-        if mouse_pressed[0] == True:
+        if pressed[0] == True:
             subprocess.run(["Python","login_screen.py"])
+    #Information button
+    screen.blit(i_button1,i_button_rect)
+    if i_button_rect.collidepoint(mouse):
+        screen.blit(i_button2,i_button_rect)
+        if pressed[0] and press_timer == -1:
+            press_timer = 0
+            state_stack.append(information_screen)
     #exit button
     screen.blit(exit_button_2,exit_button_rect)
     if exit_button_rect.collidepoint(mouse):
         screen.blit(exit_button_1,exit_button_rect)
-        if mouse_pressed[0] == True:
+        if pressed[0] == True and press_timer == -1:
             pygame.quit()
             exit() #exit the game
+
+information_background = image_import.get_image("pictures for survivor game/backgrounds/information screen.png",(1280,720))
+menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
+menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
+menu_button_rect = menu_button1.get_rect(topleft = (0,0))
+def information_screen():
+    global press_timer
+    screen.blit(information_background,(0,0))
+    screen.blit(menu_button1,menu_button_rect)
+    if menu_button_rect.collidepoint(mouse):
+        screen.blit(menu_button2,menu_button_rect)
+        if pressed[0] and press_timer == -1:
+            press_timer = 0
+            state_stack.pop()
 
 #game over screen
 def game_over_screen():
@@ -783,6 +801,43 @@ def game_over_screen():
     bullets_group.empty()
     collectables_group.empty()
 
+#level completion screen
+def level_completion_screen():
+    player = image_import.get_image(f"pictures for survivor game/dude graphics/dude stand 90{player_skin}.png",(250,325))
+    player_rect = player.get_rect(centerx = screen_width/2,centery = 500)
+    respawn_button1 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 1.png",(200,200))
+    respawn_button2 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 2.png",(200,200))
+    menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
+    menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
+    stats_screen_button1 = image_import.get_image("pictures for survivor game/buttons and icons/stats button 1.png",(100,70))
+    stats_screen_button2 = image_import.get_image("pictures for survivor game/buttons and icons/stats button 2.png",(100,70))
+    stats_screen_button_rect = stats_screen_button1.get_rect(topleft = (10,10))
+    respawn_button_rect = respawn_button1.get_rect(centery = player_rect.centery, centerx = 1100)
+    menu_button_rect = menu_button1.get_rect(centery = player_rect.centery,centerx = 190)
+    screen.blit(level_background,level_background_rect)
+    screen.blit(player,player_rect)
+    completed_message = pygame.font.Font.render(level_font,f"Level completed",False,"Yellow")
+    screen.blit(completed_message,(player_rect.left - 400,100))
+    screen.blit(respawn_button2,respawn_button_rect)
+    screen.blit(stats_screen_button1,stats_screen_button_rect)
+    #button collisions
+    if respawn_button_rect.collidepoint(mouse):
+        screen.blit(respawn_button1,respawn_button_rect)
+        if pressed[0] == True:
+            game_reset()
+    #Menu button collisions
+    screen.blit(menu_button2,menu_button_rect)
+    if menu_button_rect.collidepoint(mouse):
+        screen.blit(menu_button1,menu_button_rect)
+        if pressed[0] == True:
+            for n in range(0,2):
+                state_stack.pop()
+    #Game stats screen collisions
+    if stats_screen_button_rect.collidepoint(mouse):
+        screen.blit(stats_screen_button2,stats_screen_button_rect)
+        if pressed[0] == True:
+            state_stack.append(level_stats_screen)
+
 #Post level statistics
 def level_stats_screen():
     graph1 = image_import.get_image('Game analytics/Collectable graphs.png',(500,300))
@@ -819,7 +874,7 @@ def pause_button(state):
             if state == "Pause": state_stack.append(pause_screen)
 
 def pause_screen():
-    global press_timer, kills
+    global press_timer
     menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
     menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
     menu_button_rect = menu_button1.get_rect(centerx = screen_width/2,centery = 300)
@@ -838,10 +893,7 @@ def pause_screen():
         screen.blit(play_button2,play_button_rect)
         if pressed[0] == True:
             game_reset()
-    if press_timer >= 0:
-        press_timer += 1
-    if press_timer >= 20:
-        press_timer = -1
+
     if press_timer == -1:
         pause_button("Game")
 
@@ -912,7 +964,7 @@ def level_up_screen():
             state_stack.pop()
 #pre game screen
 def pre_game_screen():
-    global current_level, level_message, press_timer, kills, enemies
+    global current_level, level_message, press_timer, enemies
     level_setup()
     screen.blit(level_background,(0,0))
     arrow_button1 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 1.png",(80,80))
@@ -951,10 +1003,7 @@ def pre_game_screen():
             if pressed[0] == True and press_timer == -1:
                 press_timer = 0
                 current_level -= 1
-    if press_timer >= 0:
-        press_timer += 1
-    if press_timer >= 10:
-        press_timer = -1
+
     level_list = database.is_complete(current_user)
     if level_list[current_level-1][0] == 1:
         screen.blit(play_button1,play_button_rect)
@@ -977,12 +1026,12 @@ def level_setup():
         enemy_frequency = 200
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "Brown"
-        wave_num = 10
+        wave_num = 1
     #level 2
     if current_level == 2:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "#44230D"
-        wave_num = 10
+        wave_num = 1
         enemy_frequency = 50
     #level 3
     if current_level == 3:
@@ -1040,7 +1089,7 @@ def level_setup():
 
 #main game
 def main_game():
-    global current_level, press_timer, game_timer, kills
+    global current_level, press_timer, game_timer
     crosshair = image_import.get_image("pictures for survivor game/Crosshair.png",(30,30))
     level_background_rect.x = math.floor(level_backgroundx)
     level_background_rect.y = math.floor(level_backgroundy)
@@ -1061,17 +1110,14 @@ def main_game():
     spawn(enemy_frequency)
     screen.blit(crosshair,(mouse[0]-15,mouse[1]-15))
 
-    if press_timer >= 0:
-        press_timer += 1
-    if press_timer >= 20:
-        press_timer = -1
+
     if press_timer == -1:
         pause_button("Pause")
     game_timer += 0.016
 
 #reset game
 def game_reset():
-    global kills, game_timer, power_up_list, player_group, boss_spawn
+    global  game_timer, power_up_list, player_group, boss_spawn
     state_stack.append(main_game)
     player_group = pygame.sprite.GroupSingle()
     player_group.add(Player())
@@ -1080,7 +1126,6 @@ def game_reset():
     bullets_group.empty()
     enemy_group.empty()
     collectables_group.empty()
-    kills = 0
     game_timer = 0
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
     boss_spawn = True
@@ -1116,6 +1161,12 @@ while True:
     key = pygame.key.get_pressed()
     mouse = pygame.mouse.get_pos()
     pressed = pygame.mouse.get_pressed()
+
+    #run press timer algorithm
+    if press_timer >= 0:
+        press_timer += 1
+        if press_timer >= 20:
+            press_timer = -1
 
     #run the current state
     current_state = len(state_stack) - 1
