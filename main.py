@@ -430,6 +430,8 @@ class Bullets(pygame.sprite.Sprite):
         self.type = type
         self.dangle= angle
         self.rangle = math.radians(angle)
+        self.x = self.rect.centerx
+        self.y = self.rect.centery
 
     def movement(self):
         self.dx = math.cos(self.rangle) * self.speed
@@ -441,8 +443,10 @@ class Bullets(pygame.sprite.Sprite):
         if self.type == "Fireball":
             self.image = pygame.image.load("pictures for survivor game/Fireball.png").convert_alpha()
         self.image = pygame.transform.rotate(self.image,self.dangle)
-        self.rect.x += self.dx
-        self.rect.y += self.dy
+        self.x += self.dx
+        self.y += self.dy
+        self.rect.centerx = math.floor(self.x)
+        self.rect.centery = math.floor(self.y)
 
     def update(self):
         self.movement()
@@ -511,7 +515,7 @@ class Enemies(pygame.sprite.Sprite):
                     self.item_drop()
         for player in player_group:
             if self.rect.colliderect(player.explosion_rect) and player.explosion_animation_index >= 3:
-                self.item_drop()
+                self.health -= 15
 
     def movement(self):
         for player in player_group:
@@ -650,10 +654,17 @@ graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enem
 graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 2.png",(60,100)))
 graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 3.png",(60,100)))
 graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 4.png",(60,100)))
-
 #boss graphics
-
-
+graphics_dict.add("Alien boss",image_import.get_image("pictures for survivor game/enemy graphics/alien boss 1.png",(400,400)))
+graphics_dict.add("Alien boss",image_import.get_image("pictures for survivor game/enemy graphics/alien boss 2.png",(400,400)))
+graphics_dict.add("Robot boss",image_import.get_image("pictures for survivor game/enemy graphics/robot boss 1.png",(236,208)))
+graphics_dict.add("Robot boss",image_import.get_image("pictures for survivor game/enemy graphics/robot boss 2.png",(236,208)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 1.png",(90,76)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 2.png",(90,76)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 3.png",(90,76)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 4.png",(90,76)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 5.png",(90,76)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 6.png",(90,76)))
 
 #menu screen
 player_menu_index = 0
