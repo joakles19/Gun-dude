@@ -14,7 +14,7 @@ def is_complete(user):
 def complete_level(level,user):
     c.execute(f"""UPDATE {user}levels
               SET completed = 1
-              WHERE levels = ?""",str(level))
+              WHERE levels = ?""",(str(level),))
     conn.commit()
 
 #Returns which enemies feature on an inputted level
@@ -94,7 +94,7 @@ def create_tables(username):
               completed boolean)""")
     c.execute(f"""INSERT INTO {username}levels
                   VALUES(0,1)""")
-    for n in range(1,11):
+    for n in range(1,13):
         c.execute(f"""INSERT INTO {username}levels
                   VALUES({n},0)""")
     c.execute(f"""CREATE TABLE {username}skills(

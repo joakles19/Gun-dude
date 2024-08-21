@@ -118,7 +118,7 @@ class Player(pygame.sprite.Sprite):
         
         if skill_purchased[2]:#Lazer
             self.can_lazer = True
-            self.lazer_time = 10
+            self.lazer_time = 1000000000
         else:
             self.can_lazer = False
             self.lazer_time = 0
@@ -515,7 +515,7 @@ class Enemies(pygame.sprite.Sprite):
                     self.item_drop()
         for player in player_group:
             if self.rect.colliderect(player.explosion_rect) and player.explosion_animation_index >= 3:
-                self.health -= 15
+                self.health -= 20
 
     def movement(self):
         for player in player_group:
@@ -557,12 +557,18 @@ class Boss(Enemies):
     def __init__(self, posx, posy, info):
         super().__init__(posx, posy, info)
         self.shoot_cooldown = 0
+        self.shoot_speed = info[5]
 
     def boss_health_bar(self):
+        global wave_num
         healthbar = image_import.get_image("pictures for survivor game/boss healthbar.png",(960,64))
         healthbar_full = image_import.get_image("pictures for survivor game/boss healthbar full.png",(960,64))
         screen.blit(healthbar,(170,30))
         screen.blit(healthbar_full,(170,30),pygame.rect.Rect(0,0,(self.health/self.max_health)*960,64))
+
+        if self.health <= 0:
+             for player in player_group:
+                player.playerlevel = -1
 
     def shoot(self):
         for player in player_group:
@@ -572,7 +578,7 @@ class Boss(Enemies):
         angle = math.degrees(math.atan2(y_dist,x_dist))
 
         self.shoot_cooldown += 1
-        if self.shoot_cooldown >= 50:
+        if self.shoot_cooldown >= self.shoot_speed:
             enemy_group.add(Enemy_bullets(self.rect.centerx,self.rect.centery,"Fireball",angle,self.damage/2,10))
             self.shoot_cooldown = 0
 
@@ -604,7 +610,7 @@ def spawn(frequency):
             if spawn_side == 3:
                 enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(screen_height + 100,screen_height + 200),enemy_info))
 
-        if enemy_info[4] == 1 and boss_spawn:
+        if enemy_info[4] == 1 and boss_spawn and game_timer >= 30:
             enemy_group.add(Boss(300,-100,enemy_info))
             boss_spawn = False
 enemy_group = pygame.sprite.Group()
@@ -659,12 +665,12 @@ graphics_dict.add("Alien boss",image_import.get_image("pictures for survivor gam
 graphics_dict.add("Alien boss",image_import.get_image("pictures for survivor game/enemy graphics/alien boss 2.png",(400,400)))
 graphics_dict.add("Robot boss",image_import.get_image("pictures for survivor game/enemy graphics/robot boss 1.png",(236,208)))
 graphics_dict.add("Robot boss",image_import.get_image("pictures for survivor game/enemy graphics/robot boss 2.png",(236,208)))
-graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 1.png",(90,76)))
-graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 2.png",(90,76)))
-graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 3.png",(90,76)))
-graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 4.png",(90,76)))
-graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 5.png",(90,76)))
-graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 6.png",(90,76)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 1.png",(135,114)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 2.png",(135,114)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 3.png",(135,114)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 4.png",(135,114)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 5.png",(135,114)))
+graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 6.png",(135,114)))
 
 #menu screen
 player_menu_index = 0
@@ -1000,7 +1006,7 @@ def pre_game_screen():
         if pressed[0] == True and press_timer == -1:
             press_timer = 0
             state_stack.pop()
-    if current_level < 10:
+    if current_level < 12:
         screen.blit(arrow_button1,arrow_button_rect)
         if arrow_button_rect.collidepoint(mouse):
             screen.blit(arrow_button2,arrow_button_rect)
@@ -1054,8 +1060,8 @@ def level_setup():
     if current_level == 4:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
         level_colour = "#78050b"
-        wave_num = 20
-        enemy_frequency = 60
+        wave_num = -1
+        enemy_frequency = 100
     #level 5
     if current_level == 5:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
@@ -1090,8 +1096,21 @@ def level_setup():
     if current_level == 10:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
         level_colour = "Pink"
-        wave_num = 30
+        wave_num = -1
         enemy_frequency = 100
+    #Final level 1
+    if current_level == 11:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Final level background.png").convert_alpha()
+        level_colour = "Blue"
+        wave_num = -1
+        enemy_frequency = 60
+    #Final level 2
+    if current_level == 12:
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Final level background.png").convert_alpha()
+        level_colour = "Yellow"
+        wave_num = -1
+        enemy_frequency = 100
+    
     
     level_background = pygame.transform.scale(level_background,(screen_width*3,screen_height*3))
     level_background_rect = level_background.get_rect(center = (screen_width/2,screen_height/2))
@@ -1125,6 +1144,8 @@ def main_game():
     if press_timer == -1:
         pause_button("Pause")
     game_timer += 0.016
+    
+    print(wave_num)
 
 #reset game
 def game_reset():

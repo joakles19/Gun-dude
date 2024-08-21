@@ -139,7 +139,7 @@ cooldown_timer = 0
 can_press = True
 min_name = 0
 
-def main_screen():
+def login_main():
     global cooldown_timer, can_press, min_name, Username
     Username = keyboard()
     display_names = []
@@ -207,7 +207,7 @@ def new_user_screen():
                 pass
 
 
-login_screen_stack = [main_screen]
+login_screen_stack = [login_main]
 
 while True:
     mouse = pygame.mouse.get_pos()
