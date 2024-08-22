@@ -233,8 +233,8 @@ class Player(pygame.sprite.Sprite):
         if level_background_rect.right < screen_width:
             level_backgroundx = 0
 
-        self.rect.x = math.floor(self.x)
-        self.rect.y = math.floor(self.y)
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
 
     def aim_graphics(self):
         self.x_dist = mouse[0] - self.rect.centerx
@@ -434,8 +434,8 @@ class Bullets(pygame.sprite.Sprite):
         self.y = self.rect.centery
 
     def movement(self):
-        self.dx = math.cos(self.rangle) * self.speed
-        self.dy = -(math.sin(self.rangle)) * self.speed
+        dx = math.cos(self.rangle) * self.speed
+        dy = -(math.sin(self.rangle)) * self.speed
         if self.type == "Bullets":
             self.image = pygame.image.load("pictures for survivor game/Bullet.png").convert_alpha()
         if self.type == "Lazer":
@@ -443,10 +443,10 @@ class Bullets(pygame.sprite.Sprite):
         if self.type == "Fireball":
             self.image = pygame.image.load("pictures for survivor game/Fireball.png").convert_alpha()
         self.image = pygame.transform.rotate(self.image,self.dangle)
-        self.x += self.dx
-        self.y += self.dy
-        self.rect.centerx = math.floor(self.x)
-        self.rect.centery = math.floor(self.y)
+        self.x += dx
+        self.y += dy
+        self.rect.centerx = int(self.x)
+        self.rect.centery = int(self.y)
 
     def update(self):
         self.movement()
@@ -511,11 +511,11 @@ class Enemies(pygame.sprite.Sprite):
         if pygame.sprite.spritecollide(self,bullets_group,True):
             for player in player_group:
                 self.health -= player.weapon_damage
-                if self.health <= 0:
-                    self.item_drop()
         for player in player_group:
             if self.rect.colliderect(player.explosion_rect) and player.explosion_animation_index >= 3:
                 self.health -= 20
+        if self.health <= 0:
+            self.item_drop()
 
     def movement(self):
         for player in player_group:
@@ -529,8 +529,8 @@ class Enemies(pygame.sprite.Sprite):
         if self.rect.y < destination.y:
             self.y += self.speed
         
-        self.rect.x = math.floor(self.x)
-        self.rect.y = math.floor(self.y)
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
 
 
         if self.rect.centerx > screen_width * 2 or self.rect.centerx < (screen_width * 2) * -1:
@@ -629,8 +629,8 @@ class Collectables(pygame.sprite.Sprite):
             self.image = graphics_dict.get(self.type)
         self.rect = self.image.get_rect(center = (self.x,self.y))
     def update(self):
-        self.rect.x = math.floor(self.x)
-        self.rect.y = math.floor(self.y)
+        self.rect.x = int(self.x)
+        self.rect.y = int(self.y)
 collectables_group = pygame.sprite.Group()
 
 #Adding all of the object graphics to the hash table
@@ -921,8 +921,9 @@ level_up_animation = False
 level_up_exit = False
 upgrade_template = image_import.get_image("pictures for survivor game/backgrounds/level up background.png",(280,560))
 fire_rate_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Fire rate upgrade.png",(280,560))
-speed_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Speed upgrade.png",(280,560))
-damage_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Damage upgrade.png",(280,560))
+speed_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Speed up upgrade.png",(280,560))
+damage_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Damage up upgrade.png",(280,560))
+reload_upgrade = image_import.get_image("pictures for survivor game/buttons and icons/Power ups/Faster reload upgrade.png",(280,560))
 upgrade_rect1 = fire_rate_upgrade.get_rect(topleft = (152,110))
 upgrade_rect2 = fire_rate_upgrade.get_rect(topleft = (500,110))
 upgrade_rect3 = fire_rate_upgrade.get_rect(topleft = (846,110))
@@ -949,6 +950,8 @@ class level_ups(pygame.sprite.Sprite):
                     player.weapon_damage += 0.3
                 if self.image == speed_upgrade:
                     player.speed += 0.2
+                if self.image == reload_upgrade:
+                    player.reload_timer *= 0.85
 
     def update(self):
         self.powerup_choice()
@@ -1043,7 +1046,7 @@ def level_setup():
         enemy_frequency = 200
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "Brown"
-        wave_num = 1
+        wave_num = 10
     #level 2
     if current_level == 2:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
@@ -1121,8 +1124,8 @@ def level_setup():
 def main_game():
     global current_level, press_timer, game_timer
     crosshair = image_import.get_image("pictures for survivor game/Crosshair.png",(30,30))
-    level_background_rect.x = math.floor(level_backgroundx)
-    level_background_rect.y = math.floor(level_backgroundy)
+    level_background_rect.x = int(level_backgroundx)
+    level_background_rect.y = int(level_backgroundy)
     screen.blit(level_background,level_background_rect)
     bullets_group.draw(screen)
     bullets_group.update()
@@ -1145,8 +1148,6 @@ def main_game():
         pause_button("Pause")
     game_timer += 0.016
     
-    print(wave_num)
-
 #reset game
 def game_reset():
     global  game_timer, power_up_list, player_group, boss_spawn
@@ -1159,7 +1160,7 @@ def game_reset():
     enemy_group.empty()
     collectables_group.empty()
     game_timer = 0
-    power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade]
+    power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade,reload_upgrade]
     boss_spawn = True
     
 
