@@ -32,6 +32,14 @@ def enemy_information(enemy):
               WHERE enemy_type = ?""",(str(enemy),))
     return c.fetchone()
 
+#Returns boss_information
+def boss_information(boss):
+    c.execute("""SELECT * 
+              FROM enemy_information 
+              JOIN boss_information 
+              ON enemy_information.enemy_type = boss_information.boss and boss_information.boss = ?""",(str(boss),))
+    return c.fetchone()
+
 #Returns the player's currency
 def get_currency():
     c.execute("""SELECT currency

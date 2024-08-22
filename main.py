@@ -442,6 +442,10 @@ class Bullets(pygame.sprite.Sprite):
             self.image = pygame.image.load("pictures for survivor game/Lazer bullet.png").convert_alpha()
         if self.type == "Fireball":
             self.image = pygame.image.load("pictures for survivor game/Fireball.png").convert_alpha()
+        if self.type == "Missile":
+            self.image = pygame.image.load("pictures for survivor game/Missile.png").convert_alpha()
+        if self.type == "Evil bullet":
+            self.image = pygame.image.load("pictures for survivor game/Evil bullet.png").convert_alpha()
         self.image = pygame.transform.rotate(self.image,self.dangle)
         self.x += dx
         self.y += dy
@@ -532,7 +536,6 @@ class Enemies(pygame.sprite.Sprite):
         self.rect.x = int(self.x)
         self.rect.y = int(self.y)
 
-
         if self.rect.centerx > screen_width * 2 or self.rect.centerx < (screen_width * 2) * -1:
             self.kill()
         if self.rect.centery > screen_height * 2 or self.rect.centery < (screen_height * 2) * -1:
@@ -554,10 +557,11 @@ class Enemies(pygame.sprite.Sprite):
         self.animate()
 
 class Boss(Enemies):
-    def __init__(self, posx, posy, info):
+    def __init__(self, posx, posy, info,boss_info):
         super().__init__(posx, posy, info)
         self.shoot_cooldown = 0
-        self.shoot_speed = info[5]
+        self.shoot_speed = boss_info[7]
+        self.projectile = boss_info[6]
 
     def boss_health_bar(self):
         global wave_num
@@ -579,7 +583,7 @@ class Boss(Enemies):
 
         self.shoot_cooldown += 1
         if self.shoot_cooldown >= self.shoot_speed:
-            enemy_group.add(Enemy_bullets(self.rect.centerx,self.rect.centery,"Fireball",angle,self.damage/2,10))
+            enemy_group.add(Enemy_bullets(self.rect.centerx,self.rect.centery,self.projectile,angle,self.damage/2,10))
             self.shoot_cooldown = 0
 
     def update(self):
@@ -610,9 +614,11 @@ def spawn(frequency):
             if spawn_side == 3:
                 enemy_group.add(Enemies(random.randint(0,screen_width),random.randint(screen_height + 100,screen_height + 200),enemy_info))
 
-        if enemy_info[4] == 1 and boss_spawn and game_timer >= 30:
-            enemy_group.add(Boss(300,-100,enemy_info))
-            boss_spawn = False
+        if enemy_info[4] == 1 and boss_spawn:
+            boss_info = database.boss_information(enemy_info[0])
+            if game_timer >= boss_info[8]:
+                enemy_group.add(Boss(300,-100,enemy_info,boss_info))
+                boss_spawn = False
 enemy_group = pygame.sprite.Group()
 
 #collectables
