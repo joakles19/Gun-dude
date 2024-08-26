@@ -30,6 +30,8 @@ damage_sound = pygame.mixer.Sound("Game music/damage.mp3")
 death_sound = pygame.mixer.Sound("Game music/death.mp3")
 level_complete_sound = pygame.mixer.Sound("Game music/level complete.mp3")
 explosion_sound = pygame.mixer.Sound("Game music/explosion.mp3")
+invincibility_sound = pygame.mixer.Sound("Game music/invincibilty.mp3")
+reload_sound = pygame.mixer.Sound("Game music/reload.mp3")
 
 #player
 class Player(pygame.sprite.Sprite):
@@ -315,6 +317,7 @@ class Player(pygame.sprite.Sprite):
         else:
             self.reload += 1
             if self.reload > self.reload_timer:
+                pygame.mixer.Sound.play(reload_sound)
                 self.ammo = self.max_ammo
                 self.reload = 0
             self.reload_index += 0.03
@@ -345,6 +348,7 @@ class Player(pygame.sprite.Sprite):
         if self.invincible_skill and self.invincible_skill_cooldown < 1:
             screen.blit(self.invincibility_icon,self.invincibility_icon_rect)
             if key[pygame.K_b]:
+                pygame.mixer.Sound.play(invincibility_sound)
                 self.invincible = True
                 self.invincible_skill_cooldown = 800
             
