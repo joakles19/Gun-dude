@@ -6,7 +6,6 @@
 
 import pygame,math,random,subprocess,numpy as np #importing python libraries
 import database,data_structures,image_import,analytics_maker #importing my own modules
-
 #initialising pygame
 pygame.init()
 screen = pygame.display.set_mode((1280,720)) #Screen surface
@@ -21,6 +20,16 @@ global press_timer
 press_timer = -1 #Press timer used for interface buttons
 game_timer = 0 #Define the game timer
 player_skin = '' #Sets skin to default
+
+#Sound effects
+gunshot_sound = pygame.mixer.Sound("Game music/gunshot.mp3")
+lazer_sound = pygame.mixer.Sound("Game music/lazer.mp3")
+fireball_sound = pygame.mixer.Sound("Game music/fireball.mp3")
+missile_sound = pygame.mixer.Sound("Game music/missile.mp3")
+damage_sound = pygame.mixer.Sound("Game music/damage.mp3")
+death_sound = pygame.mixer.Sound("Game music/death.mp3")
+level_complete_sound = pygame.mixer.Sound("Game music/level complete.mp3")
+explosion_sound = pygame.mixer.Sound("Game music/explosion.mp3")
 
 #player
 class Player(pygame.sprite.Sprite):
@@ -101,6 +110,7 @@ class Player(pygame.sprite.Sprite):
             self.explosion_animation_index = 0
             press_timer = 0
             self.nuke_num -= 1
+            pygame.mixer.Sound.play(explosion_sound)
         if self.explosion_animation_index >= 0:
             screen.blit(self.explosion_animation[int(self.explosion_animation_index)],self.explosion_rect)
             self.explosion_animation_index += 0.1
@@ -118,7 +128,7 @@ class Player(pygame.sprite.Sprite):
         
         if skill_purchased[2]:#Lazer
             self.can_lazer = True
-            self.lazer_time = 1000000000
+            self.lazer_time = 10
         else:
             self.can_lazer = False
             self.lazer_time = 0
@@ -279,12 +289,14 @@ class Player(pygame.sprite.Sprite):
         bullet_angle = math.degrees(math.atan2(self.y_dist,self.x_dist))
         if self.cooldown_counter == 0 and self.can_shoot and self.ammo > 0:
             if (self.key[pygame.K_SPACE] or pressed[0]):
+                pygame.mixer.Sound.play(gunshot_sound)
                 bullets_group.add(Bullets(self.rect.centerx,self.rect.centery,"Bullets",bullet_angle))
                 self.shots_fired += 1
                 self.ammo -=1
             self.cooldown_counter = 1
         if self.can_shoot  and self.lazer_time > 1 and self.can_lazer:
             if self.key[pygame.K_n]:
+                pygame.mixer.Sound.play(lazer_sound)
                 bullets_group.add(Bullets(self.rect.centerx,self.rect.centery,"Lazer",bullet_angle))
                 self.lazer_time -= 1
 
@@ -314,10 +326,12 @@ class Player(pygame.sprite.Sprite):
         general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",40)
         for enemy in enemy_group:    
             if pygame.Rect.colliderect(self.hitbox_rect,enemy.rect) and self.invincible == False:
+                pygame.mixer.Sound.play(damage_sound)
                 self.health_num -= enemy.damage
                 self.invincible = True
                 self.hits_track += 1
         if self.health_num <= 0:
+            pygame.mixer.Sound.play(death_sound)
             state_stack.append(game_over_screen)
             self.create_analytics()
         if game_timer <= 0.1:
@@ -385,6 +399,7 @@ class Player(pygame.sprite.Sprite):
             pygame.image.save(screen,"Screen.png")
             state_stack.append(level_up_screen)
         if self.playerlevel == wave_num:
+            pygame.mixer.Sound.play(level_complete_sound)
             press_timer = -1
             database.complete_level(current_level,current_user)
             database.add_currency(self.coins)
@@ -583,6 +598,9 @@ class Boss(Enemies):
 
         self.shoot_cooldown += 1
         if self.shoot_cooldown >= self.shoot_speed:
+            if self.projectile == "Missile": pygame.mixer.Sound.play(missile_sound)
+            if self.projectile == "Fireball": pygame.mixer.Sound.play(fireball_sound)
+            if self.projectile == "Evil bullet": pygame.mixer.Sound.play(gunshot_sound)
             enemy_group.add(Enemy_bullets(self.rect.centerx,self.rect.centery,self.projectile,angle,self.damage/2,10))
             self.shoot_cooldown = 0
 
@@ -666,6 +684,8 @@ graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enem
 graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 2.png",(60,100)))
 graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 3.png",(60,100)))
 graphics_dict.add("Thug",image_import.get_image("pictures for survivor game/enemy graphics/thug 4.png",(60,100)))
+graphics_dict.add("Mummy",image_import.get_image("pictures for survivor game/enemy graphics/mummy 1.png",(60,80)))
+graphics_dict.add("Mummy",image_import.get_image("pictures for survivor game/enemy graphics/mummy 2.png",(60,80)))
 #boss graphics
 graphics_dict.add("Alien boss",image_import.get_image("pictures for survivor game/enemy graphics/alien boss 1.png",(400,400)))
 graphics_dict.add("Alien boss",image_import.get_image("pictures for survivor game/enemy graphics/alien boss 2.png",(400,400)))
@@ -767,6 +787,7 @@ def menu():
             pygame.quit()
             exit() #exit the game
 
+
 information_background = image_import.get_image("pictures for survivor game/backgrounds/information screen.png",(1280,720))
 menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
 menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
@@ -814,6 +835,7 @@ def game_over_screen():
         if pressed[0] == True:
             for n in range(0,2):
                 state_stack.pop()
+                play_music("Game music/Menu music.mp3")
     #Game stats screen collisions
     if stats_screen_button_rect.collidepoint(mouse):
         screen.blit(stats_screen_button2,stats_screen_button_rect)
@@ -855,6 +877,7 @@ def level_completion_screen():
         if pressed[0] == True:
             for n in range(0,2):
                 state_stack.pop()
+                play_music("Game music/Menu music.mp3")
     #Game stats screen collisions
     if stats_screen_button_rect.collidepoint(mouse):
         screen.blit(stats_screen_button2,stats_screen_button_rect)
@@ -908,6 +931,7 @@ def pause_screen():
         if pressed[0] == True:
             for n in range(0,3):
                 state_stack.pop()
+                play_music("Game music/Menu music.mp3")
     play_button1 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 2.png",(300,300))
     play_button2 = image_import.get_image("pictures for survivor game/buttons and icons/respawn button 1.png",(300,300))
     play_button_rect = play_button1.get_rect(centerx = screen_width/2,centery = 550)
@@ -1046,79 +1070,91 @@ def pre_game_screen():
 #levels
 current_level = 1
 def level_setup():
-    global level_background, enemy_frequency, level_colour, wave_num, level_background_rect, level_backgroundx, level_backgroundy
+    global level_background, enemy_frequency, level_colour, wave_num, level_background_rect, level_backgroundx, level_backgroundy, music
     #level 1
     if current_level == 1:
         enemy_frequency = 200
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "Brown"
         wave_num = 10
+        music = "Game music/Level 1& 2 music.mp3"
     #level 2
     if current_level == 2:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
         level_colour = "#44230D"
         wave_num = 1
         enemy_frequency = 50
+        music = "Game music/Level 1& 2 music.mp3"
     #level 3
     if current_level == 3:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
         level_colour = "#0f9100"
         wave_num = 20
         enemy_frequency = 60
+        music = "Game music/level 3 & 4 music.mp3"
     #level 4
     if current_level == 4:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
         level_colour = "#78050b"
         wave_num = -1
         enemy_frequency = 100
+        music = "Game music/level 3 & 4 music.mp3"
     #level 5
     if current_level == 5:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
         level_colour = "#8f5703"
         wave_num = 30
         enemy_frequency = 70
+        music = "Game music/level 5 & 6 music.mp3"
     #level 6
     if current_level == 6:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
         level_colour = "#636630"
         wave_num = 30
         enemy_frequency = 70
+        music = "Game music/level 5 & 6 music.mp3"
     #level 7
     if current_level == 7:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 7 background.png").convert_alpha()
         level_colour = "#080f8c"
         wave_num = 30
         enemy_frequency = 80
+        music = "Game music/level 7 & 8 music.mp3"
     #level 8
     if current_level == 8:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 7 background.png").convert_alpha()
         level_colour = "#76088c"
         wave_num = 30
         enemy_frequency = 80
+        music = "Game music/level 7 & 8 music.mp3"
     #level 9
     if current_level == 9:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
         level_colour = "Pink"
         wave_num = 30
         enemy_frequency = 90
+        music = "Game music/level 9 & 10 music.mp3"
     #level 10
     if current_level == 10:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
         level_colour = "Pink"
         wave_num = -1
         enemy_frequency = 100
+        music = "Game music/level 9 & 10 music.mp3"
     #Final level 1
     if current_level == 11:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Final level background.png").convert_alpha()
         level_colour = "Blue"
         wave_num = -1
         enemy_frequency = 60
+        music = "Game music/Second to last level music.mp3"
     #Final level 2
     if current_level == 12:
         level_background = pygame.image.load("pictures for survivor game/backgrounds/Final level background.png").convert_alpha()
         level_colour = "Yellow"
         wave_num = -1
         enemy_frequency = 100
+        music = "Game music/final level music.mp3"
     
     
     level_background = pygame.transform.scale(level_background,(screen_width*3,screen_height*3))
@@ -1149,7 +1185,6 @@ def main_game():
     spawn(enemy_frequency)
     screen.blit(crosshair,(mouse[0]-15,mouse[1]-15))
 
-
     if press_timer == -1:
         pause_button("Pause")
     game_timer += 0.016
@@ -1158,6 +1193,7 @@ def main_game():
 def game_reset():
     global  game_timer, power_up_list, player_group, boss_spawn
     state_stack.append(main_game)
+    play_music(music)
     player_group = pygame.sprite.GroupSingle()
     player_group.add(Player())
     for player in player_group:
@@ -1169,12 +1205,18 @@ def game_reset():
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade,reload_upgrade]
     boss_spawn = True
     
-
-
 skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]
 def update_skills():
     for skill in user_skills:
         skill_purchased[int(skill[0])-1] = True
+
+#Music loading
+def play_music(file_name):
+    pygame.mixer.music.unload()
+    pygame.mixer.music.load(file_name)
+    pygame.mixer.music.play(-1)
+
+play_music("Game music/Menu music.mp3")
 
 #define stack which holds the game state
 state_stack = [menu]

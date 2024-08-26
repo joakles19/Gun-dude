@@ -3,7 +3,6 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.backends.backend_agg as agg
 import numpy as np
-from matplotlib.animation import PillowWriter
 from matplotlib.font_manager import FontProperties
 import database
 
