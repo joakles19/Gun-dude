@@ -1154,7 +1154,7 @@ def level_setup():
         music = "Game music/Second to last level music.mp3"
     #Final level 2
     if current_level == 12:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Final level background.png").convert_alpha()
+        level_background = pygame.image.load("pictures for survivor game/backgrounds/Final level background 2.png").convert_alpha()
         level_colour = "Yellow"
         wave_num = -1
         enemy_frequency = 100

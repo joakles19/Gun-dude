@@ -6,14 +6,14 @@ font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",50)
 
 class keyboard:
     def __init__(self):
-        self.list = []
+        self.letter_array = []
         self.word = ""
         self.can_type = True
         self.type_marker_timer = 0
 
     def backspace(self):
-        if len(self.list) > 0:
-            self.list.pop()    
+        if len(self.letter_array) > 0:
+            self.letter_array.pop()    
     
     def add(self,input):
         if self.can_type:
@@ -33,11 +33,11 @@ class keyboard:
             input -= 48
             typekey = numbers[input]
 
-        self.list.append(typekey)
+        self.letter_array.append(typekey)
 
     def display(self,rect):
         username = ""
-        for letter in self.list:
+        for letter in self.letter_array:
             username += letter
 
         display_name = pygame.font.Font.render(font,username,False,"White")
@@ -56,17 +56,17 @@ class keyboard:
             self.type_marker_timer = 0
 
     def get_word(self):
-        for letter in self.list:
+        for letter in self.letter_array:
             self.word = self.word + letter
         return self.word
     
     def generate_word(self):
-        self.list = []
+        self.letter_array = []
         word_API = requests.get("https://random-word-api.herokuapp.com/word")
         word = word_API.text
 
         for n in range(2,len(word)-3):
-            self.list.append(word[n].upper())
+            self.letter_array.append(word[n].upper())
 
 Username = keyboard()
 
@@ -118,8 +118,6 @@ class username:
                     database.delete_user(self.name)
                     can_press = False
                     cooldown_timer = 1
-
-            
 
 arrow_button1,arrow_button2 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 1.png",(70,70)),image_import.get_image("pictures for survivor game/buttons and icons/arrow button 2.png",(70,70))
 up_button1,up_button2 = pygame.transform.rotate(arrow_button1,90),pygame.transform.rotate(arrow_button2,90)
@@ -184,7 +182,7 @@ def new_user_screen():
     screen.blit(save_button1,save_button_rect)
     Username.display(text_box_rect)
 
-    if save_button_rect.collidepoint(mouse) and Username.list != []:
+    if save_button_rect.collidepoint(mouse) and Username.letter_array != []:
         screen.blit(save_button2,save_button_rect)
         if pressed[0] and can_press:
             entername = Username.get_word()
