@@ -1,8 +1,7 @@
 #Main file to be executed
 
-#Hash table in Hash_table.py
 #Database and SQL functions in database.py
-#Binary tree and tree traversal in skill_tree.py
+#Binary tree/tree traversal and hash table in data_structures.py
 
 import pygame,math,random,subprocess,numpy as np #importing python libraries
 import database,data_structures,image_import,analytics_maker #importing my own modules
@@ -402,7 +401,7 @@ class Player(pygame.sprite.Sprite):
             level_up_animation = True
             pygame.image.save(screen,"Screen.png")
             state_stack.append(level_up_screen)
-        if self.playerlevel == wave_num:
+        if self.playerlevel == current_level_information["completion level"]:
             pygame.mixer.Sound.play(level_complete_sound)
             press_timer = -1
             database.complete_level(current_level,current_user)
@@ -583,7 +582,6 @@ class Boss(Enemies):
         self.projectile = boss_info[6]
 
     def boss_health_bar(self):
-        global wave_num
         healthbar = image_import.get_image("pictures for survivor game/boss healthbar.png",(960,64))
         healthbar_full = image_import.get_image("pictures for survivor game/boss healthbar full.png",(960,64))
         screen.blit(healthbar,(170,30))
@@ -928,7 +926,7 @@ def pause_screen():
     menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 1.png",(320,150))
     menu_button2 = image_import.get_image("pictures for survivor game/buttons and icons/menu button 2.png",(320,150))
     menu_button_rect = menu_button1.get_rect(centerx = screen_width/2,centery = 300)
-    screen.blit(pygame.font.Font.render(level_font,"Paused",False,level_colour),(445,60))
+    screen.blit(pygame.font.Font.render(level_font,"Paused",False,current_level_information["level colour"]),(445,60))
     screen.blit(menu_button2,menu_button_rect)
     if menu_button_rect.collidepoint(mouse):
         screen.blit(menu_button1,menu_button_rect)
@@ -1018,8 +1016,8 @@ def level_up_screen():
             state_stack.pop()
 #pre game screen
 def pre_game_screen():
-    global current_level, level_message, press_timer, enemies
-    level_setup()
+    global current_level, level_message, press_timer, enemies, level_background
+    level_background = current_level_information["level background"]
     screen.blit(level_background,(0,0))
     arrow_button1 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 1.png",(80,80))
     arrow_button2 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 2.png",(80,80))
@@ -1027,7 +1025,7 @@ def pre_game_screen():
     left_arrow_button1 = pygame.transform.flip(arrow_button1,True,False)
     left_arrow_button2 = pygame.transform.flip(arrow_button2,True,False)
     left_arrow_button_rect = left_arrow_button1.get_rect(bottomleft = (0,screen_height))
-    level_message = pygame.font.Font.render(level_font,f"Level {current_level}",False,level_colour)
+    level_message = pygame.font.Font.render(level_font,f"Level {current_level}",False,current_level_information["level colour"])
     level_message_rect = pygame.rect.Rect(420,80,480,100)
     play_button1 = image_import.get_image("pictures for survivor game/buttons and icons/Play button 1.png",(400,400))
     play_button2 = image_import.get_image("pictures for survivor game/buttons and icons/Play button 2.png",(400,400))
@@ -1071,100 +1069,71 @@ def pre_game_screen():
     #Pre loads enemy information
     enemies = database.get_enemies(current_level)
 
-#levels
+#level information
+#Define dictionaries for each level
+level1_info = {"enemy frequency":200,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/level 1 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"Brown",
+          "completion level":10,
+          "music":"Game music/Level 1& 2 music.mp3"}
+level2_info = {"enemy frequency":100,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/level 1 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"#44230D",
+          "completion level":10,
+          "music":"Game music/Level 1& 2 music.mp3"}
+level3_info = {"enemy frequency":80,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Level 3 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"#0f9100",
+          "completion level":20,
+          "music":"Game music/Level 3 & 4 music.mp3"}
+level4_info = {"enemy frequency":80,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Level 3 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"#78050b",
+          "completion level":-1,
+          "music":"Game music/Level 3 & 4 music.mp3"}
+level5_info = {"enemy frequency":70,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Level 5 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"#8f5703",
+          "completion level":25,
+          "music":"Game music/Level 5 & 6 music.mp3"}
+level6_info = {"enemy frequency":70,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Level 5 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"#636630",
+          "completion level":30,
+          "music":"Game music/Level 5 & 6 music.mp3"}
+level7_info = {"enemy frequency":80,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Level 7 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"#080f8c",
+          "completion level":30,
+          "music":"Game music/Level 7 & 8 music.mp3"}
+level8_info = {"enemy frequency":80,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Level 7 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"#76088c",
+          "completion level":30,
+          "music":"Game music/Level 7 & 8 music.mp3"}
+level9_info = {"enemy frequency":90,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Level 9 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"Pink",
+          "completion level":30,
+          "music":"Game music/Level 9 & 10 music.mp3"}
+level10_info = {"enemy frequency":100,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Level 9 background.png",(screen_width*3,screen_height*3)),
+          "level colour":"#02d63b",
+          "completion level":-1,
+          "music":"Game music/Level 9 & 10 music.mp3"}
+level11_info = {"enemy frequency":60,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Final level background.png",(screen_width*3,screen_height*3)),
+          "level colour":"Blue",
+          "completion level":-1,
+          "music":"Game music/Second to last level music.mp3"}
+level12_info = {"enemy frequency":100,
+          "level background":image_import.get_image("pictures for survivor game/backgrounds/Final level background 2.png",(screen_width*3,screen_height*3)),
+          "level colour":"Blue",
+          "completion level":-1,
+          "music":"Game music/final level music.mp3"}
+
 current_level = 1
-def level_setup():
-    global level_background, enemy_frequency, level_colour, wave_num, level_background_rect, level_backgroundx, level_backgroundy, music
-    #level 1
-    if current_level == 1:
-        enemy_frequency = 200
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
-        level_colour = "Brown"
-        wave_num = 10
-        music = "Game music/Level 1& 2 music.mp3"
-    #level 2
-    if current_level == 2:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/level 1 background.png").convert_alpha()
-        level_colour = "#44230D"
-        wave_num = 1
-        enemy_frequency = 50
-        music = "Game music/Level 1& 2 music.mp3"
-    #level 3
-    if current_level == 3:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
-        level_colour = "#0f9100"
-        wave_num = 20
-        enemy_frequency = 60
-        music = "Game music/level 3 & 4 music.mp3"
-    #level 4
-    if current_level == 4:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 3 background.png").convert_alpha()
-        level_colour = "#78050b"
-        wave_num = -1
-        enemy_frequency = 100
-        music = "Game music/level 3 & 4 music.mp3"
-    #level 5
-    if current_level == 5:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
-        level_colour = "#8f5703"
-        wave_num = 30
-        enemy_frequency = 70
-        music = "Game music/level 5 & 6 music.mp3"
-    #level 6
-    if current_level == 6:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 5 background.png").convert_alpha()
-        level_colour = "#636630"
-        wave_num = 30
-        enemy_frequency = 70
-        music = "Game music/level 5 & 6 music.mp3"
-    #level 7
-    if current_level == 7:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 7 background.png").convert_alpha()
-        level_colour = "#080f8c"
-        wave_num = 30
-        enemy_frequency = 80
-        music = "Game music/level 7 & 8 music.mp3"
-    #level 8
-    if current_level == 8:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 7 background.png").convert_alpha()
-        level_colour = "#76088c"
-        wave_num = 30
-        enemy_frequency = 80
-        music = "Game music/level 7 & 8 music.mp3"
-    #level 9
-    if current_level == 9:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
-        level_colour = "Pink"
-        wave_num = 30
-        enemy_frequency = 90
-        music = "Game music/level 9 & 10 music.mp3"
-    #level 10
-    if current_level == 10:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Level 9 background.png").convert_alpha()
-        level_colour = "Pink"
-        wave_num = -1
-        enemy_frequency = 100
-        music = "Game music/level 9 & 10 music.mp3"
-    #Final level 1
-    if current_level == 11:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Final level background.png").convert_alpha()
-        level_colour = "Blue"
-        wave_num = -1
-        enemy_frequency = 60
-        music = "Game music/Second to last level music.mp3"
-    #Final level 2
-    if current_level == 12:
-        level_background = pygame.image.load("pictures for survivor game/backgrounds/Final level background 2.png").convert_alpha()
-        level_colour = "Yellow"
-        wave_num = -1
-        enemy_frequency = 100
-        music = "Game music/final level music.mp3"
-    
-    
-    level_background = pygame.transform.scale(level_background,(screen_width*3,screen_height*3))
-    level_background_rect = level_background.get_rect(center = (screen_width/2,screen_height/2))
-    level_backgroundx = level_background_rect.x
-    level_backgroundy = level_background_rect.y
+level_information = [level1_info,level2_info,level3_info,level4_info,level5_info,level6_info,level7_info,level8_info,level9_info,level10_info,level11_info,level12_info]
 
 #main game
 def main_game():
@@ -1186,7 +1155,7 @@ def main_game():
         if player.invincible == False:
             player_group.draw(screen)
     player_group.update()
-    spawn(enemy_frequency)
+    spawn(current_level_information["enemy frequency"])
     screen.blit(crosshair,(mouse[0]-15,mouse[1]-15))
 
     if press_timer == -1:
@@ -1195,9 +1164,9 @@ def main_game():
     
 #reset game
 def game_reset():
-    global  game_timer, power_up_list, player_group, boss_spawn
+    global  game_timer, power_up_list, player_group, boss_spawn, level_background, level_background_rect, level_backgroundx, level_backgroundy
     state_stack.append(main_game)
-    play_music(music)
+    play_music(current_level_information["music"])
     player_group = pygame.sprite.GroupSingle()
     player_group.add(Player())
     for player in player_group:
@@ -1208,6 +1177,9 @@ def game_reset():
     game_timer = 0
     power_up_list = [fire_rate_upgrade,speed_upgrade,damage_upgrade,reload_upgrade]
     boss_spawn = True
+    level_background_rect = level_background.get_rect(center = (screen_width/2,screen_height/2))
+    level_backgroundx = level_background_rect.x
+    level_backgroundy = level_background_rect.y
     
 skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]
 def update_skills():
@@ -1241,6 +1213,9 @@ while True:
         update_skills()
     except:
         pass
+
+    #update level information
+    current_level_information = level_information[current_level-1]
 
     #constantly update keyboard/mouse variables
     key = pygame.key.get_pressed()
