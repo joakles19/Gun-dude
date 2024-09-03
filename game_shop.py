@@ -22,6 +22,10 @@ back_button1 = image_import.get_image("pictures for survivor game/buttons and ic
 back_button2 = image_import.get_image("pictures for survivor game/buttons and icons/back button 2.png",(90,90))
 back_button_rect = back_button1.get_rect(center = (1000,100))
 
+#sounds
+purchase_sound = pygame.mixer.Sound("Game music/purchasing.mp3")
+beep_sound = pygame.mixer.Sound("Game music/skill selection.mp3")
+
 def shop_main():
     global mouse_pos, pressed, can_press,press_cooldown
     #Menu button
@@ -80,6 +84,7 @@ class skills:
             screen.blit(self.skill_description,(900,200))
             screen.blit(blue_outline,self.node_rect)
             if pressed[0] and self.purchased == False and can_buy:
+                pygame.mixer.Sound.play(beep_sound)
                 add_to_tree(self)
                 self.purchase()
                 currency -= self.price
@@ -188,6 +193,7 @@ class skin_button:
                 if self.purchased:
                     database.select_skin(self.skin_name,True,False)
                 if self.purchased == False and currency >= self.price:
+                    pygame.mixer.Sound.play(purchase_sound)
                     database.add_currency(-self.price)
                     currency -= self.price
                     database.select_skin(self.skin_name,False,True)

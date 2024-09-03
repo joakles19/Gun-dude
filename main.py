@@ -31,6 +31,9 @@ level_complete_sound = pygame.mixer.Sound("Game music/level complete.mp3")
 explosion_sound = pygame.mixer.Sound("Game music/explosion.mp3")
 invincibility_sound = pygame.mixer.Sound("Game music/invincibilty.mp3")
 reload_sound = pygame.mixer.Sound("Game music/reload.mp3")
+coin_collection_sound = pygame.mixer.Sound("Game music/coin collection.mp3")
+beep_sound = pygame.mixer.Sound("Game music/skill selection.mp3")
+machine_noise_sound = pygame.mixer.Sound("Game music/level up screen.mp3")
 
 #player
 class Player(pygame.sprite.Sprite):
@@ -72,7 +75,7 @@ class Player(pygame.sprite.Sprite):
         #nuke icon graphics
         self.power_up_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",30)
         self.nuke_icon = image_import.get_image("pictures for survivor game/buttons and icons/nuke icon.png",(100,70))
-        self.nuke_icon_rect = self.nuke_icon.get_rect(bottomright = (screen_width,screen_height))
+        self.nuke_icon_rect = self.nuke_icon.get_rect(bottomright = (screen_width-5,screen_height-5))
         #lazer icon graphics
         self.lazer_ammo_icon = image_import.get_image("pictures for survivor game/buttons and icons/lazer ammo icon.png",(80,50))
         self.lazer_ammo_icon_rect = self.lazer_ammo_icon.get_rect(right = self.nuke_icon_rect.left - 10,centery = self.nuke_icon_rect.centery - 10)
@@ -106,7 +109,7 @@ class Player(pygame.sprite.Sprite):
         self.nuke_message = pygame.font.Font.render(self.power_up_font,f"{self.nuke_num}",False,"Green")
         if self.nuke_num > 0:
             screen.blit(self.nuke_icon,self.nuke_icon_rect)
-            screen.blit(self.nuke_message,(self.nuke_icon_rect.x + 40,self.nuke_icon_rect.y + 7))
+            screen.blit(self.nuke_message,(self.nuke_icon_rect.x + 40,self.nuke_icon_rect.y + 10))
         if key[pygame.K_m] and self.nuke_num > 0 and press_timer == -1:
             self.explosion_animation_index = 0
             press_timer = 0
@@ -207,33 +210,33 @@ class Player(pygame.sprite.Sprite):
             level_backgroundx += self.speed
             if self.rect.left > level_background_rect.left:
                 for enemy in enemy_group:
-                    enemy.x += 3
+                    enemy.x += self.speed
                 for collectable in collectables_group:
-                    collectable.x += 3
+                    collectable.x += self.speed
         if self.x > screen_width - 580:
             self.x = screen_width - 580
             level_backgroundx -= self.speed
             if self.rect.right < level_background_rect.right:
                 for enemy in enemy_group:
-                    enemy.x -= 3
+                    enemy.x -= self.speed
                 for collectable in collectables_group:
-                    collectable.x -= 3
+                    collectable.x -= self.speed
         if self.y < 200:
             self.y = 200
             level_backgroundy += self.speed
             if self.rect.top > level_background_rect.top:
                 for enemy in enemy_group:
-                    enemy.y += 3
+                    enemy.y += self.speed
                 for collectable in collectables_group:
-                    collectable.y += 3
+                    collectable.y += self.speed
         if self.y > screen_height - 300:
             self.y = screen_height - 300
             level_backgroundy -= self.speed
             if self.rect.bottom < level_background_rect.bottom:
                 for enemy in enemy_group:
-                    enemy.y -= 3
+                    enemy.y -= self.speed
                 for collectable in collectables_group:
-                    collectable.y -= 3
+                    collectable.y -= self.speed
         #Moves background to appear infinite
         if level_background_rect.top > 0:
             level_backgroundy = -screen_height
@@ -363,7 +366,7 @@ class Player(pygame.sprite.Sprite):
 
         if self.health_num >= 10:
             general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",20)
-        self.health_message = pygame.font.Font.render(general_font,f"{self.health_num}",False,"#8B0000")
+        self.health_message = pygame.font.Font.render(general_font,f"{int(self.health_num)}",False,"#8B0000")
         screen.blit(self.heart_empty,(0,screen_height-80))
         screen.blit(self.heart_full,(0,screen_height - (80*(self.health_num/self.max_health))),(0,80 - (80*(self.health_num/self.max_health)),80,80*(self.health_num/self.max_health)))
         screen.blit(self.health_message,(28,screen_height-68))
@@ -380,9 +383,11 @@ class Player(pygame.sprite.Sprite):
                     self.nuke_num += 1
                     self.collectable_pickups[1] += 1
                 if collectable.type == "Coin":
+                    pygame.mixer.Sound.play(coin_collection_sound)
                     self.coins += 1 * self.coin_multiplier
                     self.collectable_pickups[2] += 1
                 if collectable.type == "Scrap":
+                    pygame.mixer.Sound.play(beep_sound)
                     self.xp += 1
                     self.collectable_pickups[3] += 1
                 collectable.kill()
@@ -400,6 +405,7 @@ class Player(pygame.sprite.Sprite):
             self.playerlevel += 1
             level_up_animation = True
             pygame.image.save(screen,"Screen.png")
+            pygame.mixer.Sound.play(machine_noise_sound)
             state_stack.append(level_up_screen)
         if self.playerlevel == current_level_information["completion level"]:
             pygame.mixer.Sound.play(level_complete_sound)
@@ -727,7 +733,8 @@ i_button1 = image_import.get_image("pictures for survivor game/buttons and icons
 i_button2 = image_import.get_image("pictures for survivor game/buttons and icons/i button 2.png",(50,50))
 i_button_rect = i_button1.get_rect(topleft = (0,50))
 def menu():
-    global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect, mouse, pressed
+    global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect, mouse, pressed, skill_purchased
+    skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]
     player_menu_1 = image_import.get_image(f"pictures for survivor game/dude graphics/dude run 1 90{player_skin}.png",(500,650))
     player_menu_2 = image_import.get_image(f"pictures for survivor game/dude graphics/dude run 2 90{player_skin}.png",(500,650))
     player_menu = [player_menu_1,player_menu_2]
@@ -1008,6 +1015,7 @@ def level_up_screen():
     if upgrade_rect1.collidepoint(mouse) or upgrade_rect2.collidepoint(mouse) or upgrade_rect3.collidepoint(mouse):
         if pressed[0]:
             level_up_exit = True
+            pygame.mixer.Sound.play(machine_noise_sound)
 
     if level_up_animation == False and level_up_exit:
         if level_up_background_rect.top < 627:
@@ -1128,7 +1136,7 @@ level11_info = {"enemy frequency":60,
           "music":"Game music/Second to last level music.mp3"}
 level12_info = {"enemy frequency":100,
           "level background":image_import.get_image("pictures for survivor game/backgrounds/Final level background 2.png",(screen_width*3,screen_height*3)),
-          "level colour":"Blue",
+          "level colour":"Red",
           "completion level":-1,
           "music":"Game music/final level music.mp3"}
 
@@ -1164,7 +1172,7 @@ def main_game():
     
 #reset game
 def game_reset():
-    global  game_timer, power_up_list, player_group, boss_spawn, level_background, level_background_rect, level_backgroundx, level_backgroundy
+    global  game_timer, power_up_list, player_group, boss_spawn, level_background, level_background_rect, level_backgroundx, level_backgroundy, skill_purchased
     state_stack.append(main_game)
     play_music(current_level_information["music"])
     player_group = pygame.sprite.GroupSingle()
@@ -1207,12 +1215,10 @@ while True:
 
     #constantly update user information
     current_user = database.get_user()
-    try:
-        user_skills = database.get_skills()
-        player_skin = database.get_selected_skin()
-        update_skills()
-    except:
-        pass
+    user_skills = database.get_skills()
+    player_skin = database.get_selected_skin()
+    update_skills()
+
 
     #update level information
     current_level_information = level_information[current_level-1]
