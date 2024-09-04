@@ -3,6 +3,64 @@ import sqlite3
 conn = sqlite3.connect("Gun dude database.db")
 c = conn.cursor()
 
+#set up database
+c.execute("""CREATE TABLE 
+          IF NOT EXISTS 
+          enemy_information(enemy_type varchar,
+          health integer,
+          damage float,
+          speed float, 
+          is_boss boolean,
+          PRIMARY KEY (enemy_type))""")
+c.execute("""REPLACE INTO enemy_information
+          VALUES("Fly",2,1,1,0),
+          ("Trash",5,2,0.6,0),
+          ("Thug",5,3,0.6,0),
+          ("Ninja",10,2.5,0.9,0),
+          ("Robot boss",600,6,1,1),
+          ("Zombie",7,4,0.75,0),
+          ("Mummy",8,2.5,0.4,0),
+          ("UFO",3,3,1,0),
+          ("Alien",10,3,0.8,0),
+          ("Alien boss",1000,10,1,1),
+          ("Evil dude",2000,12,1.5,1)""")
+c.execute("""CREATE TABLE 
+          IF NOT EXISTS 
+          boss_information(boss varchar,
+          projectile varchar, 
+          shoot_speed integer,
+          spawn_time integer,
+          PRIMARY KEY (boss))""")
+c.execute("""REPLACE INTO boss_information
+          VALUES("Robot boss","Missile",100,30),
+          ("Alien boss","Fireball",70,50),
+          ("Evil dude","Evil bullet",50,30)""")
+c.execute("""CREATE TABLE 
+          IF NOT EXISTS
+          usernames(username varchar,
+          in_use boolean,
+          currency integer)""")
+c.execute("""DROP TABLE
+          IF EXISTS level_enemies""")
+c.execute("""CREATE TABLE
+          IF NOT EXISTS
+          level_enemies(level integer, enemy varchar)""")
+c.execute("""INSERT INTO level_enemies
+          VALUES(1,"Fly"),
+          (2,"Fly"),(2,"Fly"),(2,"Fly"),(2,"Trash"),
+          (3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Ninja"),
+          (4,"Thug"),(4,"Thug"),(4,"Ninja"),(4,"Robot boss"),
+          (5,"Fly"),(5,"Trash"),(5,"Thug"),
+          (6,"Fly"),(6,"Trash"),(6,"Zombie"),
+          (7,"Ninja"),(7,"Mummy"),
+          (8,"Mummy"),(8,"Zombie"),
+          (9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"Alien"),
+          (10,"Alien"),(10,"UFO"),(10,"Alien boss"),
+          (11,"UFO"),(11,"Fly"),(11,"Trash"),(11,"Thug"),
+          (12,"Zombie"),(12,"Mummy"),(12,"Alien"),(12,"Ninja")""")
+
+conn.commit()
+
 #Returns which levels are completed
 def is_complete(user):
     c.execute(f"""SELECT completed 

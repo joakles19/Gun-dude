@@ -1214,10 +1214,13 @@ while True:
             exit()
 
     #constantly update user information
-    current_user = database.get_user()
-    user_skills = database.get_skills()
-    player_skin = database.get_selected_skin()
-    update_skills()
+    try:
+        current_user = database.get_user()
+        user_skills = database.get_skills()
+        player_skin = database.get_selected_skin()
+        update_skills()
+    except:
+        pass
 
 
     #update level information
