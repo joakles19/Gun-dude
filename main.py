@@ -732,6 +732,7 @@ save_button_rect = save_button1.get_rect(center = (570,600))
 i_button1 = image_import.get_image("pictures for survivor game/buttons and icons/i button 1.png",(50,50))
 i_button2 = image_import.get_image("pictures for survivor game/buttons and icons/i button 2.png",(50,50))
 i_button_rect = i_button1.get_rect(topleft = (0,50))
+shop_logo = image_import.get_image("pictures for survivor game\Shop logo.png",(300,300))
 def menu():
     global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect, mouse, pressed, skill_purchased
     skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]
@@ -795,6 +796,8 @@ def menu():
         if pressed[0] == True and press_timer == -1:
             pygame.quit()
             exit() #exit the game
+
+    screen.blit(shop_logo,(320,20))
 
 
 information_background = image_import.get_image("pictures for survivor game/backgrounds/information screen.png",(1280,720))
