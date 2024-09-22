@@ -3,7 +3,7 @@
 #Database and SQL functions in database.py
 #Binary tree/tree traversal and hash table in data_structures.py
 
-import pygame,math,random,subprocess,numpy as np #importing python libraries
+import pygame,math,random,subprocess,numpy as np  #importing python libraries
 import database,data_structures,image_import,analytics_maker #importing my own modules
 #initialising pygame
 pygame.init()
@@ -733,6 +733,9 @@ i_button1 = image_import.get_image("pictures for survivor game/buttons and icons
 i_button2 = image_import.get_image("pictures for survivor game/buttons and icons/i button 2.png",(50,50))
 i_button_rect = i_button1.get_rect(topleft = (0,50))
 shop_logo = image_import.get_image("pictures for survivor game\Shop logo.png",(300,300))
+shop_logo2 = image_import.get_image("pictures for survivor game\Shop logo 2.png",(300,300))
+shop_logo_rect = shop_logo.get_rect(topleft = (320,-15))
+presents_message = image_import.get_image("pictures for survivor game\Presents.png",(225,40))
 def menu():
     global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect, mouse, pressed, skill_purchased
     skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]
@@ -796,8 +799,16 @@ def menu():
         if pressed[0] == True and press_timer == -1:
             pygame.quit()
             exit() #exit the game
+    #logo button
+    if shop_logo_rect.collidepoint(mouse):
+        screen.blit(shop_logo2,shop_logo_rect)
+        if pressed[0] == True and press_timer == -1:
+            subprocess.run(["Python","sidekick_menu.py"])
+    else:
+        screen.blit(shop_logo,shop_logo_rect)
 
-    screen.blit(shop_logo,(320,20))
+    screen.blit(presents_message,(360,220))
+
 
 
 information_background = image_import.get_image("pictures for survivor game/backgrounds/information screen.png",(1280,720))
@@ -835,6 +846,7 @@ def game_over_screen():
     screen.blit(level_message,(player_dead_rect.left + 30,200))
     screen.blit(respawn_button2,respawn_button_rect)
     screen.blit(stats_screen_button1,stats_screen_button_rect)
+    screen.blit(shop_logo,(10,10))
     #game over button collisions
     if respawn_button_rect.collidepoint(mouse):
         screen.blit(respawn_button1,respawn_button_rect)
@@ -877,6 +889,7 @@ def level_completion_screen():
     screen.blit(completed_message,(player_rect.left - 400,100))
     screen.blit(respawn_button2,respawn_button_rect)
     screen.blit(stats_screen_button1,stats_screen_button_rect)
+    screen.blit(shop_logo,(10,10))
     #button collisions
     if respawn_button_rect.collidepoint(mouse):
         screen.blit(respawn_button1,respawn_button_rect)
@@ -1025,6 +1038,8 @@ def level_up_screen():
             level_up_background_rect.top += 40
         else:
             state_stack.pop()
+
+
 #pre game screen
 def pre_game_screen():
     global current_level, level_message, press_timer, enemies, level_background
