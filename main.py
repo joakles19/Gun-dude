@@ -734,7 +734,7 @@ i_button2 = image_import.get_image("pictures for survivor game/buttons and icons
 i_button_rect = i_button1.get_rect(topleft = (0,50))
 shop_logo = image_import.get_image("pictures for survivor game\Shop logo.png",(300,300))
 shop_logo2 = image_import.get_image("pictures for survivor game\Shop logo 2.png",(300,300))
-shop_logo_rect = shop_logo.get_rect(topleft = (320,-15))
+shop_logo_rect = shop_logo.get_rect(topleft = (320,5))
 presents_message = image_import.get_image("pictures for survivor game\Presents.png",(225,40))
 def menu():
     global player_menu_index, press_timer, menu_rects, menu_cloud_rect, menu_ground_rect, menu_sky_rect, mouse, pressed, skill_purchased
@@ -807,7 +807,7 @@ def menu():
     else:
         screen.blit(shop_logo,shop_logo_rect)
 
-    screen.blit(presents_message,(360,220))
+    screen.blit(presents_message,(360,240))
 
 
 

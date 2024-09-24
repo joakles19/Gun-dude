@@ -39,13 +39,13 @@ c.execute("""CREATE TABLE
           IF NOT EXISTS
           usernames(username varchar,
           in_use boolean,
-          currency integer)""")
+          currency integer, redeemed boolean)""")
 c.execute("""DROP TABLE
           IF EXISTS level_enemies""")
 c.execute("""CREATE TABLE
           IF NOT EXISTS
           level_enemies(level integer, enemy varchar)""")
-c.execute("""INSERT INTO level_enemies
+c.execute("""REPLACE INTO level_enemies
           VALUES(1,"Fly"),
           (2,"Fly"),(2,"Fly"),(2,"Fly"),(2,"Trash"),
           (3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Ninja"),
@@ -121,7 +121,7 @@ def return_usernames():
 #Adds new username
 def new_username(new_name):
     c.execute("""INSERT INTO usernames
-               VALUES (?,False,0)""",(str(new_name),))
+               VALUES (?,False,0,0)""",(str(new_name),))
     conn.commit()
 
 #Deletes user
@@ -238,8 +238,20 @@ def select_skin(skin,select,purchase):
                   WHERE skin = ?""",(str(skin),))
     conn.commit()
 
+#redeem discount code
+def check_for_redeem(user):
+    c.execute("""SELECT redeemed FROM usernames
+              WHERE username = ?""",(str(user),))
+    return c.fetchone()[0]
 
+#check if redeemed
+def redeem_code(user):
+    c.execute("""UPDATE usernames
+              SET redeemed = 1
+              WHERE username = ?""",(str(user),))
+    conn.commit()
 
 #Closes database
 def close():
     conn.close()
+
