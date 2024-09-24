@@ -470,6 +470,8 @@ class Bullets(pygame.sprite.Sprite):
             self.image = pygame.image.load("pictures for survivor game/Missile.png").convert_alpha()
         if self.type == "Evil bullet":
             self.image = pygame.image.load("pictures for survivor game/Evil bullet.png").convert_alpha()
+        if self.type == "Slime ball":
+            self.image = pygame.image.load("pictures for survivor game/slime ball.png").convert_alpha()
         self.image = pygame.transform.rotate(self.image,self.dangle)
         self.x += dx
         self.y += dy
@@ -705,6 +707,8 @@ graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game
 graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 4.png",(135,114)))
 graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 5.png",(135,114)))
 graphics_dict.add("Evil dude",image_import.get_image("pictures for survivor game/enemy graphics/evil dude 6.png",(135,114)))
+graphics_dict.add("Demon boss",image_import.get_image("pictures for survivor game/enemy graphics/demon boss 1.png",(600,520)))
+graphics_dict.add("Demon boss",image_import.get_image("pictures for survivor game/enemy graphics/demon boss 2.png",(600,520)))
 
 #menu screen
 player_menu_index = 0

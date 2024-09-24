@@ -23,7 +23,8 @@ c.execute("""REPLACE INTO enemy_information
           ("UFO",3,3,1,0),
           ("Alien",10,3,0.8,0),
           ("Alien boss",1000,10,1,1),
-          ("Evil dude",2000,12,1.5,1)""")
+          ("Evil dude",2000,12,1.5,1),
+          ("Demon boss",3000,14,1.2,1)""")
 c.execute("""CREATE TABLE 
           IF NOT EXISTS 
           boss_information(boss varchar,
@@ -34,7 +35,8 @@ c.execute("""CREATE TABLE
 c.execute("""REPLACE INTO boss_information
           VALUES("Robot boss","Missile",100,30),
           ("Alien boss","Fireball",70,50),
-          ("Evil dude","Evil bullet",50,30)""")
+          ("Evil dude","Evil bullet",50,30),
+          ("Demon boss","Fireball",40,10)""")
 c.execute("""CREATE TABLE 
           IF NOT EXISTS
           usernames(username varchar,
@@ -56,8 +58,8 @@ c.execute("""REPLACE INTO level_enemies
           (8,"Mummy"),(8,"Zombie"),
           (9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"Alien"),
           (10,"Alien"),(10,"UFO"),(10,"Alien boss"),
-          (11,"UFO"),(11,"Fly"),(11,"Trash"),(11,"Thug"),
-          (12,"Zombie"),(12,"Mummy"),(12,"Alien"),(12,"Ninja")""")
+          (11,"UFO"),(11,"Fly"),(11,"Trash"),(11,"Thug"),(11,"Evil dude"),
+          (12,"Zombie"),(12,"Mummy"),(12,"Alien"),(12,"Ninja"),(12,"Demon boss")""")
 
 conn.commit()
 
