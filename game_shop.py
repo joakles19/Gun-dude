@@ -76,7 +76,7 @@ class skills:
         else:
             screen.blit(red_dot,self.node_rect)
 
-        if self.price < currency:
+        if self.price =< currency:
             can_buy = True
         else:
             can_buy = False

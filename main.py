@@ -252,7 +252,7 @@ class Player(pygame.sprite.Sprite):
 
     def aim_graphics(self):
         self.x_dist = mouse[0] - self.rect.centerx
-        self.y_dist = -(mouse[1] - self.rect.centery)
+        self.y_dist = (mouse[1] - self.rect.centery)
         self.image_angle = math.degrees(math.atan2(self.x_dist,self.y_dist))
         image_index = abs(math.ceil(self.image_angle/36))
         if self.image_angle > 0:
