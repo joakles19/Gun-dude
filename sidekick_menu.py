@@ -85,7 +85,7 @@ def main_screen():
     if press_index > 0:
         screen.blit(left_button1,left_button_rect)
         if left_button_rect.collidepoint(mouse):
-            screen.blit(left_button1,left_button_rect)
+            screen.blit(left_button2,left_button_rect)
             if pressed[0] and can_press:
                 can_press = False
                 cooldown_timer = 1
