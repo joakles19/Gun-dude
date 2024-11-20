@@ -85,13 +85,6 @@ def get_enemies(level):
               ON level_enemies.enemy = enemy_information.enemy_type AND level_enemies.level = ?""",(str(level),))
     return c.fetchall()
 
-#Returns enemy_information
-def enemy_information(enemy):
-    c.execute("""SELECT *
-              FROM enemy_information
-              WHERE enemy_type = ?""",(str(enemy),))
-    return c.fetchone()
-
 #Returns boss_information
 def boss_information(boss):
     c.execute("""SELECT * 

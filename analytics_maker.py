@@ -19,32 +19,6 @@ def create_plot(x,y,title,xlabel,ylabel,filename):
     figplot.set_facecolor('#5788eb')
     plt.savefig(f'Game analytics/{filename}')
 
-def enemy_stemchart():
-    figstem = plt.figure()
-    axstem = plt.axes(projection='3d')
-
-    data = database.enemy_information()
-    enemies = []
-    health = []
-    damage = []
-    speed = []
-    for n in data:
-        enemies.append(n[0])
-        health.append(n[1])
-        damage.append(n[2])
-        speed.append(n[3])
-
-    for t in range(0,len(data)):
-        axstem.stem([health[t]],[speed[t]],[damage[t]],linefmt='Grey',markerfmt='o',label=enemies[t])
-    axstem.legend()
-    axstem.set_xlabel('Health',font=pixelfont)
-    axstem.set_ylabel('Speed',font=pixelfont)
-    axstem.set_zlabel('Damage',font=pixelfont)
-    axstem.set_facecolor('#056109')
-    figstem.set_facecolor('#056109')
-
-    plt.savefig('Game analytics/Enemy stem chart.png')
-
 def bar_chart(x,y,title,xlabel,ylabel,filename):
     figbar = plt.figure()
     axbar = plt.axes()
