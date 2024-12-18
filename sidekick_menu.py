@@ -10,9 +10,10 @@ denied_font  = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.t
 code_font = pygame.font.Font(None,140)
 
 headers = {"Accept": "application/json","Content-Type": "application/json"}
-response = requests.request("GET","https://www.cheapshark.com/api/1.0/deals?storeID=1&upperPrice=15",headers=headers)
-games_json = response.json()
+response = requests.request("GET","https://www.cheapshark.com/api/1.0/deals?storeID=1&upperPrice=15",headers=headers) #API call to recieve game information
+games_json = response.json() #Stores information into json format
 
+#Menu graphics
 background = image_import.get_image("pictures for survivor game/backgrounds/menu backgrounds/deals background.png",(1280,720))
 logo = image_import.get_image("pictures for survivor game/Shop logo.png",(350,350))
 menu_button1 = image_import.get_image("pictures for survivor game/buttons and icons/shop menu button 2.png",(220,100))
@@ -31,6 +32,8 @@ left_button_rect = left_button1.get_rect(center = (400,70))
 discount_button1 = image_import.get_image("pictures for survivor game/buttons and icons/discount button 1.png",(300,50))
 discount_button2 = image_import.get_image("pictures for survivor game/buttons and icons/discount button 2.png",(300,50))
 discount_button_rect = discount_button1.get_rect(center = (190,500))
+
+#Indexes and timers for interface
 info_num = 0
 press_index = 0
 can_press = True
@@ -38,6 +41,7 @@ can_press = True
 class game_info:
     def __init__(self,info,index):
         self.index = index
+        #Parsing of json file to display specific information
         self.display_name = pygame.font.Font.render(font,info["title"],False,"#fc6aa2")
         self.deal_message = "From £"+info["normalPrice"]+" down to £"+info["salePrice"]
         self.rating_message = "Metacritic:"+info["metacriticScore"]+ " Steam:"+info["steamRatingPercent"]
@@ -66,7 +70,7 @@ def main_screen():
     display_games = []
     
     for n in range(press_index,press_index + 10):
-        display_games.append(game_info(games_json[n],n-press_index))
+        display_games.append(game_info(games_json[n],n-press_index)) 
 
 
     for game in display_games:

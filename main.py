@@ -2,6 +2,7 @@
 
 #Database and SQL functions in database.py
 #Binary tree/tree traversal and hash table in data_structures.py
+#API call in sidekick_menu.py
 
 import pygame,math,random,subprocess,numpy as np  #importing python libraries
 import database,data_structures,image_import,analytics_maker #importing my own modules
@@ -36,7 +37,7 @@ beep_sound = pygame.mixer.Sound("Game music/skill selection.mp3")
 machine_noise_sound = pygame.mixer.Sound("Game music/level up screen.mp3")
 
 #player
-class Player(pygame.sprite.Sprite):
+class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
     def __init__(self):
         super().__init__()
         #load graphics
@@ -445,7 +446,7 @@ class Player(pygame.sprite.Sprite):
 player = Player()
 
 #bullets
-class Bullets(pygame.sprite.Sprite):
+class Bullets(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
     def __init__(self,posx,posy,type,angle):
         super().__init__()
         self.image = pygame.surface.Surface((12,5),pygame.SRCALPHA, 32)
@@ -485,7 +486,7 @@ class Bullets(pygame.sprite.Sprite):
         if self.rect.x <= -50:
             self.kill()
 
-class Enemy_bullets(Bullets):
+class Enemy_bullets(Bullets): #Inherits from Bullets class
     def __init__(self, posx, posy, type, angle,damage,speed):
         super().__init__(posx, posy, type, angle)
         self.damage = damage
@@ -494,7 +495,7 @@ class Enemy_bullets(Bullets):
 bullets_group = pygame.sprite.Group()
 
 #enemies
-class Enemies(pygame.sprite.Sprite):
+class Enemies(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
     def __init__(self,posx,posy,info):
         super().__init__()
         self.enemy_info = info
@@ -582,7 +583,7 @@ class Enemies(pygame.sprite.Sprite):
         self.healthbar()
         self.animate()
 
-class Boss(Enemies):
+class Boss(Enemies): #Inherits from Enemies class
     def __init__(self, posx, posy, info,boss_info):
         super().__init__(posx, posy, info)
         self.shoot_cooldown = 0
@@ -650,7 +651,7 @@ def spawn(frequency):
 enemy_group = pygame.sprite.Group()
 
 #collectables
-class Collectables(pygame.sprite.Sprite):
+class Collectables(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
     def __init__(self,posx,posy,type):
         super().__init__()
         self.x = posx
@@ -986,7 +987,7 @@ reload_upgrade = image_import.get_image("pictures for survivor game/buttons and 
 upgrade_rect1 = fire_rate_upgrade.get_rect(topleft = (152,110))
 upgrade_rect2 = fire_rate_upgrade.get_rect(topleft = (500,110))
 upgrade_rect3 = fire_rate_upgrade.get_rect(topleft = (846,110))
-class level_ups(pygame.sprite.Sprite):
+class level_ups(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
     def __init__(self,rect):
         super().__init__()
         image = random.randint(0,len(power_up_list)-1)

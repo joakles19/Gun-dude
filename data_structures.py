@@ -1,5 +1,5 @@
 #Hash table
-class HashTable():
+class HashTable(): #Hash table for stroing game graphics
 
     def __init__(self):
         self.size = 1000
@@ -26,14 +26,14 @@ class HashTable():
             return self.table[hashcode]
         
 #Binary tree
-class Node(object):
+class Node(object): #Node class to store the node information on the binary tree
     def __init__(self,value,content):
         self.node_value = value
         self.node_content = content
         self.left = None
         self.right = None
 
-class Tree(object):
+class Tree(object): #Tree class to store the arrangement of each node on the tree
     def __init__(self,root,content):
         self.root = Node(root,content)
         self.tree_list = []
@@ -55,7 +55,7 @@ class Tree(object):
     def return_tree(self):
         self.preorder_traversal_recurs(self.root)
         return self.tree_list
-    def preorder_traversal_recurs(self,node):
+    def preorder_traversal_recurs(self,node): #Recursive preorder search algorithm
         self.tree_list.append(node.node_content)
         if node.left is not None:
             self.preorder_traversal_recurs(node.left)
@@ -64,7 +64,7 @@ class Tree(object):
 
     def find_node(self,node):
         return self.find_node_recurs(self.root,node)
-    def find_node_recurs(self,node,search):
+    def find_node_recurs(self,node,search): #Recursive searching algorithm
         if search < node.node_value:
             if node.left is None:
                 return None
