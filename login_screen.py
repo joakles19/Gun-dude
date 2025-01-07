@@ -1,4 +1,5 @@
-import pygame, database, image_import, data_structures#, requests
+#Use of a REST API on line 66
+import pygame, database, image_import, data_structures, requests
 pygame.init()
 screen = pygame.display.set_mode((1280,720))
 
@@ -62,11 +63,11 @@ class keyboard:
     
     def generate_word(self):
         self.letter_array = []
-        #word_API = requests.get("https://random-word-api.herokuapp.com/word")
-        #word = word_API.text
+        word_API = requests.get("https://random-word-api.herokuapp.com/word")
+        word = word_API.text
 
-        #for n in range(2,len(word)-3):
-        #    self.letter_array.append(word[n].upper())
+        for n in range(2,len(word)-3):
+            self.letter_array.append(word[n].upper())
 
 Username = keyboard()
 
@@ -210,7 +211,7 @@ login_screen_stack = [login_main]
 while True:
     mouse = pygame.mouse.get_pos()
     pressed = pygame.mouse.get_pressed()
-    database_names = database.return_usernames()
+    database_names = database.return_user_info()
     database_names = data_structures.quick_sort(database_names)
 
     login_screen_stack[len(login_screen_stack)-1]()

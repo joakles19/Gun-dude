@@ -37,44 +37,63 @@ c.execute("""REPLACE INTO boss_information
           ("Alien boss","Fireball",70,50),
           ("Evil dude","Evil bullet",50,30),
           ("Demon boss","Fireball",40,10)""")
-c.execute("""CREATE TABLE 
-          IF NOT EXISTS
-          usernames(username varchar,
-          in_use boolean,
-          currency integer, redeemed boolean)""")
+c.execute("""CREATE TABLE IF NOT EXISTS 
+          users(userID integer primary key autoincrement,
+          username varchar,in_use boolean,
+          currency integer, 
+          redeemed boolean)""")
+c.execute("""CREATE TABLE IF NOT EXISTS levelscompleted(userID integer primary key,
+          init boolean,
+          level1 boolean,
+          level2 boolean,
+          level3 boolean,
+          level4 boolean,
+          level5 boolean,
+          level6 boolean,
+          level7 boolean,
+          level8 boolean,
+          level9 boolean,
+          level10 boolean,
+          level11 boolean,
+          level12 boolean)""")
+c.execute("""CREATE TABLE IF NOT EXISTS """)
 c.execute("""DROP TABLE
           IF EXISTS level_enemies""")
 c.execute("""CREATE TABLE
           IF NOT EXISTS
-          level_enemies(level integer, enemy varchar)""")
+          level_enemies(level integer, enemy varchar, frequency integer)""")
 c.execute("""REPLACE INTO level_enemies
-          VALUES(1,"Fly"),
-          (2,"Fly"),(2,"Fly"),(2,"Fly"),(2,"Trash"),
-          (3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Thug"),(3,"Ninja"),
-          (4,"Thug"),(4,"Thug"),(4,"Ninja"),(4,"Robot boss"),
-          (5,"Fly"),(5,"Trash"),(5,"Thug"),
-          (6,"Fly"),(6,"Trash"),(6,"Zombie"),
-          (7,"Ninja"),(7,"Mummy"),
-          (8,"Mummy"),(8,"Zombie"),
-          (9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"UFO"),(9,"Alien"),
-          (10,"Alien"),(10,"UFO"),(10,"Alien boss"),
-          (11,"UFO"),(11,"Fly"),(11,"Trash"),(11,"Thug"),(11,"Evil dude"),
-          (12,"Zombie"),(12,"Mummy"),(12,"Alien"),(12,"Ninja"),(12,"Demon boss")""")
+          VALUES(1,"Fly",1),
+          (2,"Fly",3),(2,"Trash",1),
+          (3,"Thug",5),(3,"Ninja",1),
+          (4,"Thug",2),(4,"Ninja",1),(4,"Robot boss",1),
+          (5,"Fly",1),(5,"Trash",1),(5,"Thug",1),
+          (6,"Fly",1),(6,"Trash",1),(6,"Zombie",1),
+          (7,"Ninja",1),(7,"Mummy",1),
+          (8,"Mummy",1),(8,"Zombie",1),
+          (9,"UFO",6),(9,"Alien",1),
+          (10,"Alien",1),(10,"UFO",1),(10,"Alien boss",1),
+          (11,"UFO",1),(11,"Fly",1),(11,"Trash",1),(11,"Thug",1),(11,"Evil dude",1),
+          (12,"Zombie",1),(12,"Mummy",1),(12,"Alien",1),(12,"Ninja",1),(12,"Demon boss",1)""")
 
 conn.commit()
 
-#Returns which levels are completed
+#Returns which levels are completed for specific user
 def is_complete(user):
-    c.execute(f"""SELECT completed 
-            FROM {user}levels""")
+    c.execute(f"""SELECT 
+              levelscompleted.* 
+              FROM levelscompleted
+              JOIN users
+              ON levelscompleted.userID = users.userID
+              WHERE users.username = ?;""",(str(user),))
     conn.commit()
-    return c.fetchall()
+    return c.fetchall()[0]
 
 #Switches a level's state to complete
 def complete_level(level,user):
-    c.execute(f"""UPDATE {user}levels
-              SET completed = 1
-              WHERE levels = ?""",(str(level),))
+    c.execute(f"""UPDATE levelscompleted 
+              SET level{level} = 1 
+              WHERE userID = (SELECT userID from users where username = ?)""",(str(user),))
     conn.commit()
 
 #Returns which enemies feature on an inputted level
@@ -96,41 +115,47 @@ def boss_information(boss):
 #Returns the player's currency
 def get_currency():
     c.execute("""SELECT currency
-              FROM usernames
+              FROM users
               WHERE in_use = 1""")
     return c.fetchall()[0][0]
     
 #Adds to the player's currency
 def add_currency(amount):
-    c.execute(f"""UPDATE usernames 
+    c.execute(f"""UPDATE users
               SET currency = currency + ?
               WHERE in_use = 1""", (str(amount),))
     conn.commit()
 
 #Returns all usernames 
-def return_usernames():
-    c.execute("""SELECT *
-              FROM usernames""")
+def return_user_info():
+    c.execute("""SELECT username, in_use
+              FROM users""")
     return c.fetchall()
 
 #Adds new username
 def new_username(new_name):
-    c.execute("""INSERT INTO usernames
+    c.execute("""INSERT INTO users(username,in_use,currency,redeemed)
                VALUES (?,False,0,0)""",(str(new_name),))
+    c.execute("""INSERT INTO levelscompleted (userID, init,level1, level2, level3, level4, level5, level6, level7, level8, level9, level10, level11, level12)
+    SELECT 
+        userID, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    FROM users
+    WHERE username = ?;""", (str(new_name),))
     conn.commit()
 
 #Deletes user
 def delete_user(username):
-    c.execute("""DELETE FROM usernames
+    c.execute("""DELETE FROM levelscompleted 
+              WHERE userID = (SELECT userID FROM users WHERE username = ?)""",(str(username),))
+    c.execute("""DELETE FROM users
                WHERE username = ?""",(str(username),))
-    c.execute(f"""DROP TABLE {username}levels""")
     c.execute(f"""DROP TABLE {username}skills""")
     c.execute(f"""DROP TABLE {username}skins""")
     conn.commit()
 
 #Choose user
 def choose_user(username):
-    c.execute("""UPDATE usernames 
+    c.execute("""UPDATE users
               SET in_use = 
               (CASE WHEN username = ? THEN 1 
               ELSE 0 
@@ -140,7 +165,7 @@ def choose_user(username):
 #Return user
 def get_user():
     c.execute("""SELECT username 
-              FROM usernames 
+              FROM users
               WHERE in_use = 1""")
     user = c.fetchone()
     if user is None:
@@ -150,14 +175,6 @@ def get_user():
 
 #Create user table
 def create_tables(username):
-    c.execute(f"""CREATE TABLE {username}levels(
-              levels varchar,
-              completed boolean)""")
-    c.execute(f"""INSERT INTO {username}levels
-                  VALUES(0,1)""")
-    for n in range(1,13):
-        c.execute(f"""INSERT INTO {username}levels
-                  VALUES({n},0)""")
     c.execute(f"""CREATE TABLE {username}skills(
               skill varchar,
               purchased boolean)""")
@@ -178,7 +195,7 @@ def create_tables(username):
 
 #Purchase skill
 def purchase_skill(skill):
-    c.execute("""SELECT username FROM usernames
+    c.execute("""SELECT username FROM users
               WHERE in_use = 1""")
     user = c.fetchone()[0]
     c.execute(f"""UPDATE {user}skills
@@ -188,7 +205,7 @@ def purchase_skill(skill):
 
 #Return skills
 def get_skills():
-    c.execute("""SELECT username FROM usernames
+    c.execute("""SELECT username FROM users
               WHERE in_use = 1""")
     user = c.fetchone()[0]
     c.execute(f"""SELECT skill FROM {user}skills
@@ -197,7 +214,7 @@ def get_skills():
     
 #Return skins
 def is_skin_puchased(skin):
-    c.execute("""SELECT username FROM usernames
+    c.execute("""SELECT username FROM users
               WHERE in_use = 1""")
     user = c.fetchone()[0]
     c.execute(f"""SELECT purchased FROM {user}skins
@@ -205,7 +222,7 @@ def is_skin_puchased(skin):
     return c.fetchone()[0]
 
 def get_selected_skin():
-    c.execute("""SELECT username FROM usernames
+    c.execute("""SELECT username FROM users
               WHERE in_use = 1""")
     user = c.fetchone()[0]
     c.execute(f"""SELECT skin FROM {user}skins
@@ -218,7 +235,7 @@ def get_selected_skin():
 
 #Select/purchase skin
 def select_skin(skin,select,purchase):
-    c.execute("""SELECT username FROM usernames
+    c.execute("""SELECT username FROM users
               WHERE in_use = 1""")
     user = c.fetchone()[0]
     if select:
@@ -235,13 +252,13 @@ def select_skin(skin,select,purchase):
 
 #redeem discount code
 def check_for_redeem(user):
-    c.execute("""SELECT redeemed FROM usernames
+    c.execute("""SELECT redeemed FROM users
               WHERE username = ?""",(str(user),))
     return c.fetchone()[0]
 
 #check if redeemed
 def redeem_code(user):
-    c.execute("""UPDATE usernames
+    c.execute("""UPDATE users
               SET redeemed = 1
               WHERE username = ?""",(str(user),))
     conn.commit()
@@ -249,4 +266,3 @@ def redeem_code(user):
 #Closes database
 def close():
     conn.close()
-

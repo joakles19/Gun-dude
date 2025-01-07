@@ -1,3 +1,6 @@
+#API call on line 15
+#Json parsing on line 47
+
 import pygame, database, image_import, requests
 import random
 pygame.init()

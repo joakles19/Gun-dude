@@ -2,7 +2,9 @@
 
 #Database and SQL functions in database.py
 #Binary tree/tree traversal and hash table in data_structures.py
-#API call in sidekick_menu.py
+#API call in sidekick_menu.py and login_screen.py
+
+#Polymorphism on line 594
 
 import pygame,math,random,subprocess,numpy as np  #importing python libraries
 import database,data_structures,image_import,analytics_maker #importing my own modules
@@ -20,6 +22,7 @@ global press_timer
 press_timer = -1 #Press timer used for interface buttons
 game_timer = 0 #Define the game timer
 player_skin = '' #Sets skin to default
+enemies = []
 
 #Sound effects
 gunshot_sound = pygame.mixer.Sound("Game music/gunshot.mp3")
@@ -106,16 +109,19 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
 
     def power_ups(self):
         global press_timer
-        self.explosion_rect = pygame.rect.Rect(self.rect.centerx - 400, self.rect.centery - 400,1000,1000)
         self.nuke_message = pygame.font.Font.render(self.power_up_font,f"{self.nuke_num}",False,"Green")
+        #Nuke powerup icon display
         if self.nuke_num > 0:
             screen.blit(self.nuke_icon,self.nuke_icon_rect)
             screen.blit(self.nuke_message,(self.nuke_icon_rect.x + 40,self.nuke_icon_rect.y + 10))
+        #Nuke powerup activation
         if key[pygame.K_m] and self.nuke_num > 0 and press_timer == -1:
             self.explosion_animation_index = 0
             press_timer = 0
             self.nuke_num -= 1
             pygame.mixer.Sound.play(explosion_sound)
+        #Explosion animation
+        self.explosion_rect = pygame.rect.Rect(self.rect.centerx - 400, self.rect.centery - 400,1000,1000)
         if self.explosion_animation_index >= 0:
             screen.blit(self.explosion_animation[int(self.explosion_animation_index)],self.explosion_rect)
             self.explosion_animation_index += 0.1
@@ -161,7 +167,7 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
         else:
             self.passive_heal = False
 
-        if skill_purchased[10]:
+        if skill_purchased[10]: #Invincibility
             self.invincible_skill = True
         else:
             self.invincible_skill = False
@@ -175,7 +181,7 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
         self.explosion_animation_index = -1
         self.ammo = 5
         self.xp = 0
-        self.level_up_num = 2
+        self.level_up_num = 1.5
         self.playerlevel = 0
         self.speed = 3
         self.coins = 0
@@ -402,7 +408,7 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
         screen.blit(self.level_number,(243,660))
         if self.xp >= self.level_up_num:
             self.xp = 0
-            self.level_up_num *= 1.2
+            self.level_up_num *= 1.15
             self.playerlevel += 1
             level_up_animation = True
             pygame.image.save(screen,"Screen.png")
@@ -590,7 +596,8 @@ class Boss(Enemies): #Inherits from Enemies class
         self.shoot_speed = boss_info[7]
         self.projectile = boss_info[6]
 
-    def boss_health_bar(self):
+    def healthbar(self):
+        self.bar = pygame.draw.rect(screen,"Red",(self.rect.left,self.rect.bottom,(self.health/self.max_health)*self.image.get_width(),10))
         healthbar = image_import.get_image("pictures for survivor game/boss healthbar.png",(960,64))
         healthbar_full = image_import.get_image("pictures for survivor game/boss healthbar full.png",(960,64))
         screen.blit(healthbar,(170,30))
@@ -616,9 +623,9 @@ class Boss(Enemies): #Inherits from Enemies class
             self.shoot_cooldown = 0
 
     def update(self):
+        super().update()
         self.collide()
         self.movement()
-        self.boss_health_bar()
         self.animate()
         self.shoot()
 
@@ -1047,7 +1054,7 @@ def level_up_screen():
 
 #pre game screen
 def pre_game_screen():
-    global current_level, level_message, press_timer, enemies, level_background
+    global current_level, level_message, press_timer, enemies, level_background, level_enemies
     level_background = current_level_information["level background"]
     screen.blit(level_background,(0,0))
     arrow_button1 = image_import.get_image("pictures for survivor game/buttons and icons/arrow button 1.png",(80,80))
@@ -1088,7 +1095,7 @@ def pre_game_screen():
                 current_level -= 1
 
     level_list = database.is_complete(current_user)
-    if level_list[current_level-1][0] == 1:
+    if level_list[current_level] == 1:
         screen.blit(play_button1,play_button_rect)
         if play_button_rect.collidepoint(mouse) and press_timer == -1:
             screen.blit(play_button2,play_button_rect)
@@ -1098,8 +1105,7 @@ def pre_game_screen():
         screen.blit(locked_icon,play_button_rect)
 
     #Pre loads enemy information
-    enemies = database.get_enemies(current_level)
-
+    level_enemies = database.get_enemies(current_level)
 #level information
 #Define dictionaries for each level
 level1_info = {"enemy frequency":200,
@@ -1195,10 +1201,14 @@ def main_game():
     
 #reset game
 def game_reset():
-    global  game_timer, power_up_list, player_group, boss_spawn, level_background, level_background_rect, level_backgroundx, level_backgroundy, skill_purchased
+    global  enemies, game_timer, power_up_list, player_group, boss_spawn, level_background, level_background_rect, level_backgroundx, level_backgroundy, skill_purchased
     state_stack.append(main_game)
     play_music(current_level_information["music"])
     player_group = pygame.sprite.GroupSingle()
+    enemies = []
+    for enemy in level_enemies:
+        for n in range(0,enemy[7]):
+            enemies.append(enemy)
     player_group.add(Player())
     for player in player_group:
         player.reset()
@@ -1211,7 +1221,7 @@ def game_reset():
     level_background_rect = level_background.get_rect(center = (screen_width/2,screen_height/2))
     level_backgroundx = level_background_rect.x
     level_backgroundy = level_background_rect.y
-    
+
 skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]
 def update_skills():
     for skill in user_skills:
