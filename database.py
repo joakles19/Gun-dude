@@ -42,23 +42,25 @@ c.execute("""CREATE TABLE IF NOT EXISTS
           username varchar,in_use boolean,
           currency integer, 
           redeemed boolean)""")
-c.execute("""CREATE TABLE IF NOT EXISTS levelscompleted(userID integer primary key,
-          init boolean,
-          level1 boolean,
-          level2 boolean,
-          level3 boolean,
-          level4 boolean,
-          level5 boolean,
-          level6 boolean,
-          level7 boolean,
-          level8 boolean,
-          level9 boolean,
-          level10 boolean,
-          level11 boolean,
-          level12 boolean)""")
-c.execute("""CREATE TABLE IF NOT EXISTS """)
-c.execute("""DROP TABLE
-          IF EXISTS level_enemies""")
+
+c.execute("""CREATE TABLE IF NOT EXISTS levelscompleted (
+          userID INTEGER PRIMARY KEY,
+          init BOOLEAN,
+          level1 BOOLEAN,
+          level2 BOOLEAN,
+          level3 BOOLEAN,
+          level4 BOOLEAN,
+          level5 BOOLEAN,
+          level6 BOOLEAN,
+          level7 BOOLEAN,
+          level8 BOOLEAN,
+          level9 BOOLEAN,
+          level10 BOOLEAN,
+          level11 BOOLEAN,
+          level12 BOOLEAN,
+          level_enemies BOOLEAN
+          )""")
+
 c.execute("""CREATE TABLE
           IF NOT EXISTS
           level_enemies(level integer, enemy varchar, frequency integer)""")

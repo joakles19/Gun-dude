@@ -125,7 +125,7 @@ denied_message2 = "Complete level 12 to redeeem"
 denied_message3 = "Already redeemed on this account"
 if user != 'Select/create a user to play':
     levels = database.is_complete(user)
-    if levels[12][0] == 1:
+    if levels[12] == 1:
         if database.check_for_redeem(user) == 1:
             can_access = False
             reason = denied_message3
