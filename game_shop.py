@@ -140,10 +140,11 @@ current_tree.insert(4,damage_up1)
 current_tree.insert(12,health_up1)
 users_skills = database.get_skills()
 
-for skill in users_skills:
-    skill_num = int(skill[0])-1
-    skills_list[skill_num].purchase()
-    add_to_tree(skills_list[skill_num])
+for n in range(0,15):
+    if users_skills[n] == 1:
+        skills_list[n].purchase()
+        add_to_tree(skills_list[n])
+
 
 def skill_tree_menu():
     #display skill tree
@@ -210,7 +211,7 @@ class skin_button:
             screen.blit(self.selected_message,self.message_rect)
 
 skin_buttons = []
-skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90.png",'',0))
+skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90.png",'Initial',0))
 skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Green.png",'Green',5))
 skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Purple.png",'Purple',5))
 skin_buttons.append(skin_button("pictures for survivor game/dude graphics/dude stand 90Grey.png",'Grey',5))

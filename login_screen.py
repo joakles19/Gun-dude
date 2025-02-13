@@ -191,7 +191,6 @@ def new_user_screen():
                 if name[0] == entername:
                     entername += 'I'
             database.new_username(entername)
-            database.create_tables(entername)
             can_press = False
             cooldown_timer = 1
             login_screen_stack.pop()

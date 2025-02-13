@@ -1224,8 +1224,9 @@ def game_reset():
 
 skill_purchased = [False,False,False,False,False,False,False,None,False,False,False,False,False,False,False,]
 def update_skills():
-    for skill in user_skills:
-        skill_purchased[int(skill[0])-1] = True
+    for n in range(0,15):
+        if user_skills[n] == 1:
+            skill_purchased[n] = True
 
 #Music loading
 def play_music(file_name):
@@ -1251,6 +1252,8 @@ while True:
         current_user = database.get_user()
         user_skills = database.get_skills()
         player_skin = database.get_selected_skin()
+        if player_skin == "Initial":
+            player_skin = ""
         update_skills()
     except:
         pass

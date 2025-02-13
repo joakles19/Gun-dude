@@ -60,11 +60,13 @@ c.execute("""CREATE TABLE IF NOT EXISTS levelscompleted (
           level12 BOOLEAN,
           level_enemies BOOLEAN
           )""")
-
+c.execute("""DROP TABLE
+          IF EXISTS 
+          level_enemies""")
 c.execute("""CREATE TABLE
           IF NOT EXISTS
           level_enemies(level integer, enemy varchar, frequency integer)""")
-c.execute("""REPLACE INTO level_enemies
+c.execute("""INSERT INTO level_enemies
           VALUES(1,"Fly",1),
           (2,"Fly",3),(2,"Trash",1),
           (3,"Thug",5),(3,"Ninja",1),
@@ -77,6 +79,34 @@ c.execute("""REPLACE INTO level_enemies
           (10,"Alien",1),(10,"UFO",1),(10,"Alien boss",1),
           (11,"UFO",1),(11,"Fly",1),(11,"Trash",1),(11,"Thug",1),(11,"Evil dude",1),
           (12,"Zombie",1),(12,"Mummy",1),(12,"Alien",1),(12,"Ninja",1),(12,"Demon boss",1)""")
+c.execute("""CREATE TABLE IF NOT EXISTS
+          skins_purchased(user_id integer,
+          Initial BOOLEAN,
+          Green BOOLEAN,
+          Grey BOOLEAN,
+          Orange BOOLEAN,
+          Purple BOOLEAN,
+          Black BOOLEAN,
+          Naked BOOLEAN,
+          Gman BOOLEAN,
+          selected varchar)""")
+c.execute("""CREATE TABLE IF NOT EXISTS skills_purchased (
+          user_id INTEGER,
+          skill_1 BOOLEAN,
+          skill_2 BOOLEAN,
+          skill_3 BOOLEAN,
+          skill_4 BOOLEAN,
+          skill_5 BOOLEAN,
+          skill_6 BOOLEAN,
+          skill_7 BOOLEAN,
+          skill_8 BOOLEAN,
+          skill_9 BOOLEAN,
+          skill_10 BOOLEAN,
+          skill_11 BOOLEAN,
+          skill_12 BOOLEAN,
+          skill_13 BOOLEAN,
+          skill_14 BOOLEAN,
+          skill_15 BOOLEAN)""")
 
 conn.commit()
 
@@ -134,7 +164,7 @@ def return_user_info():
               FROM users""")
     return c.fetchall()
 
-#Adds new username
+#Adds new username and relevent information to other tables
 def new_username(new_name):
     c.execute("""INSERT INTO users(username,in_use,currency,redeemed)
                VALUES (?,False,0,0)""",(str(new_name),))
@@ -143,6 +173,16 @@ def new_username(new_name):
         userID, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
     FROM users
     WHERE username = ?;""", (str(new_name),))
+    c.execute("""INSERT INTO skins_purchased(user_id, Initial, Green, Grey, Orange, Purple, Black, Naked, Gman, selected)
+              SELECT 
+                userID, 1,0,0,0,0,0,0,0,"Initial"
+                FROM users
+                WHERE username = ?;""", (str(new_name),))
+    c.execute("""INSERT INTO skills_purchased(user_id, skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7, skill_8, skill_9, skill_10, skill_11, skill_12, skill_13, skill_14, skill_15)
+              SELECT
+              userID , 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+                FROM users
+                WHERE username = ?;""", (str(new_name),))
     conn.commit()
 
 #Deletes user
@@ -151,8 +191,11 @@ def delete_user(username):
               WHERE userID = (SELECT userID FROM users WHERE username = ?)""",(str(username),))
     c.execute("""DELETE FROM users
                WHERE username = ?""",(str(username),))
-    c.execute(f"""DROP TABLE {username}skills""")
-    c.execute(f"""DROP TABLE {username}skins""")
+    c.execute("""DELETE FROM skins_purchased
+                WHERE user_id = (SELECT userID FROM users WHERE username = ?)""",(str(username),))
+    c.execute("""DELETE FROM skills_purchased
+                WHERE user_id = (SELECT userID FROM users WHERE username = ?)""",(str(username),))
+
     conn.commit()
 
 #Choose user
@@ -175,81 +218,42 @@ def get_user():
     else:
         return user[0]
 
-#Create user table
-def create_tables(username):
-    c.execute(f"""CREATE TABLE {username}skills(
-              skill varchar,
-              purchased boolean)""")
-    for n in range(1,16):
-        c.execute(f"""INSERT INTO {username}skills
-                   VALUES(?,0)""",(str(n),))
-    c.execute(f"""CREATE TABLE {username}skins(
-              skin varchar,
-              purchased boolean,
-              selected boolean)""")
-    c.execute(f"""INSERT INTO {username}skins
-                  VALUES('',1,1)""")
-    color_list = ['Green','Grey','Orange','Purple','Black','Naked','Gman']
-    for color in color_list:
-        c.execute(f"""INSERT INTO {username}skins
-                  VALUES(?,0,0)""",(str(color),))
-    conn.commit()
-
 #Purchase skill
 def purchase_skill(skill):
-    c.execute("""SELECT username FROM users
-              WHERE in_use = 1""")
-    user = c.fetchone()[0]
-    c.execute(f"""UPDATE {user}skills
-              SET purchased = 1
-              WHERE skill = ?""",(str(skill),))
+    c.execute(f"""UPDATE skills_purchased
+                SET skill_{skill} = 1
+                WHERE user_id = (SELECT userID FROM users WHERE in_use = 1)""")
     conn.commit()
 
 #Return skills
 def get_skills():
-    c.execute("""SELECT username FROM users
-              WHERE in_use = 1""")
-    user = c.fetchone()[0]
-    c.execute(f"""SELECT skill FROM {user}skills
-              WHERE purchased = 1""")
-    return c.fetchall()
+    c.execute("""SELECT skill_1, skill_2, skill_3, skill_4, skill_5, skill_6, skill_7, skill_8, skill_9, skill_10, skill_11, skill_12, skill_13, skill_14, skill_15
+                FROM skills_purchased
+               WHERE user_id = (SELECT userID FROM users WHERE in_use = 1)""")
+    return c.fetchall()[0]
     
 #Return skins
 def is_skin_puchased(skin):
-    c.execute("""SELECT username FROM users
-              WHERE in_use = 1""")
-    user = c.fetchone()[0]
-    c.execute(f"""SELECT purchased FROM {user}skins
-              WHERE skin = ?""",(str(skin),))
+    c.execute(f"""SELECT {skin} FROM skins_purchased
+              WHERE user_id = (SELECT userID FROM users WHERE in_use = 1) """)
     return c.fetchone()[0]
 
 def get_selected_skin():
-    c.execute("""SELECT username FROM users
-              WHERE in_use = 1""")
-    user = c.fetchone()[0]
-    c.execute(f"""SELECT skin FROM {user}skins
-              WHERE selected = 1""")
-    skin = c.fetchone()
-    if skin is None:
-        return ""
-    else:
-        return skin[0]
+    c.execute("""SELECT selected FROM skins_purchased
+              WHERE user_id = (SELECT userID FROM users WHERE in_use = 1)""")
+    return c.fetchone()[0]
+
 
 #Select/purchase skin
 def select_skin(skin,select,purchase):
-    c.execute("""SELECT username FROM users
-              WHERE in_use = 1""")
-    user = c.fetchone()[0]
     if select:
-        c.execute(f"""UPDATE {user}skins
-                SET selected = 
-                (CASE WHEN skin = ? THEN 1 
-                ELSE 0 
-                END)""",(str(skin),))
+        c.execute("""UPDATE skins_purchased
+                  SET selected = ?
+                  WHERE user_id = (SELECT userID FROM users WHERE in_use = 1)""",(str(skin),))
     if purchase:
-        c.execute(f"""UPDATE {user}skins
-                  SET purchased = 1
-                  WHERE skin = ?""",(str(skin),))
+        c.execute(f"""UPDATE skins_purchased
+                  SET {skin} = 1
+                  WHERE user_id = (SELECT userID FROM users WHERE in_use = 1)""")
     conn.commit()
 
 #redeem discount code
