@@ -258,9 +258,12 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
         self.rect.y = int(self.y)
 
     def aim_graphics(self):
+        #Calculate vector between mouse and player
         self.x_dist = mouse[0] - self.rect.centerx
         self.y_dist = -(mouse[1] - self.rect.centery)
+        #Calculate vector angle
         self.image_angle = math.degrees(math.atan2(self.x_dist,self.y_dist))
+        #Display graphic depending on calculated angle
         image_index = abs(math.ceil(self.image_angle/36))
         if self.image_angle > 0:
             self.running_animation = [self.right[image_index-1][1],self.right[image_index-1][2]]
@@ -270,12 +273,14 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
             self.stand = self.left[image_index][0]
 
     def hitbox(self):
+        #Change hitbox depending on which way character faces
         if self.image_angle > 0:
             self.hitbox_rect = pygame.Rect(self.rect.x,self.rect.y,self.image.get_width()/2,self.image.get_height())
         else:
             self.hitbox_rect = pygame.Rect(self.rect.x+self.image.get_width()/2,self.rect.y,self.image.get_width()/2,self.image.get_height())
 
     def animations(self):
+        #Cycle through running animation
         image = self.stand
         if self.key[pygame.K_d] or self.key[pygame.K_a] or self.key[pygame.K_w] or self.key[pygame.K_s]:
             image = self.running_animation[int(self.running_index)]
@@ -287,6 +292,7 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
         self.image = pygame.transform.scale(self.image,(70,91))
 
     def cooldown(self):
+        #Player gun cooldown
         if self.cooldown_counter >= self.bullet_cooldown:
             self.cooldown_counter = 0
         if self.cooldown_counter > 0:
@@ -296,10 +302,13 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
         global pressed
         if game_timer >= 0.5:
             self.can_shoot = True
+        #Start button cooldown
         self.cooldown()
+        #Generate angle
         bullet_angle = math.degrees(math.atan2(self.y_dist,self.x_dist))
         if self.cooldown_counter == 0 and self.can_shoot and self.ammo > 0:
             if (self.key[pygame.K_SPACE] or pressed[0]):
+                #Create bullet using bullet class
                 pygame.mixer.Sound.play(gunshot_sound)
                 bullets_group.add(Bullets(self.rect.centerx,self.rect.centery,"Bullets",bullet_angle))
                 self.shots_fired += 1
@@ -307,23 +316,28 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
             self.cooldown_counter = 1
         if self.can_shoot  and self.lazer_time > 1 and self.can_lazer:
             if self.key[pygame.K_n]:
+                #Create lazer using bullet class
                 pygame.mixer.Sound.play(lazer_sound)
                 bullets_group.add(Bullets(self.rect.centerx,self.rect.centery,"Lazer",bullet_angle))
                 self.lazer_time -= 1
 
         if self.lazer_time > 0 and self.lazer_time < 10 and self.can_lazer:
+            #Lazer cooldown
             self.lazer_time += 0.02
         lazer_num = pygame.font.Font.render(general_font,f"{int(self.lazer_time)}",False,"#000045")
         lazer_num_rect = lazer_num.get_rect(center = self.lazer_ammo_icon_rect.center)
         if self.can_lazer:
+            #Display lazer ammo icon
             screen.blit(self.lazer_ammo_icon,(self.lazer_ammo_icon_rect))
             screen.blit(lazer_num,lazer_num_rect)
 
+        #Display bullet ammo icon
         screen.blit(self.ammo_icon,self.ammo_icon_rect)
         ammo_num = pygame.font.Font.render(general_font,f"{self.ammo}",False,"#765301")
         if self.ammo > 0:
             screen.blit(ammo_num,self.ammo_num_rect)
         else:
+            #Reload player's gun
             self.reload += 1
             if self.reload > self.reload_timer:
                 pygame.mixer.Sound.play(reload_sound)
@@ -337,33 +351,39 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
     def health(self):
         general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",40)
         for enemy in enemy_group:    
+            #Check if player collides with an enemy
             if pygame.Rect.colliderect(self.hitbox_rect,enemy.rect) and self.invincible == False:
                 pygame.mixer.Sound.play(damage_sound)
                 self.health_num -= enemy.damage
                 self.invincible = True
                 self.hits_track += 1
         if self.health_num <= 0:
+            #Kill player
             pygame.mixer.Sound.play(death_sound)
             state_stack.append(game_over_screen)
             self.create_analytics()
         if game_timer <= 0.1:
+            #Reset player health
             self.health_num = self.max_health
+        
+        #Invincibility frames
         if self.invincible:
             self.invincible_counter -= 0.05
         if self.invincible_counter < 0 and self.invincible:
             self.invincible_counter = 6
             self.invincible = False
 
+        #Invincibility skill
         if self.invincible_skill and self.invincible_skill_cooldown < 1:
             screen.blit(self.invincibility_icon,self.invincibility_icon_rect)
             if key[pygame.K_b]:
                 pygame.mixer.Sound.play(invincibility_sound)
                 self.invincible = True
-                self.invincible_skill_cooldown = 800
-            
+                self.invincible_skill_cooldown = 800   
         if self.invincible_skill_cooldown >= 1:
             self.invincible_skill_cooldown -= 1
 
+        #Passive healing skill
         if self.passive_heal:
             self.passive_heal_timer += 1
             if self.passive_heal_timer > 1000:
@@ -371,6 +391,7 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
                     self.health_num += 1
                 self.passive_heal_timer = 0
 
+        #Display health num and heart icon
         if self.health_num >= 10:
             general_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",20)
         self.health_message = pygame.font.Font.render(general_font,f"{int(self.health_num)}",False,"#8B0000")
@@ -379,6 +400,7 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
         screen.blit(self.health_message,(28,screen_height-68))
 
     def collectables(self):
+        #Check for collisions wih collectables
         for collectable in collectables_group:
             if pygame.Rect.colliderect(self.hitbox_rect,collectable.rect):
                 self.collectables_picked += 1
@@ -403,18 +425,23 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
         global press_timer , level_num, current_level, level_up_animation, game_screen
         level_font = pygame.font.Font("pictures for survivor game/PixeloidMono-d94EV.ttf",30)
         self.level_number = pygame.font.Font.render(level_font,f"{self.playerlevel}",True,"#027148")
+        #Display player level and progress to next level
         screen.blit(self.level_bar,(0,0))
         screen.blit(self.level_bar_full,(307,674),(0,0,653*(self.xp/self.level_up_num),13))
         screen.blit(self.level_number,(243,660))
         if self.xp >= self.level_up_num:
+            #Reset xp level
             self.xp = 0
+            #Increase xp needed for next level
             self.level_up_num *= 1.15
+            #Increase player level
             self.playerlevel += 1
             level_up_animation = True
             pygame.image.save(screen,"Screen.png")
             pygame.mixer.Sound.play(machine_noise_sound)
             state_stack.append(level_up_screen)
         if self.playerlevel == current_level_information["completion level"]:
+            #Complete level
             pygame.mixer.Sound.play(level_complete_sound)
             press_timer = -1
             database.complete_level(current_level,current_user)
@@ -423,12 +450,14 @@ class Player(pygame.sprite.Sprite): #Inherits from pygame sprite superclass
             state_stack.append(level_completion_screen)
 
     def track_health(self):
+        #Record health at set intervals for a graph
         self.track_timer += 0.05
         if self.track_timer >= 1:
             self.health_track.append(self.health_num)
             self.track_timer = 0
 
     def create_analytics(self):
+        #Create graphs and charts based upon player performance
         analytics_maker.create_plot(np.linspace(0,game_timer,len(self.health_track)),self.health_track,'Player health','Duration/s','Health','Healthgraph.png')
         analytics_maker.bar_chart(['Hits taken','Kills','Shots fired','Things collected'],[self.hits_track,self.kills_track,self.shots_fired,self.collectables_picked],'General stats','','','General stats.png')
         enemy_types = []
